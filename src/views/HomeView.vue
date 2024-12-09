@@ -1,9 +1,11 @@
 <script setup>
-import TheWelcome from '../components/TheWelcome.vue'
+import ProductCard from '@/components/ProductCard.vue';
+import HomeSlide from '@/components/HomeSlide.vue';
 </script>
 
 <template>
   <main>
-    <TheWelcome />
+    <!-- <ProductCard /> -->
+     <HomeSlide />
   </main>
 </template>
