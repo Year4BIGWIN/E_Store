@@ -1,0 +1,37 @@
+<template>
+  <div class="w-[1152px] border rounded-xl my-10 flex flex-col gap-1 p-5">
+    <div class="flex justify-between">
+      <h1 class="text-3xl font-bold">My Cart</h1>
+      <h1>2 Iteams</h1>
+    </div>
+    <div class="w-full flex justify-between">
+      <h1 class="w-2/5">Product</h1>
+      <div class="w-3/5 justify-between flex">
+        <h1>Price</h1>
+        <h1>Quantity</h1>
+        <h1 class="mr-24">Sub Total</h1>
+      </div>
+    </div>
+    <hr class="w-full" />
+    <div class="w-full flex gap-4 flex-col h-[400px] overflow-y-scroll">
+        <CartItem />
+        <CartItem />
+        <CartItem />
+        <CartItem />
+        <CartItem />
+        <CartItem />
+    </div>
+    <hr class="w-full" />
+    <div class="w-full flex justify-end">
+        <div class="w-fit flex flex-col gap-4">
+            <h1 class="text-xl font-bold">Total : $ Price</h1>
+        <button class="hover:brightness-90 text-white bg-black py-1 px-3 border-2 rounded-xl">CheckOut</button>
+        </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import CartItem from '@/components/CartItem.vue';
+</script>

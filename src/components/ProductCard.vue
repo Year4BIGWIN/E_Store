@@ -3,8 +3,8 @@ import Buttom from "./Buttom.vue";
 </script>
 
 <template>
-  <div class="w-[300px] flex flex-col justify-start gap-2">
-    <div class="w-full h-[200px] rounded-xl bg-[#d9d9d9] relative">
+  <div class="w-[365px] flex flex-col justify-start gap-2">
+    <div class="w-full h-[250px] rounded-xl bg-[#d9d9d9] relative">
       <h2
         class="absolute top-1 right-1 text-[12px] bg-white rounded-full px-3 text-black"
       >
