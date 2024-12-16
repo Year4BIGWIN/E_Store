@@ -9,7 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@nuxt/ui": "^2.20.0",
+    "axios": "^1.7.9",
     "flowbite": "^2.5.2",
+    "pinia": "^2.3.0",
+    "universal-cookie": "^7.2.2",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },
