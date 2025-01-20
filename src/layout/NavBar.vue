@@ -53,7 +53,7 @@
           <img
             :src="img"
             alt="Profile"
-            class="h-8 w-8 rounded-full object-cover"
+            class="h-6 w-6 rounded-full object-cover"
           />
         </router-link>
       </div>
@@ -64,7 +64,7 @@
 
 <script setup>
 import { ref } from "vue";
-import img from "../assets/logo.svg";
+import img from "../assets/image/Logo.png";
 import { useAuthStore } from "@/store/authStore";
 
 const authStore = useAuthStore();

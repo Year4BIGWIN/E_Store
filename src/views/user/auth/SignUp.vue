@@ -128,7 +128,7 @@ const signup = async () => {
   }
 
   try {
-    const response = await axios.post(`${apiUrl}/signup`, {
+    const response = await axios.post(`${apiUrl}/auth/signup`, {
       email: email.value, // Capture the current email input
       password: password.value, // Capture the current password input
       first_name: firstName.value,

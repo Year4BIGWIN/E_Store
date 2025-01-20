@@ -36,7 +36,7 @@ import Buttom from "@/components/Buttom.vue";
           <input
             type="search"
             id="search"
-            class="block w-full ps-10 text-sm text-gray-900 border border-gray-300 rounded-full"
+            class="block w-full ps-10 text-sm py-2 focus:outline-none text-gray-900 border border-gray-300 rounded-full"
             placeholder="Search..."
             required
           />

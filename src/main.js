@@ -1,7 +1,4 @@
 import './assets/main.css'
-import 'flowbite/dist/flowbite.css';
-import 'flowbite';
-
 import { createApp } from 'vue'
 import App from './App.vue'
 import { createPinia } from 'pinia';
