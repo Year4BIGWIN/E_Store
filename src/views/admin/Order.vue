@@ -1,6 +1,7 @@
 <template>
-    
-    <Upload :uploadedImageUrl="uploadedImageUrl" @update:uploadedImageUrl="uploadedImageUrl = $event" />
+    <div class="w-full h-full flex items-center justify-center">
+        <Upload :uploadedImageUrl="uploadedImageUrl" @update:uploadedImageUrl="uploadedImageUrl = $event" />
+    </div>
     
 </template>
 <script setup>

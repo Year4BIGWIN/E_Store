@@ -1,20 +1,26 @@
 <template>
     <div class="grid grid-cols-2 gap-2">
-      <Input label="Fingerprint Sensor :" v-model="formData.fingerprintSensor" />
-      <Input label="Face Unlock :" v-model="formData.faceUnlock" />
-      <Input label="Audio :" v-model="formData.audio" />
-      <Input label="Biometrics :" v-model="formData.biometrics" />
-      <Input label="Custom Features :" v-model="formData.customFeatures" />
+      <Input label="Fingerprint Sensor :" v-model="localDisplay.fingerprintSensor" />
+      <Input label="Face Unlock :" v-model="localDisplay.faceUnlock" />
+      <Input label="Audio :" v-model="localDisplay.audio" />
+      <Input label="Biometrics :" v-model="localDisplay.biometrics" />
+      <Input label="Custom Features :" v-model="localDisplay.customFeatures" />
     </div>
   </template>
   
   <script setup>
-  import { defineProps } from "vue";
+  import { defineProps, defineEmits, computed  } from "vue";
   import Input from "@/components/Input.vue";
-  defineProps({
-    formData: {
-      type: Object,
-      required: true,
-    },
-  });
+  const props = defineProps({
+  modelValue: {  // Changed from formData to modelValue
+    type: Object,
+    required: true,
+  },
+});
+  const emit = defineEmits(["update:modelValue"]);
+
+const localDisplay = computed({
+  get: () => props.modelValue,
+  set: (value) => emit("update:modelValue", value),
+});
   </script>

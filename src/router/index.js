@@ -51,7 +51,11 @@ const router = createRouter({
       component: Profile,
       meta: { requiresAuth: true } // Auth required
     },
-    { path: '/productdetail', name: 'productDetail', component: ProductDetail },
+    {
+      path: '/productdetail/:id', // Add dynamic segment :id
+      name: 'productDetail',
+      component: ProductDetail
+    },
 
     {
       path: '/products',  

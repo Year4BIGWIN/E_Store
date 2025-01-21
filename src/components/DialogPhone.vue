@@ -3,106 +3,135 @@
     v-if="showDialog"
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
   >
-    <div class="bg-white p-5 rounded-md w-[500px]">
-      <h2 class="text-xl font-bold mb-4">Add Product</h2>
+    <div class="bg-white p-5 rounded-md w-[700px] flex gap-6">
+      <!-- Left Side - Upload Section -->
+      <div class="w-1/3 flex flex-col">
+        <h2 class="text-xl font-bold mb-4">Product Image</h2>
+        <Upload
+          :uploadedImageUrl="formData.image_url"
+          @update:uploadedImageUrl="formData.image_url = $event"
+          class="h-64 w-full border-2 border-dashed rounded-lg flex items-center justify-center"
+        />
+      </div>
 
-      <form @submit.prevent="handleSubmit">
-        <!-- Model Name and Type Selection -->
-        <div class="w-full grid grid-cols-2 gap-2">
-          <Input label="Model Name :" v-model="formData.model" />
-          <Input label="Stock :" v-model="formData.stock" />
-          <Input label="Price :" type="number" v-model="formData.price" />
-          <Input label="Release Date :" v-model="formData.releaseDate" />
-          <Input
-            label="Operating System :"
-            v-model="formData.operatingSystem"
-          />
-        </div>
+      <!-- Right Side - Form Section -->
+      <div class="w-2/3">
+        <form @submit.prevent="handleSubmit">
+          <h2 class="text-xl font-bold mb-4">Add Product</h2>
+          <div class="w-full grid grid-cols-2 gap-2">
+            <Input label="Model Name :" v-model="formData.model" required />
+            <Input
+              label="Stock :"
+              v-model="formData.stock"
+              type="number"
+              required
+            />
+            <Input
+              label="Price :"
+              type="number"
+              v-model="formData.price"
+              required
+            />
+            <Input label="Release Date :" v-model="formData.releaseDate" />
+            <Input
+              label="Operating System :"
+              v-model="formData.operatingSystem"
+            />
+          </div>
 
-        <!-- Section Selection Dropdown -->
-        <div class="mt-4 flex gap-2">
-          <DropdownSelection
-            id="type-select"
-            label="Choose type:"
-            :options="typeOptions"
-            v-model:selectedValue="selectedType"
-          />
+          <div class="mt-4 flex gap-2">
+            <DropdownSelection
+              id="type-select"
+              label="Choose type:"
+              :options="typeOptions"
+              v-model:selectedValue="selectedType"
+              required
+              class="flex-1"
+            />
 
-          <DropdownSelection
-            id="brand-select"
-            label="Choose Brand:"
-            :options="brandOptions"
-            v-model:selectedValue="selectedBrand"
-          />
-        </div>
-        <div class="mt-4">
-          <DropdownSelection
-            id="section-select"
-            label="Add Description:"
-            :options="sectionOptions"
-            v-model:selectedValue="selectedSection"
-          />
-        </div>
+            <DropdownSelection
+              id="brand-select"
+              label="Choose Brand:"
+              :options="brandOptions"
+              v-model:selectedValue="selectedBrand"
+              required
+              class="flex-1"
+            />
+          </div>
 
-        <!-- Conditional Input Fields Based on Selected Section -->
-        <div v-if="selectedType === 'Mobile Phone'" class="mt-4 text-black">
-          <DisplaySection
-            v-if="selectedSection === 'Display'"
-            :formData="formData.display"
-          />
-          <CameraSection
-            v-if="selectedSection === 'Camera'"
-            :formData="formData.camera"
-          />
-          <PerformanceSection
-            v-if="selectedSection === 'Performance'"
-            :formData="formData.performance"
-          />
-          <BatterySection
-            v-if="selectedSection === 'Battery'"
-            :formData="formData.battery"
-          />
-          <ConnectivitySection
-            v-if="selectedSection === 'Connectivity'"
-            :formData="formData.connectivity"
-          />
-          <BuildAndDesignSection
-            v-if="selectedSection === 'BuildAndDesign'"
-            :formData="formData.buildAndDesign"
-          />
-          <OtherFeaturesSection
-            v-if="selectedSection === 'OtherFeatures'"
-            :formData="formData.otherFeatures"
-          />
-          <SoftwareFeaturesSection
-            v-if="selectedSection === 'SoftwareFeatures'"
-            :formData="formData.softwareFeatures"
-          />
-        </div>
+          <div class="mt-4">
+            <DropdownSelection
+              id="section-select"
+              label="Add Description:"
+              :options="sectionOptions"
+              v-model:selectedValue="selectedSection"
+              class="w-full"
+            />
+          </div>
 
-        <!-- Form Actions -->
-        <div class="flex justify-end mt-4">
-          <button
-            type="button"
-            @click="closeDialog"
-            class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Save
-          </button>
-        </div>
-      </form>
+          <div class="mt-4">
+            <DisplaySection
+              v-if="selectedSection === 'Display'"
+              v-model:modelValue="formData.display"
+            />
+            <CameraSection
+              v-if="selectedSection === 'Camera'"
+              v-model:modelValue="formData.camera"
+            />
+            <PerformanceSection
+              v-if="selectedSection === 'Performance'"
+              v-model:modelValue="formData.performance"
+            />
+            <BatterySection
+              v-if="selectedSection === 'Battery'"
+              v-model:modelValue="formData.battery"
+            />
+            <ConnectivitySection
+              v-if="selectedSection === 'Connectivity'"
+              v-model:modelValue="formData.connectivity"
+            />
+            <BuildAndDesignSection
+              v-if="selectedSection === 'BuildAndDesign'"
+              v-model:modelValue="formData.buildAndDesign"
+            />
+            <OtherFeaturesSection
+              v-if="selectedSection === 'OtherFeatures'"
+              v-model:modelValue="formData.otherFeatures"
+            />
+            <SoftwareFeaturesSection
+              v-if="selectedSection === 'SoftwareFeatures'"
+              v-model:modelValue="formData.softwareFeatures"
+            />
+          </div>
+
+          <div v-if="selectedTypeName === 'Phone'" class="mt-4 text-black">
+            <!-- Keep conditional sections the same -->
+          </div>
+
+          <div class="flex justify-end mt-4">
+            <button
+              type="button"
+              @click="closeDialog"
+              class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted, computed, watch } from "vue";
+import axios from "axios";
 import Input from "@/components/Input.vue";
 import DropdownSelection from "@/components/DropDownSelect.vue";
 import DisplaySection from "@/components/SlectionSection/DisplaySection.vue";
@@ -113,9 +142,9 @@ import ConnectivitySection from "@/components/SlectionSection/ConnectivitySectio
 import BuildAndDesignSection from "@/components/SlectionSection/BuildAndDesignSection.vue";
 import OtherFeaturesSection from "@/components/SlectionSection/OtherFeaturesSection.vue";
 import SoftwareFeaturesSection from "@/components/SlectionSection/SoftwareFeaturesSection.vue";
+import Upload from "./Upload.vue";
 
-// Props and Emits
-defineProps({
+const props = defineProps({
   showDialog: {
     type: Boolean,
     required: true,
@@ -123,22 +152,17 @@ defineProps({
 });
 
 const emit = defineEmits(["update:showDialog"]);
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_APP_API_URL;
 
 // State for selected type and section
-const selectedType = ref("Mobile Phone");
+const selectedType = ref("");
 const selectedSection = ref("");
 const selectedBrand = ref("");
 
-// Dropdown options
-const typeOptions = [
-  { value: "Mobile Phone", label: "Mobile Phone" },
-  { value: "Tablet", label: "Tablet" },
-  { value: "Smart Watch", label: "Smart Watch" },
-  { value: "Accessories", label: "Accessories" },
-];
-
-const sectionOptions = [
+// Dynamic options
+const typeOptions = ref([{ value: "", label: "Choose Type" }]);
+const brandOptions = ref([{ value: "", label: "Add Brand" }]);
+const sectionOptions = ref([
   { value: "", label: "Add More" },
   { value: "Display", label: "Display" },
   { value: "Camera", label: "Camera" },
@@ -148,13 +172,14 @@ const sectionOptions = [
   { value: "BuildAndDesign", label: "Build and Design" },
   { value: "OtherFeatures", label: "Other Features" },
   { value: "SoftwareFeatures", label: "Software Features" },
-];
+]);
 
-const brandOptions = [
-  { value: "", label: "Add Brand" },
-  { value: "Samsung", label: "Samsung" },
-  { value: "Apple", label: "Apple" },
-];
+// Computed property to get type name
+const selectedTypeName = computed(() => {
+  return (
+    typeOptions.value.find((t) => t.value === selectedType.value)?.label || ""
+  );
+});
 
 // Form data state
 const formData = reactive({
@@ -162,10 +187,10 @@ const formData = reactive({
   releaseDate: "",
   operatingSystem: "",
   price: 0,
-  brand: null,
-  productType: null,
-  image_url: null,
-  stock: null,
+  brandId: null,
+  productTypeId: null,
+  image_url: "",
+  stock: 0,
   display: {
     screenSize: "",
     displayType: "",
@@ -222,110 +247,117 @@ const formData = reactive({
   },
 });
 
+// Reset form when dialog opens
+watch(
+  () => props.showDialog,
+  (newVal) => {
+    if (newVal) resetForm();
+  }
+);
+
+// Fetch initial data
+onMounted(async () => {
+  try {
+    const [typesResponse, brandsResponse] = await Promise.all([
+      axios.get(`${apiUrl}/productType`),
+      axios.get(`${apiUrl}/brand`),
+    ]);
+
+    typeOptions.value = [
+      { value: "", label: "Choose Type" },
+      ...typesResponse.data.data.map((item) => ({
+        value: item.id,
+        label: item.name,
+      })),
+    ];
+
+    brandOptions.value = [
+      { value: "", label: "Add Brand" },
+      ...brandsResponse.data.data.map((item) => ({
+        value: item.id,
+        label: item.name,
+      })),
+    ];
+  } catch (error) {
+    console.error("Error fetching initial data:", error);
+  }
+});
+
 function resetForm() {
   formData.model = "";
   formData.releaseDate = "";
   formData.operatingSystem = "";
   formData.price = 0;
-  formData.brand = "";
-  formData.productType = "";
-  formData.image_url = null;
-  formData.stock = null;
-  formData.display = {
-    screenSize: "",
-    displayType: "",
-    resolution: "",
-    refreshRate: "",
-    brightness: "",
-  };
-  formData.performance = {
-    chipset: "",
-    cpu: "",
-    gpu: "",
-    ram: "",
-    storageOptions: "",
-  };
-  formData.camera = {
-    mainCamera: "",
-    ultraWideCamera: "",
-    telephotoCamera: "",
-    frontCamera: "",
-    videoRecording: "",
-    features: "",
-  };
-  formData.battery = {
-    batteryCapacity: "",
-    chargingSpeed: "",
-    batteryLife: "",
-  };
-  formData.connectivity = {
-    fiveGSupport: "",
-    wifi: "",
-    bluetooth: "",
-    nfc: "",
-    usb: "",
-    gps: "",
-  };
-  formData.buildAndDesign = {
-    material: "",
-    dimensions: "",
-    weight: "",
-    waterResistance: "",
-    colorOptions: "",
-  };
-  formData.otherFeatures = {
-    fingerprintSensor: "",
-    faceUnlock: "",
-    audio: "",
-    biometrics: "",
-    customFeatures: "",
-  };
-  formData.softwareFeatures = {
-    userInterface: "",
-    softwareUpdates: "",
-    preInstalledApps: "",
-  };
-  selectedType.value = "Mobile Phone"; // Default value
+  formData.brandId = null;
+  formData.productTypeId = null;
+  formData.image_url = "";
+  formData.stock = 0;
+
+  // Reset all nested objects
+  Object.keys(formData.display).forEach((key) => (formData.display[key] = ""));
+  Object.keys(formData.performance).forEach(
+    (key) => (formData.performance[key] = "")
+  );
+  Object.keys(formData.camera).forEach((key) => (formData.camera[key] = ""));
+  Object.keys(formData.battery).forEach((key) => (formData.battery[key] = ""));
+  Object.keys(formData.connectivity).forEach(
+    (key) => (formData.connectivity[key] = "")
+  );
+  Object.keys(formData.buildAndDesign).forEach(
+    (key) => (formData.buildAndDesign[key] = "")
+  );
+  Object.keys(formData.otherFeatures).forEach(
+    (key) => (formData.otherFeatures[key] = "")
+  );
+  Object.keys(formData.softwareFeatures).forEach(
+    (key) => (formData.softwareFeatures[key] = "")
+  );
+
+  selectedType.value = "";
   selectedSection.value = "";
   selectedBrand.value = "";
 }
 
 async function handleSubmit() {
   try {
-    // Simple validation example
-    if (!formData.model || !formData.brand || !formData.productType) {
+    // Validate required fields
+    if (!formData.image_url) {
+      alert("Please upload a product image");
+      return;
+    }
+    if (!formData.model || !selectedType.value || !selectedBrand.value) {
       alert("Please fill out all required fields.");
       return;
     }
 
-    // Ensure the selected brand and type are assigned to the formData
-    formData.brand = selectedBrand.value;
-    formData.productType = selectedType.value;
+    const payload = {
+      ...formData,
+      brandId: Number(selectedBrand.value),
+      productTypeId: Number(selectedType.value),
+      price: Number(formData.price),
+      stock: Number(formData.stock),
+    };
 
-    const response = await fetch(`${apiUrl}/phones`, {
-      method: "POST",
+    console.log("Submitting payload:", payload);
+
+    const response = await axios.post(`${apiUrl}/product`, payload, {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Network response was not ok");
-    }
-
-    const result = await response.json();
-    console.log("Success:", result);
-    resetForm(); // Reset the form after successful submission
+    console.log("Success:", response.data);
+    resetForm();
     closeDialog();
   } catch (error) {
-    console.error("Error:", error);
-    alert(`Error: ${error.message}`);
+    console.error("Error submitting product:", error);
+    alert(
+      error.response?.data?.message ||
+        "Error submitting product. Please try again."
+    );
   }
 }
 
-// Close dialog
 function closeDialog() {
   emit("update:showDialog", false);
 }
