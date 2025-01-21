@@ -57,13 +57,27 @@
             
         </div>
 
-        <div class="w-[1152px] flex flex-col gap-4">
-            <div class="w-[270px]">
-                <BrandCard />
-
-            </div>
-
+        <div class="flex p-6 bg-gray-100 rounded-xl">
+    <div class="w-[1100px]  flex gap-4">
+      <!-- Brand Section -->
+      <div class="w-[270px]">
+        <h1 class="text-2xl font-bold mb-4">BRAND</h1>
+        <div class="w-full grid grid-cols-2 gap-2">
+          <BrandCard v-for="item in brand" :key="item.id" :name="item.name" :image="item.image_url" />
         </div>
+      </div>
+      <!-- Product Section -->
+      <div class="  flex-1">
+        <h1 class="text-2xl font-bold mb-4">PRODUCT</h1>
+        <div class="flex flex-wrap gap-4">
+          <div v-for="item in product" :key="item.id" class="border rounded-lg shadow-md bg-white p-4 w-64">
+            <img :src="item.image_url" class="w-full h-40 object-cover rounded-md mb-2" alt="Product Image">
+            <h2 class="text-lg font-semibold">{{ item.model }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
     
     </div>
     
@@ -73,6 +87,32 @@
     import router from "@/router";
     import Buttom from "@/components/Buttom.vue";
     import BrandCard from "@/components/BrandCard.vue";
+    import { onMounted, ref } from "vue";
+    import SmallCard from "@/components/SmallProductCard.vue";
 
-    
+    const apiUrl = import.meta.env.VITE_APP_API_URL;
+    const brand = ref();
+    const product = ref();
+
+    const fetchBrand = async () => {
+  try {
+    const response = await fetch(`${apiUrl}/brand`);
+    const response2 = await fetch(`${apiUrl}/product`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    const data2 = await response2.json();
+    brand.value = data.data;
+    product.value = data2.data;
+
+    console.log(brand);
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error);
+  }
+};
+
+    onMounted(() => {
+        fetchBrand();
+    });
     </script>

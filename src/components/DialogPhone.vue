@@ -151,7 +151,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update:showDialog"]);
+const emit = defineEmits(["update:showDialog, postsuccess"]);
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
 // State for selected type and section
