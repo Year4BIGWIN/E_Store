@@ -6,7 +6,7 @@ import HomeProduct from '@/components/HomeProduct.vue';
 <template>
   <main>
     <!-- First Section (HomeSlide) -->
-     <div class="h-[1800px]">
+     <div class="h-[2200px]">
       <div class="absolute inset-0 top-0 z-10">
       <HomeSlide />
       <HomeProduct />

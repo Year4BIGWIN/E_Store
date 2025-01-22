@@ -25,10 +25,10 @@
   </template>
   
   <script setup>
-  import Background from "@/assets/image/background.png";
-  import Slide1 from "@/assets/image/slide1.jpeg";
-  import Wala from "@/assets/image/wala.jpg";
-  import Slide2 from "@/assets/image/slide2.webp";
+  import Background from "@/assets/image/image2.png";
+  import Slide1 from "@/assets/image/image.png";
+  import Wala from "@/assets/image/image copy.png";
+  import Slide2 from "@/assets/image/image copy 2.png";
   
   import { ref, onMounted, onUnmounted } from "vue";
   
