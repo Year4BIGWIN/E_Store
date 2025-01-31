@@ -135,7 +135,6 @@ const fetchProducts = async () => {
     }
     const data = await response.json();
     products.value = data.data;
-    console.log('Fetched products:', products.value); // Log the fetched products
   } catch (error) {
     console.error('There was a problem with the fetch operation:', error);
   }
@@ -156,6 +155,7 @@ const deleteProduct = async (id) => {
     console.error('There was a problem with the fetch operation:', error);
   }
 };
+
 
 
 onMounted(() => {

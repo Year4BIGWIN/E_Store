@@ -13,11 +13,13 @@ const route = useRoute();
     <!-- Check if the current route is an admin route -->
     <div v-if="['dashboard', 'product', 'user', 'order'].includes(route.name)" class="flex w-full min-h-screen">
       <!-- Admin Sidebar -->
-      <AdminSideBar class="w-full h-full" />
+      <AdminSideBar class=" w-60 h-full" />
 
       <!-- Main Content Area -->
-      <div class="w-full px-4 pt-4">
-        <RouterView />
+      <div class="w-full flex flex-col items-center px-4 pt-4">
+     
+          <RouterView />
+       
       </div>
     </div>
 

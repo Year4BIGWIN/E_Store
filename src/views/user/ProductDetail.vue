@@ -53,7 +53,7 @@ watch(
     if (newId) fetchProduct(newId);
   }
 );
- const productImg = ref(product);
+ console.log(product.value);
 
 </script>
 

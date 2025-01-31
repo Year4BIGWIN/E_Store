@@ -1,11 +1,11 @@
 <template>
-  <div class="flex justify-between w-screen">
+  <div class="flex justify-between w-64">
     <!-- Sidebar -->
     <div
       :class="[
         'h-screen',
-        sidebarOpen ? 'w-56' : 'w-16',
-        'bg-[#d9d9d9] text-black',
+        sidebarOpen ? 'w-64' : 'w-16',
+        'bg-[#d9d9d9] text-black' ,
         'transition-all',
       ]"
     >
