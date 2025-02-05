@@ -273,6 +273,9 @@ const addProductOneByeOne = async (id) => {
   }
 };
 
+
+
+
 onMounted(() => {
   fetchProduct();
   fetchCart();

@@ -28,6 +28,8 @@ import QrcodeVue from "qrcode.vue";
 const qrCode = ref("");
 const size = ref(256);
 
+
+
 const handleCheckout = async () => {
   try {
     const result = KHQR.generate({
@@ -56,6 +58,7 @@ const handleCheckout = async () => {
     });
 
     qrCode.value = result.data.qr;
+    console.log("QR Code generated:", qrCode.value);
   } catch (error) {
     console.error("Error generating QR:", error);
   }
