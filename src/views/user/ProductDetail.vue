@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 import axios from "axios";
 import Buttom from "@/components/Buttom.vue";
 import ProductCard from "@/components/ProductCard.vue";
+import DropDown from "@/components/DropDown.vue";
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const route = useRoute();
@@ -12,19 +13,22 @@ const error = ref(null);
 const isLoading = ref(true);
 const similarProducts = ref([]);
 const quantity = ref(1);
+const products = ref();
+
+console.log(product.value); // Log the products before fetching data
 
 const fetchProduct = async (id) => {
   isLoading.value = true;
   try {
     const response = await axios.get(`${apiUrl}/product/id/${id}`);
     product.value = response.data || {};
-    
-    console.log(product.value);
+    products.value = response.data;
     
     // Set default values for missing properties
     product.value.images = product.value.images || [product.value.image_url];
     product.value.rating = product.value.rating || 0;
     
+    console.log(products.value); // Log the products after fetching data
     
     error.value = null;
   } catch (err) {
@@ -46,14 +50,6 @@ const updateQuantity = (operation) => {
 onMounted(() => {
   if (route.params.id) fetchProduct(route.params.id);
 });
-
-watch(
-  () => route.params.id,
-  (newId) => {
-    if (newId) fetchProduct(newId);
-  }
-);
- console.log(product.value);
 
 </script>
 
@@ -84,8 +80,8 @@ watch(
       <div class="w-1/2 flex flex-col gap-4">
         <div class="w-full h-[500px] bg-[#d9d9d9] rounded-xl">
           <img 
-            :src="product.image_url" 
-            class="w-full h-full object-cover rounded-xl" 
+            :src="product.data.image_url" 
+            class="w-full h-full object-fill rounded-xl" 
             :alt="product.model"
             @error="(e) => e.target.src = '/placeholder-image.jpg'"
           >
@@ -94,12 +90,12 @@ watch(
           <div 
             v-for="(img, index) in product.data.images" 
             :key="index" 
-            class="w-[150px] h-[150px] bg-[#d9d9d9] rounded-xl cursor-pointer"
+            class="w-[150px] h-[150px] bg-black  rounded-xl cursor-pointer"
             @click="product.image_url = img"
           >
             <img 
               :src="img" 
-              class="w-full h-full object-cover rounded-xl"
+              class="w-full h-[150px] object-fill rounded-xl"
               :alt="`Thumbnail ${index + 1}`"
             >
           </div>
@@ -171,8 +167,22 @@ watch(
         <div 
           class="p-2 bg-gray-50 gap-20 flex rounded-lg"
         >
-            <h2 class="text-lg font-semibold">Display</h2>
-            <p>{{ product.display || 'N/A' }}</p>
+
+        <DropDown class="w-full" title="Display">
+          <ul>
+            <li>Size:</li>
+            <li>Resolution: 1080 x 2400 pixels</li>
+            <li>Refresh Rate: 120Hz</li>
+          </ul>
+        </DropDown>
+        <DropDow   class="w-full" title="Display">
+          <ul>
+            <li>Size:</li>
+            <li>Resolution: 1080 x 2400 pixels</li>
+            <li>Refresh Rate: 120Hz</li>
+          </ul>
+        </DropDow>
+
         </div>
       </div>
     </div>

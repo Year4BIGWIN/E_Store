@@ -143,6 +143,7 @@ import BuildAndDesignSection from "@/components/SlectionSection/BuildAndDesignSe
 import OtherFeaturesSection from "@/components/SlectionSection/OtherFeaturesSection.vue";
 import SoftwareFeaturesSection from "@/components/SlectionSection/SoftwareFeaturesSection.vue";
 import Upload from "./Upload.vue";
+import Cookies from "universal-cookie";
 
 const props = defineProps({
   showDialog: {
@@ -151,6 +152,7 @@ const props = defineProps({
   },
 });
 
+const token = new Cookies().get("auth_token");
 const emit = defineEmits(["update:showDialog, postsuccess"]);
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -341,8 +343,7 @@ async function handleSubmit() {
     console.log("Submitting payload:", payload);
 
     const response = await axios.post(`${apiUrl}/product`, payload, {
-      headers: {
-        "Content-Type": "application/json",
+      headers: {Authorization: `Bearer ${token}`,
       },
     });
 

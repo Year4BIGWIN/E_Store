@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import Cookies from 'universal-cookie';
 
 const cookies = new Cookies();
-
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: cookies.get('auth_token') || null,
