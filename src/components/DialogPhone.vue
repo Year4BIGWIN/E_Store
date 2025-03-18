@@ -32,7 +32,7 @@
               v-model="formData.price"
               required
             />
-            <Input label="Release Date :" v-model="formData.releaseDate" />
+            <Input label="Release Date : " type="date"  v-model="formData.releaseDate" />
             <Input
               label="Operating System :"
               v-model="formData.operatingSystem"

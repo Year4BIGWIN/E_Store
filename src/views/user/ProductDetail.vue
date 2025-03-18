@@ -170,19 +170,11 @@ onMounted(() => {
 
         <DropDown class="w-full" title="Display">
           <ul>
-            <li>Size:</li>
+            <li>Size: </li>
             <li>Resolution: 1080 x 2400 pixels</li>
             <li>Refresh Rate: 120Hz</li>
           </ul>
         </DropDown>
-        <DropDow   class="w-full" title="Display">
-          <ul>
-            <li>Size:</li>
-            <li>Resolution: 1080 x 2400 pixels</li>
-            <li>Refresh Rate: 120Hz</li>
-          </ul>
-        </DropDow>
-
         </div>
       </div>
     </div>

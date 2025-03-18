@@ -2,6 +2,39 @@
 import { defineProps } from 'vue';
 import Buttom from "./Buttom.vue";
 import { useRouter } from 'vue-router';
+import Cookies from 'universal-cookie';
+
+const router = useRouter();
+const apiUrl = import.meta.env.VITE_APP_API_URL;
+
+const addToCart = async (phoneId, quantity) => {
+  try {
+    const cookies = new Cookies();
+    const token = cookies.get("auth_token");
+    if (!token) {
+      alert("Token not found");
+      return;
+    }
+
+    if (token.split(".").length !== 3) {
+      alert("Invalid JWT token");
+      return;
+    }
+
+    const requestBody = { phoneId, quantity };
+    const response = await fetch(`${apiUrl}/cart/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(requestBody),
+    });
+    console.log("Add to cart response:", await response.json());
+  } catch (error) {
+    console.error("Error adding to cart:", error);
+  }
+};  
 
 const props = defineProps({
   product: {
@@ -10,7 +43,7 @@ const props = defineProps({
   }
 });
 
-const router = useRouter();
+console.log(props.product);
 
 const goToProductDetail = () => {
   router.push({ 
@@ -22,8 +55,8 @@ const goToProductDetail = () => {
 
 <template>
   
-  <div @click="goToProductDetail" class="cursor-pointer w-[365px] flex flex-col justify-start gap-2">
-    <div class="w-full h-[250px] rounded-xl bg-[#d9d9d9] relative">
+  <div class="cursor-pointer w-[365px] flex flex-col justify-start gap-2">
+    <div @click="goToProductDetail" class="w-full h-[250px] rounded-xl bg-[#d9d9d9] relative">
       <img
         :src="product.image_url"
         alt="..."
@@ -48,9 +81,8 @@ const goToProductDetail = () => {
           </div>
         </div>
       </div>
-
       <div class="w-full flex items-center justify-between gap-1">
-        <Buttom @click.stop class="w-full" variant="secondary" size="lg">Add to Cart</Buttom>
+        <Buttom @click="addToCart(product.id, product.quantity?null:1)" class="w-full" variant="secondary" size="lg">Add to Cart</Buttom>
         <Buttom @click.stop class="w-full" variant="primary" size="lg">Buy Now</Buttom>
       </div>
     </div>

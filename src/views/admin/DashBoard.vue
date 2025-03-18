@@ -44,6 +44,7 @@
       class="w-full grid grid-cols-4 gap-4 p-4 border border-gray-200 rounded-lg bg-white mb-4 items-center"
     >
       <button
+
         @click="clearProductInCart(cartItem.phone.id)"
         class="border rounded-md bg-red-500 text-white"
       >
@@ -273,7 +274,7 @@ const addProductOneByeOne = async (id) => {
   }
 };
 
-
+console.log("cart", cart.value.cartItems);
 
 
 onMounted(() => {
