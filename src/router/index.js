@@ -12,6 +12,7 @@ import Order from '@/views/admin/Order.vue';
 import Cookies from 'universal-cookie';
 import ProductPage from '@/views/user/ProductPage.vue';
 import ProductDetail from '@/views/user/ProductDetail.vue';
+import Other from '@/views/admin/Other.vue';
 
 // Create an instance of Cookies
 const cookies = new Cookies();
@@ -84,6 +85,12 @@ const router = createRouter({
       path: '/order',
       name: 'order',
       component: Order, 
+      meta: { requiresAuth: true, requiresAdmin: true } // Admin only
+    },
+    {
+      path: '/other',
+      name: 'other',
+      component: Other, 
       meta: { requiresAuth: true, requiresAdmin: true } // Admin only
     },
   ]

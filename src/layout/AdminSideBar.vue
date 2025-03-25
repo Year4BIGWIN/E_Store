@@ -5,17 +5,15 @@
       :class="[
         'h-screen',
         sidebarOpen ? 'w-64' : 'w-16',
-        'bg-[#d9d9d9] text-black' ,
+        'bg-[#d9d9d9] text-black',
         'transition-all',
       ]"
     >
       <div class="p-6 text-center flex items-center justify-between gap-2">
         <router-link v-if="sidebarOpen" to="/">
-            <h1 class="text-2xl font-semibold">
-            SmartGear
-        </h1>
+          <h1 class="text-2xl font-semibold">SmartGear</h1>
         </router-link>
-        
+
         <button @click="toggleSidebar">
           <i class="fa-solid fa-bars fa-lg"></i>
         </button>
@@ -94,6 +92,95 @@
             <span v-if="sidebarOpen">Orders</span>
           </router-link>
         </li>
+
+        <li>
+          <router-link
+            active-class="bg-gray-700 text-white fill-white"
+            to="/other"
+            :class="[
+              'flex',
+              'hover:fill-blue-500',
+              sidebarOpen
+                ? 'px-4 py-2 items-center text-lg gap-2 hover:text-blue-500 rounded-md'
+                : 'rounded-md px-1 py-2 justify-center transition-all',
+            ]"
+          >
+            <svg
+              viewBox="0 0 48 48"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+            >
+              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+              <g
+                id="SVGRepo_tracerCarrier"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              ></g>
+              <g id="SVGRepo_iconCarrier">
+                <rect
+                  width="48"
+                  height="48"
+                  fill-opacity="0.01"
+                ></rect>
+                <rect
+                  x="4"
+                  y="4"
+                  width="16"
+                  height="16"
+                  rx="2"
+                  stroke="#000000"
+                  stroke-width="4"
+                  stroke-linejoin="round"
+                ></rect>
+                <rect
+                  x="4"
+                  y="28"
+                  width="16"
+                  height="16"
+                  rx="2"
+                  stroke="#000000"
+                  stroke-width="4"
+                  stroke-linejoin="round"
+                ></rect>
+                <rect
+                  x="28"
+                  y="4"
+                  width="16"
+                  height="16"
+                  rx="2"
+                  stroke="#000000"
+                  stroke-width="4"
+                  stroke-linejoin="round"
+                ></rect>
+                <path
+                  d="M28 28H44"
+                  stroke="#000000"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M36 36H44"
+                  stroke="#000000"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+                <path
+                  d="M28 44H44"
+                  stroke="#000000"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></path>
+              </g>
+            </svg>
+
+            <span v-if="sidebarOpen">Other</span>
+          </router-link>
+        </li>
+
         <li>
           <router-link
             active-class="bg-gray-700 text-white fill-white"
@@ -144,17 +231,17 @@
 
 <script setup>
 import { ref } from "vue";
-import useAuth from '@/composable/useAuth';  // Import the composable
+import useAuth from "@/composable/useAuth"; // Import the composable
 
 const sidebarOpen = ref(true);
-const { logout } = useAuth();  // Destructure logout from useAuth composable
+const { logout } = useAuth(); // Destructure logout from useAuth composable
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value;
 };
 
 const handleLogout = () => {
-  logout();  // Call the logout function
+  logout(); // Call the logout function
 };
 </script>
 

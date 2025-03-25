@@ -11,7 +11,7 @@ const route = useRoute();
 <template>
   <div class="w-full flex flex-col">
     <!-- Check if the current route is an admin route -->
-    <div v-if="['dashboard', 'product', 'user', 'order'].includes(route.name)" class="flex w-full min-h-screen">
+    <div v-if="['dashboard', 'product', 'user', 'order', 'other',].includes(route.name)" class="flex w-full min-h-screen">
       <!-- Admin Sidebar -->
       <AdminSideBar class=" w-60 h-full" />
 

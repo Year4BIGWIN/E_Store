@@ -99,22 +99,22 @@
 
       <!-- Product List -->
       <div class="w-full grid grid-cols-4 gap-4">
-    <ProductCartEdit
-      v-for="product in products"
-      :key="product.id"
-      :name="product.model"
-      :quantity="product.stock"
-      :image="product.image_url"
-      :id="product.id"
-      @delete="deleteProduct"
-    />
-  </div>
+        <ProductCartEdit
+          v-for="product in products"
+          :key="product.id"
+          :name="product.model"
+          :quantity="product.stock"
+          :image="product.image_url"
+          :id="product.id"
+          @delete="deleteProduct"
+        />
+      </div>
       <!-- <Pagination /> -->
     </div>
 
     <!-- Dialog Component -->
 
-    <DialogPhone v-model:showDialog="showDialog"  />
+    <DialogPhone v-model:showDialog="showDialog" />
   </div>
 </template>
 
@@ -131,32 +131,30 @@ const fetchProducts = async () => {
   try {
     const response = await fetch(`${apiUrl}/product`);
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error("Network response was not ok");
     }
     const data = await response.json();
     products.value = data.data;
   } catch (error) {
-    console.error('There was a problem with the fetch operation:', error);
+    console.error("There was a problem with the fetch operation:", error);
   }
 };
 
 const deleteProduct = async (id) => {
   try {
     const response = await fetch(`${apiUrl}/product/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      throw new Error("Network response was not ok");
     }
     const data = await response.json();
-    console.log('Deleted product:', data); // Log the deleted product
+    console.log("Deleted product:", data); // Log the deleted product
     fetchProducts();
   } catch (error) {
-    console.error('There was a problem with the fetch operation:', error);
+    console.error("There was a problem with the fetch operation:", error);
   }
 };
-
-
 
 onMounted(() => {
   fetchProducts();

@@ -3,38 +3,48 @@ import { defineProps } from 'vue';
 import Buttom from "./Buttom.vue";
 import { useRouter } from 'vue-router';
 import Cookies from 'universal-cookie';
+import { useCartStore } from '@/store/cartStore';
 
 const router = useRouter();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
 const addToCart = async (phoneId, quantity) => {
   try {
+    const cartStore = useCartStore(); // Access Pinia cart store
     const cookies = new Cookies();
     const token = cookies.get("auth_token");
-    if (!token) {
-      alert("Token not found");
+
+    // Validate token
+    if (!token || token.split(".").length !== 3) {
+      alert("Invalid or missing authentication token");
       return;
     }
 
-    if (token.split(".").length !== 3) {
-      alert("Invalid JWT token");
-      return;
-    }
-
-    const requestBody = { phoneId, quantity };
     const response = await fetch(`${apiUrl}/cart/add`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify({ phoneId, quantity }),
     });
-    console.log("Add to cart response:", await response.json());
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      alert(responseData.message || "Failed to add item to cart");
+      return;
+    }
+
+    console.log("Add to cart response:", responseData);
+
+    // Fetch updated cart after adding an item
+    await cartStore.fetchCart();
   } catch (error) {
     console.error("Error adding to cart:", error);
+    alert("An error occurred while adding the item. Please try again.");
   }
-};  
+};
 
 const props = defineProps({
   product: {
