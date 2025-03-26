@@ -128,12 +128,11 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import ProductCard from "@/components/ProductCard.vue";
 import SmallProductCard from "./SmallProductCard.vue";
-import axios from "axios";
+import { useProductStore } from "@/store/productStore";
 
-const apiUrl = import.meta.env.VITE_APP_API_URL;
+const productStore = useProductStore();
 const products = ref([]);
 const route = useRoute();
-
 // Map URL slugs to category names
 const categoryMap = {
   all: "All",
@@ -153,18 +152,12 @@ const selectedCategory = computed(() => {
   return categoryMap[selectedCategorySlug.value] || "All";
 });
 
-onMounted(async () => {
-  try {
-    const response = await axios.get(`${apiUrl}/product`);
-    products.value = response.data.data || response.data;
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    products.value = [];
-  }
+onMounted(() => {
+  productStore.fetchProduct();
 });
 
 const sortedProducts = computed(() => {
-  let filtered = products.value;
+  let filtered = productStore.products;
 
   if (selectedCategory.value !== "All") {
     filtered = filtered.filter(
@@ -179,7 +172,7 @@ const sortedProducts = computed(() => {
 });
 
 const phoneProducts = computed(() => {
-  return products.value
+  return productStore.products
     .filter(product => product.productType.name === 'Phone')
     .sort((a, b) => b.id - a.id)
     .slice(0, 6);
