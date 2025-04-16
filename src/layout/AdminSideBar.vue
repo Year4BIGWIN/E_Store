@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between w-64">
+  <div class="sticky top-0 z-50 flex justify-between w-64">
     <!-- Sidebar -->
     <div
       :class="[

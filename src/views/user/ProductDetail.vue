@@ -19,10 +19,11 @@ const quantity = ref(1);
 const fetchProduct = async (id) => {
   isLoading.value = true;
   try {
-    const { data } = await axios.get(`${apiUrl}/product/id/${id}`);
+    const { data } = await axios.get(`${apiUrl}/product/${id}`);
     product.value = data || {};
     product.value.images = data?.images || [data?.image_url];
     product.value.rating = data?.rating || 0;
+    console.log("Product data:", product.value);
   } catch (err) {
     console.error("API Error:", err);
     error.value = err.response?.data?.message || err.message;

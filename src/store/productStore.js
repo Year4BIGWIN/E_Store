@@ -17,12 +17,7 @@ export const useProductStore = defineStore('products', {
       this.error = null;
       
       try {
-        const response = await fetch(`${apiUrl}/product?page=${page}&size=${size}`, {
-          headers: {
-            Authorization: `Bearer ${cookies.get("auth_token")}`,
-          },
-        });
-        
+        const response = await fetch(`${apiUrl}/product?page=${page}&size=${size}`);
         if (!response.ok) {
           const errorData = await response.json();
           console.error("Error response from server:", errorData);
@@ -33,7 +28,7 @@ export const useProductStore = defineStore('products', {
         this.products = data.data.content.map((item) => ({
           id: item.id,
           model: item.model,
-          image_url: item.image_url,
+          image_url: item.imageUrls,
           stock: item.stock,
           price: item.price,
           quantity: 1, // Default quantity
