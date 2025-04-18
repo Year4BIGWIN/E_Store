@@ -22,6 +22,11 @@
             <Input label="Release Date :" type="date" v-model="formData.releaseDate" />
           </div>
 
+          <!-- Optional Description -->
+          <div class="mt-2">
+            <Input label="Description :" v-model="formData.description" />
+          </div>
+
           <div class="mt-4 flex gap-2">
             <DropdownSelection id="type-select" label="Choose type:" :options="typeOptions" v-model:selectedValue="selectedType" required class="flex-1" />
             <DropdownSelection id="brand-select" label="Choose Brand:" :options="brandOptions" v-model:selectedValue="selectedBrand" required class="flex-1" />
@@ -67,30 +72,23 @@ import SoftwareFeaturesSection from "@/components/SlectionSection/SoftwareFeatur
 import AdditionalInfoSection from "@/components/SlectionSection/AdditionalInfoSection.vue";
 import Uploads from "@/components/Uploads.vue";
 
-
 const props = defineProps({ 
   showDialog: Boolean,
-  isEditMode: {
-    type: Boolean,
-    default: false
-  },
-  currentProduct: {
-    type: Object,
-    default: () => ({})
-  }
+  isEditMode: { type: Boolean, default: false },
+  currentProduct: { type: Object, default: () => ({}) }
 });
-
 const emit = defineEmits(["update:showDialog", "postsuccess", "updatesuccess"]);
+
 const token = new Cookies().get("auth_token");
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
-// State
 const selectedType = ref("");
 const selectedSection = ref("");
 const selectedBrand = ref("");
 const isSubmitting = ref(false);
 const message = ref("");
 const isSuccess = ref(false);
+
 const typeOptions = ref([{ value: "", label: "Choose Type" }]);
 const brandOptions = ref([{ value: "", label: "Add Brand" }]);
 const sectionOptions = ref([
@@ -123,6 +121,7 @@ const formData = reactive({
   releaseDate: "",
   price: 0,
   stock: 0,
+  description: "",
   imageUrls: [],
   display: {},
   camera: {},
@@ -138,9 +137,7 @@ const formData = reactive({
 watch(() => props.showDialog, (newVal) => {
   if (newVal) {
     message.value = '';
-    
     if (props.isEditMode && props.currentProduct) {
-      console.log("Loading existing product data:", props.currentProduct);
       loadProductData();
     } else {
       resetForm();
@@ -150,61 +147,43 @@ watch(() => props.showDialog, (newVal) => {
 
 onMounted(async () => {
   try {
-    const [typesResponse, brandsResponse] = await Promise.all([
+    const [typesRes, brandsRes] = await Promise.all([
       axios.get(`${apiUrl}/productType`),
-      axios.get(`${apiUrl}/brand`),
+      axios.get(`${apiUrl}/brand`)
     ]);
-
-    typeOptions.value.push(...typesResponse.data.data.map(item => ({ value: item.id, label: item.name })));
-    brandOptions.value.push(...brandsResponse.data.data.map(item => ({ value: item.id, label: item.name })));
+    typeOptions.value.push(...typesRes.data.data.map(item => ({ value: item.id, label: item.name })));
+    brandOptions.value.push(...brandsRes.data.data.map(item => ({ value: item.id, label: item.name })));
   } catch (error) {
-    console.error("Error fetching initial data:", error);
+    console.error("Error fetching options:", error);
   }
 });
 
-// Update loadProductData function to handle imageUrls as array
 function loadProductData() {
-  if (!props.currentProduct) return;
+  const product = props.currentProduct;
+  if (!product) return;
 
-  console.log("Loading product data:", props.currentProduct);
-  
-  // Populate basic fields
-  formData.model = props.currentProduct.model || "";
-  formData.price = props.currentProduct.price || 0;
-  formData.stock = props.currentProduct.stock || 0;
-  formData.releaseDate = props.currentProduct.releaseDate || "";
-  
-  // Handle imageUrls as array
-  formData.imageUrls = Array.isArray(props.currentProduct.imageUrls) 
-    ? props.currentProduct.imageUrls 
-    : props.currentProduct.imageUrls ? [props.currentProduct.imageUrls] : [];
-  
-  // Set selected brand and type
-  selectedBrand.value = props.currentProduct.brandId?.toString() || "";
-  selectedType.value = props.currentProduct.productTypeId?.toString() || "";
-  
-  // Populate sections if they exist in the current product
-  ['display', 'camera', 'performance', 'battery', 'connectivity', 
-   'buildAndDesign', 'otherFeatures', 'softwareFeatures', 'additionalInfo'].forEach(section => {
-    if (props.currentProduct[section]) {
-      formData[section] = { ...props.currentProduct[section] };
-    } else {
-      formData[section] = {};
-    }
+  formData.model = product.model || "";
+  formData.price = product.price || 0;
+  formData.stock = product.stock || 0;
+  formData.releaseDate = product.releaseDate || "";
+  formData.description = product.description || "";
+  formData.imageUrls = Array.isArray(product.imageUrls)
+    ? product.imageUrls
+    : product.imageUrls ? [product.imageUrls] : [];
+
+  selectedBrand.value = product.brandId?.toString() || "";
+  selectedType.value = product.productTypeId?.toString() || "";
+
+  const sections = ['display', 'camera', 'performance', 'battery', 'connectivity', 
+                    'buildAndDesign', 'otherFeatures', 'softwareFeatures', 'additionalInfo'];
+  sections.forEach(section => {
+    formData[section] = product[section] ? { ...product[section] } : {};
   });
-  
-  console.log("Form data after loading:", formData);
 }
 
-
 function resetForm() {
-  // Reset imageUrls to empty array instead of empty string
   Object.keys(formData).forEach(key => {
-    if (key === 'imageUrls') {
-      formData[key] = [];
-    } else {
-      formData[key] = typeof formData[key] === "object" ? {} : "";
-    }
+    formData[key] = key === 'imageUrls' ? [] : typeof formData[key] === "object" ? {} : "";
   });
   selectedType.value = "";
   selectedSection.value = "";
@@ -213,10 +192,9 @@ function resetForm() {
 
 async function handleSubmit() {
   isSubmitting.value = true;
-  message.value = '';
-  
+  message.value = "";
+
   try {
-    // Check for required fields, ensuring imageUrls has at least one image
     if (!formData.imageUrls.length || !formData.model || !selectedType.value || !selectedBrand.value) {
       message.value = "Please fill out all required fields including at least one image.";
       isSuccess.value = false;
@@ -224,48 +202,34 @@ async function handleSubmit() {
       return;
     }
 
-    const payload = { 
-      ...formData, 
-      brandId: Number(selectedBrand.value), 
-      productTypeId: Number(selectedType.value) 
+    const payload = {
+      ...formData,
+      brandId: Number(selectedBrand.value),
+      productTypeId: Number(selectedType.value)
     };
-    
+
     if (props.isEditMode) {
-      // Update existing product
-      const response = await axios.put(
-        `${apiUrl}/product/${props.currentProduct.id}`, 
-        payload, 
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
+      const res = await axios.put(`${apiUrl}/product/${props.currentProduct.id}`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       isSuccess.value = true;
       message.value = "Product updated successfully!";
-      emit("updatesuccess", response.data);
-      
-      setTimeout(() => {
-        closeDialog();
-      }, 1500);
+      emit("updatesuccess", res.data);
     } else {
-      // Create new product
-      const response = await axios.post(
-        `${apiUrl}/product`, 
-        payload, 
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
+      const res = await axios.post(`${apiUrl}/product`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       isSuccess.value = true;
       message.value = "Product successfully added!";
-      emit("postsuccess", response.data);
+      emit("postsuccess", res.data);
       resetForm();
-      
-      setTimeout(() => {
-        closeDialog();
-      }, 1500);
     }
-  } catch (error) {
-    console.error("Error submitting product:", error);
+
+    setTimeout(() => closeDialog(), 1500);
+  } catch (err) {
+    console.error("Error:", err);
+    message.value = err.response?.data?.message || "Error saving product. Please try again.";
     isSuccess.value = false;
-    message.value = error.response?.data?.message || "Error saving product. Please try again.";
   } finally {
     isSubmitting.value = false;
   }
