@@ -143,7 +143,7 @@ watch(() => props.showDialog, (newVal) => {
       resetForm();
     }
   }
-});
+}, { immediate: true });
 
 onMounted(async () => {
   try {
@@ -162,18 +162,43 @@ function loadProductData() {
   const product = props.currentProduct;
   if (!product) return;
 
+  console.log("Loading product for edit:", product);
+  
+  // Reset form fields except images
+  Object.keys(formData).forEach(key => {
+    if (key !== 'imageUrls') {
+      formData[key] = typeof formData[key] === "object" ? {} : "";
+    }
+  });
+
+  // Set basic fields
   formData.model = product.model || "";
   formData.price = product.price || 0;
   formData.stock = product.stock || 0;
   formData.releaseDate = product.releaseDate || "";
   formData.description = product.description || "";
-  formData.imageUrls = Array.isArray(product.imageUrls)
-    ? product.imageUrls
-    : product.imageUrls ? [product.imageUrls] : [];
-
+  
+  // Handle images - important to create a new array to ensure reactivity
+  let imageSource = [];
+  
+  if (Array.isArray(product.imageUrls)) {
+    imageSource = product.imageUrls;
+  } else if (Array.isArray(product.image_url)) {
+    imageSource = product.image_url;
+  } else if (Array.isArray(product.images)) {
+    imageSource = product.images;
+  } else if (typeof product.image_url === 'string') {
+    imageSource = [product.image_url];
+  }
+  
+  // Clear and set in one atomic operation
+  formData.imageUrls = [...imageSource];
+  console.log("Image data loaded:", formData.imageUrls);
+  
   selectedBrand.value = product.brandId?.toString() || "";
   selectedType.value = product.productTypeId?.toString() || "";
 
+  // Load section data
   const sections = ['display', 'camera', 'performance', 'battery', 'connectivity', 
                     'buildAndDesign', 'otherFeatures', 'softwareFeatures', 'additionalInfo'];
   sections.forEach(section => {
@@ -205,7 +230,8 @@ async function handleSubmit() {
     const payload = {
       ...formData,
       brandId: Number(selectedBrand.value),
-      productTypeId: Number(selectedType.value)
+      productTypeId: Number(selectedType.value),
+      imageUrls: [...formData.imageUrls]
     };
 
     if (props.isEditMode) {
@@ -234,6 +260,11 @@ async function handleSubmit() {
     isSubmitting.value = false;
   }
 }
+
+// Debug function to monitor imageUrls changes
+watch(() => formData.imageUrls, (newVal) => {
+  console.log("formData.imageUrls changed:", newVal);
+}, { deep: true });
 
 function closeDialog() {
   emit("update:showDialog", false);

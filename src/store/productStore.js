@@ -29,6 +29,7 @@ export const useProductStore = defineStore('products', {
           id: item.id,
           model: item.model,
           image_url: item.imageUrls,
+          first_image: item.firstImageUrl,
           stock: item.stock,
           price: item.price,
           quantity: 1, // Default quantity

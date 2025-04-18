@@ -68,7 +68,7 @@ const goToProductDetail = () => {
   <div class="cursor-pointer w-[365px] flex flex-col justify-start gap-2">
     <div @click="goToProductDetail" class="w-full h-[250px] rounded-xl bg-[#d9d9d9] relative">
       <img
-        :src="product.image_url"
+        :src="product.first_image"
         alt="..."
         class="w-full h-full object-cover rounded-xl" />
       <h2

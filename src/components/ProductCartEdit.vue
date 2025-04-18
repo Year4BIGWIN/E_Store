@@ -65,7 +65,7 @@ showEditDialog.value = true;
 };
 
 const handleUpdateSuccess = () => {
-emit('updated', props.id);
+  emit('updated', props.id);
 };
 
 const confirmDelete = () => {

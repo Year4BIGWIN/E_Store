@@ -19,8 +19,9 @@
           :key="product.id"
           :name="product.model"
           :quantity="product.stock"
-          :image="product.image_url"
+          :image="product.first_image"
           :id="product.id"
+          :productData="product"
         />
       </div>
       <!-- <Pagination /> -->

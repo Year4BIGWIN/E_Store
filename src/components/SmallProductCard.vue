@@ -2,7 +2,7 @@
   <div @click="goToProductDetail" class="cursor-pointer shadow-lg rounded-xl w-[180px] flex flex-col justify-start gap-2">
     <div class="w-full h-[100px] rounded-xl bg-[#d9d9d9] relative">
       <img
-        :src="product.image_url"
+        :src="product.first_image"
         alt="..."
         class="w-full h-full object-cover rounded-xl" />
       <h2
