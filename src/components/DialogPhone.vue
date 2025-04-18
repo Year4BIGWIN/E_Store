@@ -141,7 +141,7 @@ async function handleSubmit() {
     }
 
     const payload = { ...formData, brandId: Number(selectedBrand.value), productTypeId: Number(selectedType.value) };
-    await axios.post(`${apiUrl}/phone`, payload, { headers: { Authorization: `Bearer ${token}` } });
+    await axios.post(`${apiUrl}/product`, payload, { headers: { Authorization: `Bearer ${token}` } });
     resetForm();
     closeDialog();
     alert("Product successfully added.");

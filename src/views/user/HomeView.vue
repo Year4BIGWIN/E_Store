@@ -10,6 +10,7 @@ import HomeProduct from '@/components/HomeProduct.vue';
       <div class="absolute inset-0 top-0 z-10">
       <HomeSlide />
       <HomeProduct />
+      
     </div>
      </div>
     

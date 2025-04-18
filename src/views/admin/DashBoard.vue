@@ -44,7 +44,6 @@
       class="w-full grid grid-cols-4 gap-4 p-4 border border-gray-200 rounded-lg bg-white mb-4 items-center"
     >
       <button
-
         @click="clearProductInCart(cartItem.phone.id)"
         class="border rounded-md bg-red-500 text-white"
       >
@@ -77,12 +76,7 @@
       Total Price: ${{ cart.totalPrice }}
     </div>
     <div>
-        <button
-           
-            class="border rounded-md bg-red-500 text-white"
-        >
-            Checkout
-        </button>
+      <button class="border rounded-md bg-red-500 text-white">Checkout</button>
     </div>
     <Checkout />
   </div>
@@ -94,9 +88,6 @@ import axios from "axios";
 import Cookies from "universal-cookie";
 import Checkout from "../../components/Checkout.vue";
 
-
-
-
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const product = ref([]);
 const cart = ref({ cartItems: [], totalPrice: 0 });
@@ -104,7 +95,7 @@ const cookies = new Cookies();
 
 const fetchProduct = async () => {
   try {
-    const response = await fetch(`${apiUrl}/product`);
+    const response = await fetch(`${apiUrl}/product?page=0&size=10`);
     const data = await response.json();
     product.value = data.data.map((item) => ({ ...item, quantity: 1 }));
   } catch (error) {
@@ -275,7 +266,6 @@ const addProductOneByeOne = async (id) => {
 };
 
 console.log("cart", cart.value.cartItems);
-
 
 onMounted(() => {
   fetchProduct();

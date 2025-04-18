@@ -63,6 +63,7 @@ try {
 
   transactionStatus.value = response.data.responseMessage;
   console.log("Transaction Status:", transactionStatus.value);
+  console.log("Response Data:", response);
 
   // Stop checking if transaction is successful
   if (transactionStatus.value.toLowerCase() === "success") {

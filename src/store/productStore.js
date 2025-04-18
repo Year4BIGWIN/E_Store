@@ -1,34 +1,36 @@
-import { defineStore } from 'pinia';
-import Cookies from 'universal-cookie';
-
+import { defineStore } from "pinia";
+import Cookies from "universal-cookie";
 
 const cookies = new Cookies();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
-export const useProductStore = defineStore('products', {
+export const useProductStore = defineStore("products", {
   state: () => ({
     products: [],
     loading: false,
-    error: null
+    error: null,
   }),
-  
+
   actions: {
     async fetchProduct(page = 0, size = 10) {
       this.loading = true;
       this.error = null;
-      
+
       try {
-        const response = await fetch(`${apiUrl}/product?page=${page}&size=${size}`, {
-          headers: {
-            Authorization: `Bearer ${cookies.get("auth_token")}`,
-          },
-        });
-        
+        const response = await fetch(
+          `${apiUrl}/product?page=${page}&size=${size}`,
+          {
+            headers: {
+              Authorization: `Bearer ${cookies.get("auth_token")}`,
+            },
+          }
+        );
+
         if (!response.ok) {
           const errorData = await response.json();
           console.error("Error response from server:", errorData);
           throw new Error("Network response was not ok");
         }
-        
+
         const data = await response.json();
         this.products = data.data.content.map((item) => ({
           id: item.id,
@@ -39,7 +41,7 @@ export const useProductStore = defineStore('products', {
           quantity: 1, // Default quantity
           productType: item.productType,
         }));
-        
+
         console.log("Product:", this.products);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -51,25 +53,26 @@ export const useProductStore = defineStore('products', {
     async deleteProduct(productId) {
       this.loading = true;
       this.error = null;
-      
       try {
         const response = await fetch(`${apiUrl}/product/${productId}`, {
-          method: 'DELETE',
+          method: "DELETE",
           headers: {
             Authorization: `Bearer ${cookies.get("auth_token")}`,
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
         });
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           console.error("Error response from server:", errorData);
           throw new Error("Failed to delete product");
         }
-        
+
         // Remove the deleted product from the local state
-        this.products = this.products.filter(product => product.id !== productId);
-        
+        this.products = this.products.filter(
+          (product) => product.id !== productId
+        );
+
         console.log("Product deleted successfully");
         return true;
       } catch (error) {
@@ -79,12 +82,12 @@ export const useProductStore = defineStore('products', {
       } finally {
         this.loading = false;
       }
-    }
+    },
   },
-  
+
   getters: {
     getProductById: (state) => (id) => {
-      return state.products.find(product => product.id === id);
-    }
-  }
+      return state.products.find((product) => product.id === id);
+    },
+  },
 });
