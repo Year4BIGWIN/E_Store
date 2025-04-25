@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import img from "../assets/image/Logo.png";
@@ -10,6 +10,11 @@ const cartStore = useCartStore();
 // Computed property for cart item count
 const cartItemCount = computed(() => cartStore.cartItems.length);
 
+// Create a computed property for profile image with fallback
+const profileImage = computed(() => {
+  return authStore.profile?.image_url || img;
+});
+
 // Watch for cart item changes (watching length instead of deep watching the array)
 watch(
   () => cartStore.cartItems.length,
@@ -18,9 +23,23 @@ watch(
   }
 );
 
+// Watch for authentication state changes
+watch(
+  () => authStore.token,
+  (newToken) => {
+    if (newToken) {
+      // Fetch profile when user logs in
+      authStore.fetchProfile();
+    }
+  }
+);
+
 // Fetch cart data on mount
 onMounted(() => {
   cartStore.fetchCart();
+  if (authStore.token) {
+    authStore.fetchProfile(); 
+  }
 });
 
 </script>
@@ -59,8 +78,12 @@ onMounted(() => {
           </button>
         </router-link>
 
-        <router-link to="/profile">
-          <img :src="img" alt="Profile" class="h-6 w-6 rounded-full object-cover" />
+        <!-- Profile or Sign In -->
+        <router-link to="/profile" v-if="authStore.token">
+          <img :src="profileImage" alt="Profile" class="h-8 w-8 rounded-full object-cover border border-gray-300" />
+        </router-link>
+        <router-link to="/login" v-else>
+          <img :src="img" alt="Profile" class="h-8 w-8 rounded-full object-cover border border-gray-300" />
         </router-link>
       </div>
     </nav>

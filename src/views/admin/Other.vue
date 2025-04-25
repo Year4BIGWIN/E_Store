@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full flex flex-col h-screen bg-[#d9d9d9]">
+  <div class="w-full flex flex-col h-screen bg-gray-100">
     <div class="w-full text-xl flex justify-between p-5">
       <h1>Brand</h1>
       <Buttom @click="showDialog = true">Add Brand</Buttom>

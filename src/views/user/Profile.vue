@@ -12,6 +12,7 @@
       >
     </div>
     <div class="w-full flex flex-col gap-10">
+      <!-- Profile section -->
       <div class="w-full flex flex-col rounded-xl bg-gray-100 gap-4 p-5">
         <div class="w-full flex justify-between">
           <h1 class="text-xl">My Profile</h1>
@@ -22,111 +23,114 @@
             Logout
           </button>
         </div>
-        <div class="w-full flex justify-between gap-4">
-          <div class="flex flex-col gap-2">
-            <div class="flex flex-col gap-2">
-              <div
-                class="w-32 h-32 rounded-full bg-blue-400 overflow-hidden flex items-center justify-center"
-              >
-                <img
-                  v-if="editProfile.image_url"
-                  :src="editProfile.image_url"
-                  class="w-full h-full object-cover"
-                />
-              </div >
-              <div v-if="isEditing" class=" w-0 translate-x-[-30px]">
-              <Upload v-model:uploadedImageUrl="editProfile.image_url"  />
 
+        <div class="flex gap-4">
+          <!-- Image and Edit Button -->
+          <div class="w-32 flex flex-col gap-2">
+            <div
+              class="w-32 h-32 rounded-full bg-blue-400 overflow-hidden flex items-center justify-center"
+            >
+              <img
+                v-if="editProfile.image_url"
+                :src="editProfile.image_url"
+                class="w-full h-full object-cover"
+              />
+              <div v-if="isEditing" class="w-0 translate-x-[-100px]">
+                <Upload v-model:uploadedImageUrl="editProfile.image_url" />
               </div>
             </div>
 
-            <button @click="toggleEdit">
-              <i class="fa-regular fa-pen-to-square"></i>
-              {{ isEditing ? "Cancel" : "Edit" }}
-            </button>
-          </div>
-          <div class="w-full">
-            <div class="w-full grid grid-cols-2 gap-4">
-              <Input
-                label="First Name"
-                v-model="editProfile.first_name"
-                :disabled="!isEditing"
-                input-class="bg-gray-300"
-              />
-              <Input
-                label="Last Name"
-                v-model="editProfile.last_name"
-                :disabled="!isEditing"
-                input-class="bg-gray-300"
-              />
-              <Input
-                label="Email"
-                v-model="editProfile.email"
-                :disabled="!isEditing"
-                input-class="bg-gray-300"
-              />
-              <Input
-                label="Phone Number"
-                v-model="editProfile.phone_number"
-                :disabled="!isEditing"
-                input-class="bg-gray-300"
-              />
-            </div>
-            <div class="w-full flex justify-end mt-4" v-if="isEditing">
-              <button
-                @click="saveProfile"
-                class="py-1 px-3 text-white bg-green-500 rounded-xl"
-              >
-                Save
+            <div class="flex w-full gap-2 justify-center items-center">
+              <button @click="toggleEdit">
+                <span class="py-[6px] px-2 text-white bg-red-500 rounded-xl" v-if="isEditing">Cancel</span>
+                <i v-else class="fa-regular fa-pen-to-square"></i>
               </button>
+              <!-- Save button when editing -->
+              <div v-if="isEditing">
+                <button
+                  @click="saveProfile"
+                  class="py-1 px-2 text-white bg-green-500 rounded-xl"
+                >
+                  Save
+                </button>
+              </div>
             </div>
+          </div>
+
+          <!-- Profile Form -->
+          <div class="w-full grid grid-cols-2 gap-4">
+            <Input
+              label="First Name"
+              v-model="editProfile.first_name"
+              :disabled="!isEditing"
+            />
+            <Input
+              label="Last Name"
+              v-model="editProfile.last_name"
+              :disabled="!isEditing"
+            />
+            <Input label="Email" v-model="editProfile.email" disabled />
+            <Input
+              label="Phone Number"
+              v-model="editProfile.phone_number"
+              :disabled="!isEditing"
+            />
           </div>
         </div>
       </div>
+
+      <!-- Address Section -->
       <div class="w-full flex flex-col rounded-xl bg-gray-100 gap-4 p-5">
         <div class="w-full flex justify-between">
           <h1 class="text-xl">Address</h1>
-          <button @click="toggleEdit">
-            <i class="fa-regular fa-pen-to-square"></i>
-            {{ isEditing ? "Cancel" : "Edit" }}
-          </button>
+          
+          <div class="flex w-full gap-2 justify-end items-center">
+              <button @click="toggleEdit">
+                <span class="py-[6px] px-2 text-white bg-red-500 rounded-xl" v-if="isEditing">Cancel</span>
+                <i v-else class="fa-regular fa-pen-to-square"></i>
+              </button>
+              <!-- Save button when editing -->
+              <div v-if="isEditing">
+                <button
+                  @click="saveProfile"
+                  class="py-1 px-2 text-white bg-green-500 rounded-xl"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
         </div>
+
         <div class="w-full grid grid-cols-2 gap-4">
           <Input
             label="House No"
             v-model="editProfile.house_number"
             :disabled="!isEditing"
-            input-class="bg-gray-100"
           />
           <Input
             label="Street No"
             v-model="editProfile.street"
             :disabled="!isEditing"
-            input-class="bg-gray-100"
           />
           <Input
             label="Village"
             v-model="editProfile.village"
             :disabled="!isEditing"
-            input-class="bg-gray-100"
           />
           <Input
             label="District"
             v-model="editProfile.district"
             :disabled="!isEditing"
-            input-class="bg-gray-100"
           />
           <Input
             label="City/Province"
             v-model="editProfile.city"
             :disabled="!isEditing"
-            input-class="bg-gray-100"
           />
           <Input
             label="Zip Code"
             v-model="editProfile.zip_code"
             :disabled="!isEditing"
-            input-class="bg-gray-100"
           />
         </div>
       </div>
@@ -137,10 +141,11 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import useAuth from "@/composable/useAuth";
-import Input from "@/components/Input.vue";
 import Cookies from "universal-cookie";
+import Input from "@/components/Input.vue";
 import Upload from "@/components/Upload.vue";
+import useAuth from "@/composable/useAuth";
+import map from "@/components/Map.vue";
 
 const { logout } = useAuth();
 
@@ -154,12 +159,10 @@ const profile = async () => {
     const cookies = new Cookies();
     const token = cookies.get("auth_token");
     const response = await axios.get(`${apiUrl}/profile`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     });
     profiles.value = response.data.data;
-    editProfile.value = { ...response.data.data }; // Clone the profile for editing
+    editProfile.value = { ...response.data.data }; // Initialize editable data
   } catch (error) {
     console.error("Profile fetch failed:", error);
   }
@@ -176,15 +179,33 @@ const saveProfile = async () => {
   try {
     const cookies = new Cookies();
     const token = cookies.get("auth_token");
-    await axios.put(`${apiUrl}/update-profile`, editProfile.value, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+
+    const dataToSend = {
+      first_name: editProfile.value.first_name,
+      last_name: editProfile.value.last_name,
+      phone_number: editProfile.value.phone_number,
+      image_url: editProfile.value.image_url,
+      house_number: editProfile.value.house_number,
+      street: editProfile.value.street,
+      village: editProfile.value.village,
+      district: editProfile.value.district,
+      city: editProfile.value.city,
+      zip_code: editProfile.value.zip_code,
+    };
+
+    console.log("Sending cleaned data:", dataToSend);
+
+    await axios.put(`${apiUrl}/update-profile`, dataToSend, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-    profiles.value = { ...editProfile.value }; // Update displayed data
+
+    profiles.value = { ...profiles.value, ...dataToSend };
     isEditing.value = false;
   } catch (error) {
-    console.error("Profile update failed:", error);
+    console.error(
+      "Profile update failed:",
+      error.response?.data || error.message
+    );
   }
 };
 

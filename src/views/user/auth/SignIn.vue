@@ -122,12 +122,14 @@ const login = async () => {
     // Update Pinia store
     authStore.setAuthData(token, role);
     console.log("Token and role updated in store");
-
+    
+    // Fetch profile after successful login
+    await authStore.fetchProfile();
+    
     router.push("/");
-  }catch (error) {
-  console.error("Login failed:", error.response ? error.response.data : error);
-}
-
+  } catch (error) {
+    console.error("Login failed:", error.response ? error.response.data : error);
+  }
 };
 
 const showPassword = ref(false);

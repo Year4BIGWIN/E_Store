@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full flex flex-col gap-2">
     <!-- Mobile Phone Products -->
-    <div class="w-full h-full bg-[#d9d9d9] rounded-xl flex flex-col gap-2 p-5">
+    <div class="w-full h-full bg-gray-100 rounded-xl flex flex-col gap-2 p-5">
       <div class="w-full flex justify-between">
         <h1 class="text-xl font-bold">Mobile Phone</h1>
         <button
@@ -19,7 +19,7 @@
           :key="product.id"
           :name="product.model"
           :quantity="product.stock"
-          :image="product.first_image"
+          :image="product.firstImageUrl"
           :id="product.id"
           :productData="product"
         />

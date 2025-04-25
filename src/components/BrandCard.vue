@@ -1,7 +1,6 @@
 <template>
  
-    
-      <div class="w-[125px] rounded-md border-2 border-[#a9a9a9] hover:shadow-lg hover:cursor-pointer">
+      <div class="w-[110px] rounded-md border-2 border-[#a9a9a9] hover:shadow-lg hover:cursor-pointer">
         <img
           :src="image"
           alt="Brand"

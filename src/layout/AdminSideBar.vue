@@ -5,7 +5,7 @@
       :class="[
         'h-screen',
         sidebarOpen ? 'w-64' : 'w-16',
-        'bg-[#d9d9d9] text-black',
+        'bg-gray-100 text-black',
         'transition-all',
       ]"
     >

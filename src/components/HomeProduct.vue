@@ -49,7 +49,7 @@
         >
       </div>
     </div>
-    <div class="w-[1152px] grid grid-cols-3 gap-10 mt-5">
+    <div class="w-[1152px] grid grid-cols-4 gap-10 mt-5">
       <ProductCard
         v-for="product in sortedProducts"
         :key="product.id"
@@ -78,7 +78,7 @@
             <h1 class="text-2xl font-semibold">Smart Watch</h1>
             <h1 class="hover:text-blue-700 cursor-pointer">see all</h1>
           </div>
-          <div class="w-full grid grid-cols-3 gap-4 mt-2">
+          <div class="w-full grid grid-cols-4 gap-2 mt-2">
             <SmallProductCard
               v-for="product in watchProducts"
               :key="product.id"
@@ -168,7 +168,7 @@ const sortedProducts = computed(() => {
   return filtered
     .slice()
     .sort((a, b) => b.id - a.id)
-    .slice(0, 6);
+    .slice(0, 8);
 });
 
 const phoneProducts = computed(() => {

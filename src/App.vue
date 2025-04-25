@@ -16,7 +16,7 @@ const route = useRoute();
       <AdminSideBar class=" w-60 h-full" />
 
       <!-- Main Content Area -->
-      <div class="w-full flex flex-col items-center px-4 pt-4">
+      <div class="w-full flex flex-col items-center pl-2">
      
           <RouterView />
        

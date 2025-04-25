@@ -132,7 +132,7 @@ onMounted(() => {
         <div class="w-1/2 flex flex-col gap-4">
           <div class="w-full h-[500px] bg-[#d9d9d9] rounded-xl">
             <img
-              :src="product.data.image_url"
+              :src="product.data.firstImageUrl"
               class="w-full h-full object-fill rounded-xl"
               :alt="product.model"
               @error="(e) => (e.target.src = '/placeholder-image.jpg')"

@@ -65,10 +65,10 @@ const goToProductDetail = () => {
 
 <template>
   
-  <div class="cursor-pointer w-[365px] flex flex-col justify-start gap-2">
-    <div @click="goToProductDetail" class="w-full h-[250px] rounded-xl bg-[#d9d9d9] relative">
+  <div class="cursor-pointer w-[265px] border flex flex-col justify-start gap-2">
+    <div @click="goToProductDetail" class="w-full h-[200px] rounded-xl bg-[#d9d9d9] relative">
       <img
-        :src="product.first_image"
+        :src="product.firstImageUrl"
         alt="..."
         class="w-full h-full object-cover rounded-xl" />
       <h2
@@ -92,7 +92,7 @@ const goToProductDetail = () => {
         </div>
       </div>
       <div class="w-full flex items-center justify-between gap-1">
-        <Buttom @click="addToCart(product.id, product.quantity?null:1)" class="w-full" variant="secondary" size="lg">Add to Cart</Buttom>
+        <Buttom @click="addToCart(product.id, product.quantity?null:1)" class="w-full" variant="secondary" size="sm">Add to Cart</Buttom>
         <Buttom @click.stop class="w-full" variant="primary" size="lg">Buy Now</Buttom>
       </div>
     </div>

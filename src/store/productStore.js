@@ -1,18 +1,20 @@
 import { defineStore } from 'pinia';
 import Cookies from 'universal-cookie';
 
-
 const cookies = new Cookies();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 export const useProductStore = defineStore('products', {
   state: () => ({
     products: [],
     loading: false,
-    error: null
+    error: null,
+    totalPages: 0,
+    totalElements: 0,
+    currentPage: 0
   }),
   
   actions: {
-    async fetchProduct(page = 0, size = 10) {
+    async fetchProduct(page = 0, size = 8) {
       this.loading = true;
       this.error = null;
       
@@ -25,18 +27,44 @@ export const useProductStore = defineStore('products', {
         }
         
         const data = await response.json();
+        
+        // Store pagination metadata
+        this.totalPages = data.data.totalPages;
+        this.totalElements = data.data.totalElements;
+        this.currentPage = data.data.pageable.pageNumber;
+        
         this.products = data.data.content.map((item) => ({
           id: item.id,
           model: item.model,
-          image_url: item.imageUrls,
-          first_image: item.firstImageUrl,
-          stock: item.stock,
+          description: item.description,
+          stock_price: item.stock_price,
           price: item.price,
-          quantity: 1, // Default quantity
+          stock: item.stock,
+          releaseDate: item.releaseDate,
+          brand: item.brand,
           productType: item.productType,
+          brandId: item.brandId,
+          productTypeId: item.productTypeId,
+          display: item.display,
+          performance: item.performance,
+          camera: item.camera,
+          battery: item.battery,
+          connectivity: item.connectivity,
+          buildAndDesign: item.buildAndDesign,
+          otherFeatures: item.otherFeatures,
+          softwareFeatures: item.softwareFeatures,
+          imageUrls: item.imageUrls,
+          firstImageUrl: item.firstImageUrl,
+          additionalInfo: item.additionalInfo,
+          quantity: 1, // Default quantity for cart functionality
         }));
         
         console.log("Product:", this.products);
+        console.log("Pagination:", {
+          currentPage: this.currentPage,
+          totalPages: this.totalPages,
+          totalElements: this.totalElements
+        });
       } catch (error) {
         console.error("Error fetching products:", error);
         this.error = error.message;
