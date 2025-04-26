@@ -51,9 +51,8 @@
               <img
                 :src="item.image_url"
                 alt="Brand"
-                class="h-10 rounded-[5px] w-full object-cover"
+                class="w-full h-10 rounded-[5px] object-cover"
               />
-              <h1 class="text-sm text-center">{{ item.name }}</h1>
             </div>
           </div>
         </div>

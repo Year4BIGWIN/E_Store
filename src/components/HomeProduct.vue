@@ -57,28 +57,45 @@
       />
     </div>
 
-    <div class="w-[1152px] shadow-lg rounded-xl p-1">
-      <div class="w-full flex justify-between">
-        <h1 class="text-2xl font-semibold">Phone</h1>
-        <h1 class="hover:text-blue-700 cursor-pointer">see all</h1>
+    <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 pb-8">
+      <!-- Phone Section -->
+      <div class="bg-white shadow-sm rounded-xl p-6 mb-8 transition-all hover:shadow-md">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">
+            <span class="border-b-2 border-blue-500 pb-1">Phones</span>
+          </h2>
+          <router-link to="/products?category=mobile-phone" class="flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors">
+            See all
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+          </router-link>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <SmallProductCard
+            v-for="product in phoneProducts"
+            :key="product.id"
+            :product="product"
+          />
+        </div>
       </div>
-      <div class="w-full grid grid-cols-6 gap-4 mt-2">
-        <SmallProductCard
-          v-for="product in phoneProducts"
-          :key="product.id"
-          :product="product"
-        />
-      </div>
-    </div>
 
-    <div class="w-[1152px]">
-      <div class="w-full flex justify-between">
-        <div class="w-[570px] shadow-lg rounded-xl p-1">
-          <div class="w-full flex justify-between">
-            <h1 class="text-2xl font-semibold">Smart Watch</h1>
-            <h1 class="hover:text-blue-700 cursor-pointer">see all</h1>
+      <!-- Watch and Accessories Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Smart Watch Section -->
+        <div class="bg-white shadow-sm rounded-xl p-6 transition-all hover:shadow-md">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">
+              <span class="border-b-2 border-purple-500 pb-1">Smart Watches</span>
+            </h2>
+            <router-link to="/products?category=smart-watch" class="flex items-center text-purple-600 hover:text-purple-700 font-medium transition-colors">
+              See all
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </router-link>
           </div>
-          <div class="w-full grid grid-cols-4 gap-2 mt-2">
+          <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <SmallProductCard
               v-for="product in watchProducts"
               :key="product.id"
@@ -87,39 +104,51 @@
           </div>
         </div>
 
-          <div class="w-[570px] shadow-lg rounded-xl p-1">
-            <div class="w-full flex justify-between">
-              <h1 class="text-2xl font-semibold">Accesories</h1>
-              <h1 class="hover:text-blue-700 cursor-pointer">see all</h1>
-            </div>
-            <div class="w-full grid grid-cols-3 gap-4 mt-2">
-              <SmallProductCard
-                v-for="product in accessoriesProducts"
-                :key="product.id"
-                :product="product"
-              />
-            </div>
+        <!-- Accessories Section -->
+        <div class="bg-white shadow-sm rounded-xl p-6 transition-all hover:shadow-md">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">
+              <span class="border-b-2 border-green-500 pb-1">Accessories</span>
+            </h2>
+            <router-link to="/products?category=accessories" class="flex items-center text-green-600 hover:text-green-700 font-medium transition-colors">
+              See all
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              </svg>
+            </router-link>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 gap-4">
+            <SmallProductCard
+              v-for="product in accessoriesProducts"
+              :key="product.id"
+              :product="product"
+            />
           </div>
         </div>
-
-        <div class="w-[1152px] shadow-lg rounded-xl p-1 mt-10">
-      <div class="w-full flex justify-between">
-        <h1 class="text-2xl font-semibold">Tablet</h1>
-        <h1 class="hover:text-blue-700 cursor-pointer">see all</h1>
       </div>
-      <div class="w-full grid grid-cols-6 gap-4 mt-2">
-        <SmallProductCard
-          v-for="product in tabletProducts"
-          :key="product.id"
-          :product="product"
-        />
+
+      <!-- Tablet Section -->
+      <div class="bg-white shadow-sm rounded-xl p-6 transition-all hover:shadow-md">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold text-gray-800">
+            <span class="border-b-2 border-amber-500 pb-1">Tablets</span>
+          </h2>
+          <router-link to="/products?category=tablet" class="flex items-center text-amber-600 hover:text-amber-700 font-medium transition-colors">
+            See all
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+          </router-link>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <SmallProductCard
+            v-for="product in tabletProducts"
+            :key="product.id"
+            :product="product"
+          />
+        </div>
       </div>
     </div>
-
-
-    </div>
-
-    <!-- Rest of your template remains unchanged -->
   </div>
 </template>
 
@@ -138,8 +167,8 @@ const categoryMap = {
   all: "All",
   "mobile-phone": "Phone",
   tablet: "Tablet",
-  "smart-watch": "SmartWatch",
-  accessories: "Accessories",
+  "smart-watch": "Watch",
+  accessories: "Accessory",
 };
 
 // Get current category slug from URL
@@ -153,7 +182,7 @@ const selectedCategory = computed(() => {
 });
 
 onMounted(() => {
-  productStore.fetchProduct();
+  productStore.fetchProduct(0, 20);
 });
 
 const sortedProducts = computed(() => {
@@ -179,21 +208,21 @@ const phoneProducts = computed(() => {
 });
 
 const watchProducts = computed(() => {
-  return products.value
-    .filter(product => product.productType.name === 'SmartWatch')
+  return productStore.products
+    .filter(product => product.productType.name === 'Watch')
     .sort((a, b) => b.id - a.id)
     .slice(0, 3);
 });
 
 const accessoriesProducts = computed(() => {
-  return products.value
-    .filter(product => product.productType.name === 'Accessories')
+  return productStore.products
+    .filter(product => product.productType.name === 'Accessory')
     .sort((a, b) => b.id - a.id)
     .slice(0, 3);
 });
 
 const tabletProducts = computed(() => {
-  return products.value
+  return productStore.products
     .filter(product => product.productType.name === 'Tablet')
     .sort((a, b) => b.id - a.id)
     .slice(0, 6);

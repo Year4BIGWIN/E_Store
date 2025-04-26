@@ -231,8 +231,8 @@ onMounted(() => {
     <div class="grid grid-cols-2 gap-4">
       <div class="p-2 bg-gray-50 flex flex-col rounded-lg">
         <!-- Display Details -->
-        <DropDown class="w-full" title="Display">
-          <ul v-if="displayDetails.length">
+        <DropDown v-if="displayDetails.length" class="w-full" title="Display">
+          <ul>
             <li
               v-for="(detail, index) in displayDetails"
               :key="index"
@@ -242,12 +242,11 @@ onMounted(() => {
               <span>{{ detail.value }}</span>
             </li>
           </ul>
-          <p v-else class="text-gray-500">No display details available.</p>
         </DropDown>
 
         <!-- Performance Details -->
-        <DropDown class="w-full" title="Performance">
-          <ul v-if="performanceDetails.length">
+        <DropDown v-if="performanceDetails.length" class="w-full" title="Performance">
+          <ul>
             <li
               v-for="(detail, index) in performanceDetails"
               :key="index"
@@ -257,12 +256,11 @@ onMounted(() => {
               <span>{{ detail.value }}</span>
             </li>
           </ul>
-          <p v-else class="text-gray-500">No performance details available.</p>
         </DropDown>
 
         <!-- Camera Details -->
-        <DropDown class="w-full" title="Camera">
-          <ul v-if="cameraDetails.length">
+        <DropDown v-if="cameraDetails.length" class="w-full" title="Camera">
+          <ul>
             <li
               v-for="(detail, index) in cameraDetails"
               :key="index"
@@ -272,12 +270,11 @@ onMounted(() => {
               <span>{{ detail.value }}</span>
             </li>
           </ul>
-          <p v-else class="text-gray-500">No camera details available.</p>
         </DropDown>
 
         <!-- Battery Details -->
-        <DropDown class="w-full" title="Battery">
-          <ul v-if="batteryDetails.length">
+        <DropDown v-if="batteryDetails.length" class="w-full" title="Battery">
+          <ul>
             <li
               v-for="(detail, index) in batteryDetails"
               :key="index"
@@ -287,12 +284,11 @@ onMounted(() => {
               <span>{{ detail.value }}</span>
             </li>
           </ul>
-          <p v-else class="text-gray-500">No battery details available.</p>
         </DropDown>
 
         <!-- Connectivity Details -->
-        <DropDown class="w-full" title="Connectivity">
-          <ul v-if="connectivityDetails.length">
+        <DropDown v-if="connectivityDetails.length" class="w-full" title="Connectivity">
+          <ul>
             <li
               v-for="(detail, index) in connectivityDetails"
               :key="index"
@@ -302,12 +298,11 @@ onMounted(() => {
               <span>{{ detail.value }}</span>
             </li>
           </ul>
-          <p v-else class="text-gray-500">No connectivity details available.</p>
         </DropDown>
 
         <!-- Build Details -->
-        <DropDown class="w-full" title="Build & Design">
-          <ul v-if="buildDetails.length">
+        <DropDown v-if="buildDetails.length" class="w-full" title="Build & Design">
+          <ul>
             <li
               v-for="(detail, index) in buildDetails"
               :key="index"
@@ -317,12 +312,11 @@ onMounted(() => {
               <span>{{ detail.value }}</span>
             </li>
           </ul>
-          <p v-else class="text-gray-500">No build details available.</p>
         </DropDown>
 
         <!-- Other Features -->
-        <DropDown class="w-full" title="Other Features">
-          <ul v-if="otherFeatures.length">
+        <DropDown v-if="otherFeatures.length" class="w-full" title="Other Features">
+          <ul>
             <li
               v-for="(detail, index) in otherFeatures"
               :key="index"
@@ -332,12 +326,11 @@ onMounted(() => {
               <span>{{ detail.value }}</span>
             </li>
           </ul>
-          <p v-else class="text-gray-500">No other features available.</p>
         </DropDown>
 
         <!-- Software Features -->
-        <DropDown class="w-full" title="Software Features">
-          <ul v-if="softwareFeatures.length">
+        <DropDown v-if="softwareFeatures.length" class="w-full" title="Software Features">
+          <ul>
             <li
               v-for="(detail, index) in softwareFeatures"
               :key="index"
@@ -347,7 +340,6 @@ onMounted(() => {
               <span>{{ detail.value }}</span>
             </li>
           </ul>
-          <p v-else class="text-gray-500">No software features available.</p>
         </DropDown>
       </div>
     </div>

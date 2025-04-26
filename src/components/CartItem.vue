@@ -3,7 +3,7 @@
     <div class="w-2/5 flex items-center gap-4">
       <div class="w-20 h-20 bg-slate-300 rounded-xl">
         <img
-          :src="cart.phone.image_url"
+          :src="cart.phone.firstImageUrl"
           alt="..."
           class="w-full h-full object-cover rounded-xl" />
       </div>
