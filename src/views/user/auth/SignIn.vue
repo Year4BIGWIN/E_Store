@@ -61,9 +61,9 @@
 
         <!-- Forget Password -->
         <div class="flex justify-end mb-5">
-          <router-link class="hover:text-blue-500" to="/login"
-            >Forget Password?</router-link
-          >
+          <router-link class="hover:text-blue-500" to="/forgot-password">
+  Forget Password?
+</router-link>
         </div>
 
         <!-- Login Button -->
