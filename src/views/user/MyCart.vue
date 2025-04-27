@@ -1,15 +1,191 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useCartStore } from "@/store/cartStore";
 import CartItem from "@/components/CartItem.vue";
 import DialogInfo from "@/components/DialogInfo.vue";
 import Map from "@/components/Map.vue";
+import QRCode from "qrcode";
+import Cookies from "universal-cookie";
 
 const cartStore = useCartStore();
 const showCheckoutDialog = ref(false);
+const showPaymentDialog = ref(false);
+const cookies = new Cookies();
+const paymentInfo = ref(null);
+const qrCode = ref(null);
+const md5Hash = ref(null);
+const transactionStatus = ref(null);
+const apiUrl = import.meta.env.VITE_APP_API_URL;
+
+const qrCodeExpirySeconds = ref(60); // 60 seconds expiry time
+const remainingSeconds = ref(0);
+let countdownIntervalId = null;
+
+let intervalId = null;
+let timeoutId = null;
 
 onMounted(() => {
-  cartStore.fetchCart(); // Fetch cart data on mount
+  cartStore.fetchCart(); 
+});
+
+const getToken = () => {
+  const token = cookies.get("auth_token");
+  return token && token.split(".").length === 3 ? token : null;
+};
+
+const getAuthHeaders = () => {
+  const token = getToken();
+  return token
+    ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+    : null;
+};
+
+const proceedToPayment = async () => {
+  showCheckoutDialog.value = false;
+  await checkout();
+  showPaymentDialog.value = true;
+};
+
+const checkout = async () => {
+  const headers = getAuthHeaders();
+  if (!headers || cartStore.cartItems.length === 0) return;
+
+  try {
+    const res = await fetch(`${apiUrl}/order/checkout`, {
+      method: "POST",
+      headers,
+    });
+    const data = await res.json();
+    console.log("Checkout response:", data);
+
+    if (res.ok && data.data?.qr) {
+      paymentInfo.value = data.data;
+      md5Hash.value = data.data.md5;
+      transactionStatus.value = data.responseMessage;
+      qrCode.value = await QRCode.toDataURL(data.data.qr);
+      console.log("Generated QR Code:", qrCode.value);
+      startTransactionPolling();
+      startCountdownTimer(); // Start the countdown
+    } else {
+      alert(data.message || "Checkout failed.");
+    }
+  } catch (err) {
+    console.error("Checkout error:", err);
+  }
+};
+
+const checkTransactionStatus = async () => {
+  try {
+    const res = await fetch(`${apiUrl}/order/confirm-payment?md5=${md5Hash.value}`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+      console.error(`Error: Received status ${res.status} from /confirm-payment`);
+      transactionStatus.value = "Error checking transaction status";
+      return;
+    }
+
+    const contentType = res.headers.get("Content-Type");
+    let data;
+
+    if (contentType && contentType.includes("application/json")) {
+      data = await res.json();
+    } else {
+      data = await res.text();
+    }
+
+    console.log("Transaction status response:", data);
+
+    if (typeof data === "string") {
+      if (data.toLowerCase() === "success") {
+        transactionStatus.value = "Success";
+        clearInterval(intervalId);
+        clearTimeout(timeoutId);
+        clearInterval(countdownIntervalId); // Clear countdown on success
+        await cartStore.fetchCart();
+      } else if (data.toLowerCase() === "pending") {
+        transactionStatus.value = "Pending";
+      } else {
+        transactionStatus.value = data || "Unknown status";
+      }
+    } else if (data.responseMessage?.toLowerCase() === "success") {
+      transactionStatus.value = "Success";
+      clearInterval(intervalId);
+      clearTimeout(timeoutId);
+      clearInterval(countdownIntervalId); // Clear countdown on success
+      await cartStore.fetchCart();
+    } else if (data.responseMessage?.toLowerCase() === "pending") {
+      transactionStatus.value = "Pending";
+    } else {
+      transactionStatus.value = data.responseMessage || "Unknown status";
+    }
+  } catch (err) {
+    console.error("Error checking transaction status:", err);
+    transactionStatus.value = "Error checking transaction status";
+  }
+};
+
+const startTransactionPolling = () => {
+  clearInterval(intervalId);
+  clearTimeout(timeoutId);
+  intervalId = setInterval(checkTransactionStatus, 3000);
+  timeoutId = setTimeout(() => clearInterval(intervalId), 60000);
+};
+
+const startCountdownTimer = () => {
+  clearInterval(countdownIntervalId);
+  remainingSeconds.value = qrCodeExpirySeconds.value;
+  
+  countdownIntervalId = setInterval(() => {
+    if (remainingSeconds.value > 0) {
+      remainingSeconds.value--;
+    } else {
+      clearInterval(countdownIntervalId);
+    }
+  }, 1000);
+};
+
+// Format countdown time (MM:SS)
+const formattedCountdown = computed(() => {
+  const minutes = Math.floor(remainingSeconds.value / 60);
+  const seconds = (remainingSeconds.value % 60).toString().padStart(2, '0');
+  return `${minutes}:${seconds}`;
+});
+
+// Countdown color based on remaining time
+const countdownColorClass = computed(() => {
+  if (remainingSeconds.value < 10) return 'text-red-600';
+  if (remainingSeconds.value < 30) return 'text-orange-500';
+  return 'text-blue-600';
+});
+
+// QR code expired state
+const isQrExpired = computed(() => 
+  remainingSeconds.value <= 0 && transactionStatus.value !== 'Success'
+);
+
+// Transaction success state
+const isTransactionSuccess = computed(() => 
+  transactionStatus.value === 'Success'
+);
+
+const restartPaymentProcess = async () => {
+  // Reset states
+  qrCode.value = null;
+  paymentInfo.value = null;
+  md5Hash.value = null;
+  transactionStatus.value = null;
+  
+  // Generate new payment QR
+  await checkout();
+};
+
+onUnmounted(() => {
+  clearInterval(intervalId);
+  clearTimeout(timeoutId);
+  clearInterval(countdownIntervalId);
 });
 </script>
 
@@ -87,10 +263,58 @@ onMounted(() => {
               Cancel
             </button>
             <button 
+              @click="proceedToPayment"
               class="px-4 py-2 bg-black text-white rounded-lg hover:opacity-90">
               Proceed to Payment
             </button>
           </div>
+        </div>
+      </div>
+    </DialogInfo>
+
+    <!-- Payment Dialog -->
+    <DialogInfo
+      title="Payment"
+      :show="showPaymentDialog"
+      @close="showPaymentDialog = false"
+    >
+      <div class="p-4 flex flex-col items-center">
+        <h2 class="text-xl font-bold mb-4">Scan QR Code to Complete Payment</h2>
+        
+        <div v-if="qrCode" class="flex flex-col items-center">
+          <img :src="qrCode" alt="Payment QR Code" class="w-64 h-64 mb-4" />
+          
+          <!-- Countdown Timer -->
+          <div class="mb-4 text-center">
+            <p class="text-sm text-gray-600 mb-1">QR Code expires in:</p>
+            <p class="text-xl font-bold" :class="countdownColorClass">
+              {{ formattedCountdown }}
+            </p>
+          </div>
+          
+          <!-- Expiry Message -->
+          <div v-if="isQrExpired" class="mt-2 p-2 bg-red-100 text-red-700 rounded-md">
+            <p class="text-center font-medium">QR Code expired!</p>
+            <p class="text-center text-sm mb-2">Please try again or close this dialog.</p>
+            <button 
+              @click="restartPaymentProcess" 
+              class="w-full py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700">
+              Generate New QR Code
+            </button>
+          </div>
+          
+          <!-- Status Message -->
+          <p class="mt-4 text-lg font-medium" :class="{'text-green-600': isTransactionSuccess}">
+            Status: {{ transactionStatus || 'Pending' }}
+          </p>
+        </div>
+        
+        <div class="mt-6 flex justify-end w-full">
+          <button 
+            @click="showPaymentDialog = false" 
+            class="px-4 py-2 border rounded-lg hover:bg-gray-100">
+            Close
+          </button>
         </div>
       </div>
     </DialogInfo>
