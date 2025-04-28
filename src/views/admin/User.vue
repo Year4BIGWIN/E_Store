@@ -2,13 +2,27 @@
   <main class="h-full w-full">
     <h1 class="text-3xl font-bold mb-6">User Management</h1>
     
-    <!-- Add User Form -->
-    
-
     <!-- User List -->
     <div class="w-full flex flex-col gap-4">
-     
-      <div class="w-full flex flex-col gap-4">
+      <!-- Loading skeleton -->
+      <template v-if="isLoading">
+        <div v-for="i in 5" :key="i" class="w-full flex justify-between items-center bg-white p-4 rounded-lg animate-pulse">
+          <div class="flex gap-4 items-center">
+            <div class="w-12 h-12 rounded-full bg-gray-200"></div>
+            <div>
+              <div class="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+              <div class="h-3 bg-gray-200 rounded w-32"></div>
+            </div>
+          </div>
+          <div class="flex gap-4">
+            <div class="h-10 w-16 bg-gray-200 rounded-lg"></div>
+            <div class="h-10 w-16 bg-gray-200 rounded-lg"></div>
+          </div>
+        </div>
+      </template>
+      
+      <!-- Actual user list -->
+      <div v-else class="w-full flex flex-col gap-4">
         <div v-for="user in users" :key="user.id" class="w-full flex justify-between items-center bg-white p-4 rounded-lg">
           <div class="flex gap-4 items-center">
             <img :src="user.avatar" class="w-12 h-12 object-cover rounded-full" :alt="user.name">
@@ -55,8 +69,10 @@ const newUser = ref({ name: '', email: '' });
 const selectedUser = ref(null);
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const editMode = ref(false);
+const isLoading = ref(true); // Add loading state
 
 const fetchUsers = async () => {
+  isLoading.value = true; // Set loading to true
   try {
     const cookies = new Cookies();
     const token = cookies.get('auth_token');
@@ -75,6 +91,11 @@ const fetchUsers = async () => {
     users.value = data.data;
   } catch (err) {
     console.error("API Error:", err);
+  } finally {
+    // Add small delay for smoother transition
+    setTimeout(() => {
+      isLoading.value = false;
+    }, 300);
   }
 };
 
@@ -163,5 +184,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Add any additional styling here */
+.animate-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
 </style>

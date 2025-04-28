@@ -17,9 +17,10 @@
       <div class="w-full flex gap-6">
         <CategoryCard
           v-for="category in categories"
-          :key="category.id"
+          :key="category.title"
           :title="category.title"
           :icon="category.icon"
+          :svg="category.svg"
           :isSelected="selectedProductType === category.title.toLowerCase()"
           @select="handleCategoryClick"
         />
@@ -46,7 +47,9 @@
               :key="item.id"
               @click="handleBrandClick(item.name)"
               class="w-[110px] rounded-md border-2 border-[#a9a9a9] hover:shadow-lg hover:cursor-pointer"
-              :class="{'border-blue-500 shadow-lg': selectedBrand === item.name}"
+              :class="{
+                'border-blue-500 shadow-lg': selectedBrand === item.name,
+              }"
             >
               <img
                 :src="item.image_url"
@@ -61,16 +64,19 @@
         <div class="flex-1 border p-6">
           <div class="flex justify-between items-center mb-4">
             <h1 class="text-2xl font-bold">PRODUCT</h1>
-            <button 
-              v-if="selectedProductType || selectedBrand" 
-              @click="resetFilters" 
+            <button
+              v-if="selectedProductType || selectedBrand"
+              @click="resetFilters"
               class="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded text-sm"
             >
               Clear Filters
             </button>
           </div>
-          
-          <div v-if="productsLoading" class="flex justify-center items-center h-40">
+
+          <div
+            v-if="productsLoading"
+            class="flex justify-center items-center h-40"
+          >
             <p>Loading products...</p>
           </div>
           <div v-else-if="productsError" class="text-red-500">
@@ -84,20 +90,19 @@
                 :product="product"
               />
             </div>
-            
+
             <!-- Pagination -->
             <div class="mt-6">
-              <Pagination 
-                :currentPage="currentPage" 
-                :totalPages="totalPages" 
-                @page-change="changePage" 
+              <Pagination
+                :currentPage="currentPage"
+                :totalPages="totalPages"
+                @page-change="changePage"
               />
             </div>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -129,29 +134,35 @@ const totalItems = ref(0);
 // Add these below your existing ref declarations
 const selectedProductType = ref(null);
 const selectedBrand = ref(null);
-const activeFilter = ref('all'); // 'all', 'type', 'brand', or 'both'
+const activeFilter = ref("all"); // 'all', 'type', 'brand', or 'both'
 
 // Page change handler with server-side pagination
 const changePage = async (page) => {
   // Validate page number
   if (page < 1) page = 1;
   if (totalPages.value > 0 && page > totalPages.value) page = totalPages.value;
-  
+
   currentPage.value = page;
   const apiPage = page - 1; // Convert to 0-indexed for API
-  
-  console.log(`Changing to page ${page} (API page: ${apiPage}), filter: ${activeFilter.value}`);
-  
+
+  console.log(
+    `Changing to page ${page} (API page: ${apiPage}), filter: ${activeFilter.value}`
+  );
+
   // Handle pagination based on active filter
   switch (activeFilter.value) {
-    case 'type':
+    case "type":
       await filterByProductType(selectedProductType.value, apiPage);
       break;
-    case 'brand':
+    case "brand":
       await filterByBrand(selectedBrand.value, apiPage);
       break;
-    case 'both':
-      await filterByTypeAndBrand(selectedProductType.value, selectedBrand.value, apiPage);
+    case "both":
+      await filterByTypeAndBrand(
+        selectedProductType.value,
+        selectedBrand.value,
+        apiPage
+      );
       break;
     default:
       await productStore.fetchProduct(apiPage, itemsPerPage.value);
@@ -159,35 +170,45 @@ const changePage = async (page) => {
 };
 
 // Update totalPages when API response changes
-watch(() => productStore.totalPages, (newValue) => {
-  if (newValue) {
-    totalPages.value = newValue;
+watch(
+  () => productStore.totalPages,
+  (newValue) => {
+    if (newValue) {
+      totalPages.value = newValue;
+    }
   }
-});
+);
 
-watch(() => productStore.totalElements, (newValue) => {
-  if (newValue) {
-    totalItems.value = newValue;
+watch(
+  () => productStore.totalElements,
+  (newValue) => {
+    if (newValue) {
+      totalItems.value = newValue;
+    }
   }
-});
+);
 
-// Categories data...
+// Categories data with SVG for Smart Watch
 const categories = [
   {
     title: "Phone",
     icon: "fa-solid fa-mobile-screen-button fa-2x",
+    svg: null,
   },
   {
     title: "Tablet",
     icon: "fa-solid fa-tablet-screen-button fa-2x",
+    svg: null,
   },
   {
     title: "Smart Watch",
-    icon: "fa-solid fa-watch fa-2x",
+    icon: null,
+    svg: `<svg width="42px" height="42px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#3662e3"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 9.5V12L14 13.5M7.93191 6.20428C8.54129 6 9.36367 6 10.8 6H13.2C14.6363 6 15.4587 6 16.0681 6.20429M7.93191 6.20428C7.82847 6.23896 7.73116 6.27953 7.63803 6.32698C7.07354 6.6146 6.6146 7.07354 6.32698 7.63803C6 8.27976 6 9.11984 6 10.8V13.2C6 14.8802 6 15.7202 6.32698 16.362C6.6146 16.9265 7.07354 17.3854 7.63803 17.673C7.73112 17.7205 7.82838 17.761 7.93178 17.7957M7.93191 6.20428L9.00003 3H15L16.0681 6.20429M16.0681 6.20429C16.1715 6.23897 16.2688 6.27953 16.362 6.32698C16.9265 6.6146 17.3854 7.07354 17.673 7.63803C18 8.27976 18 9.11984 18 10.8V13.2C18 14.8802 18 15.7202 17.673 16.362C17.3854 16.9265 16.9265 17.3854 16.362 17.673C16.2688 17.7205 16.1715 17.7611 16.068 17.7958M7.93178 17.7957C8.54116 18 9.36356 18 10.8 18H13.2C14.6362 18 15.4586 18 16.068 17.7958M7.93178 17.7957L8.9996 21H14.9996L16.068 17.7958" stroke="#3662e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path> </g></svg>`,
   },
   {
     title: "Accessories",
     icon: "fa-solid fa-headphones-simple fa-2x",
+    svg: null,
   },
 ];
 
@@ -228,18 +249,24 @@ const fetchBrands = async () => {
 const filterByProductType = async (typeName, page = 0) => {
   productsLoading.value = true;
   try {
-    console.log(`Fetching products by type: ${typeName}, page: ${page}, items per page: ${itemsPerPage.value}`);
-    const response = await fetch(`${apiUrl}/product/type/${typeName}?page=${page}&size=${itemsPerPage.value}`);
-    
+    console.log(
+      `Fetching products by type: ${typeName}, page: ${page}, items per page: ${itemsPerPage.value}`
+    );
+    const response = await fetch(
+      `${apiUrl}/product/type/${typeName}?page=${page}&size=${itemsPerPage.value}`
+    );
+
     if (!response.ok) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
-    
+
     const data = await response.json();
-    console.log(`Got ${data.data.content.length} products, total: ${data.data.totalElements}, pages: ${data.data.totalPages}`);
+    console.log(
+      `Got ${data.data.content.length} products, total: ${data.data.totalElements}, pages: ${data.data.totalPages}`
+    );
     productStore.products = data.data.content.map(mapProductData);
     updatePagination(data.data);
-    activeFilter.value = 'type';
+    activeFilter.value = "type";
   } catch (err) {
     console.error("Error filtering by product type:", err);
     productStore.error = err.message;
@@ -252,16 +279,18 @@ const filterByProductType = async (typeName, page = 0) => {
 const filterByTypeAndBrand = async (typeName, brandName, page = 0) => {
   productsLoading.value = true;
   try {
-    const response = await fetch(`${apiUrl}/brand/${typeName}/${brandName}?page=${page}&size=${itemsPerPage.value}`);
-    
+    const response = await fetch(
+      `${apiUrl}/brand/${typeName}/${brandName}?page=${page}&size=${itemsPerPage.value}`
+    );
+
     if (!response.ok) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
-    
+
     const data = await response.json();
     productStore.products = data.data.content.map(mapProductData);
     updatePagination(data.data);
-    activeFilter.value = 'both';
+    activeFilter.value = "both";
   } catch (err) {
     console.error("Error filtering by type and brand:", err);
     productStore.error = err.message;
@@ -274,16 +303,18 @@ const filterByTypeAndBrand = async (typeName, brandName, page = 0) => {
 const filterByBrand = async (brandName, page = 0) => {
   productsLoading.value = true;
   try {
-    const response = await fetch(`${apiUrl}/brand/product-by-brand/${brandName}?page=${page}&size=${itemsPerPage.value}`);
-    
+    const response = await fetch(
+      `${apiUrl}/brand/product-by-brand/${brandName}?page=${page}&size=${itemsPerPage.value}`
+    );
+
     if (!response.ok) {
       throw new Error(`Error: ${response.status} - ${response.statusText}`);
     }
-    
+
     const data = await response.json();
     productStore.products = data.data.content.map(mapProductData);
     updatePagination(data.data);
-    activeFilter.value = 'brand';
+    activeFilter.value = "brand";
   } catch (err) {
     console.error("Error filtering by brand:", err);
     productStore.error = err.message;
@@ -299,24 +330,31 @@ const updatePagination = (data) => {
   totalItems.value = data.totalElements;
   productStore.totalPages = totalPages.value;
   productStore.totalElements = data.totalElements;
-  
+
   // Update current page value based on API response
   // Add +1 because UI is 1-indexed while API is 0-indexed
-  const apiPageNumber = data.pageable?.pageNumber !== undefined ? data.pageable.pageNumber : 0;
-  
+  const apiPageNumber =
+    data.pageable?.pageNumber !== undefined ? data.pageable.pageNumber : 0;
+
   // Only handle empty page case if not already on first page
-  if (data.content?.length === 0 && data.totalElements > 0 && apiPageNumber > 0) {
-    console.log("Empty page detected with results available, resetting to page 1");
+  if (
+    data.content?.length === 0 &&
+    data.totalElements > 0 &&
+    apiPageNumber > 0
+  ) {
+    console.log(
+      "Empty page detected with results available, resetting to page 1"
+    );
     currentPage.value = 1;
     // Re-fetch based on current filter
     switch (activeFilter.value) {
-      case 'type':
+      case "type":
         filterByProductType(selectedProductType.value, 0);
         break;
-      case 'brand':
+      case "brand":
         filterByBrand(selectedBrand.value, 0);
         break;
-      case 'both':
+      case "both":
         filterByTypeAndBrand(selectedProductType.value, selectedBrand.value, 0);
         break;
       default:
@@ -360,7 +398,7 @@ const handleBrandClick = async (brandName) => {
   // Toggle brand selection
   if (selectedBrand.value === brandName) {
     selectedBrand.value = null;
-    
+
     // If product type is still selected, only filter by type
     if (selectedProductType.value) {
       currentPage.value = 1; // Reset page first
@@ -369,12 +407,12 @@ const handleBrandClick = async (brandName) => {
       // Reset to all products
       currentPage.value = 1; // Reset page first
       await productStore.fetchProduct(0, itemsPerPage.value);
-      activeFilter.value = 'all';
+      activeFilter.value = "all";
     }
   } else {
     selectedBrand.value = brandName;
     currentPage.value = 1; // Reset page first
-    
+
     // If product type is selected, filter by both
     if (selectedProductType.value) {
       await filterByTypeAndBrand(selectedProductType.value, brandName, 0);
@@ -388,22 +426,22 @@ const handleBrandClick = async (brandName) => {
 const handleCategoryClick = async (typeName) => {
   // Reset to page 1 whenever filters change
   currentPage.value = 1;
-  
+
   // Toggle category selection
   if (selectedProductType.value === typeName) {
     selectedProductType.value = null;
-    
+
     // If brand is still selected, only filter by brand
     if (selectedBrand.value) {
       await filterByBrand(selectedBrand.value, 0);
     } else {
       // Reset to all products
       await productStore.fetchProduct(0, itemsPerPage.value);
-      activeFilter.value = 'all';
+      activeFilter.value = "all";
     }
   } else {
     selectedProductType.value = typeName;
-    
+
     // If brand is selected, filter by both
     if (selectedBrand.value) {
       await filterByTypeAndBrand(typeName, selectedBrand.value, 0);
@@ -419,7 +457,7 @@ const resetFilters = async () => {
   selectedProductType.value = null;
   currentPage.value = 1;
   await productStore.fetchProduct(0, itemsPerPage.value);
-  activeFilter.value = 'all';
+  activeFilter.value = "all";
 };
 
 onMounted(async () => {

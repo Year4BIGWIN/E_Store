@@ -7,6 +7,7 @@ import Buttom from "@/components/Buttom.vue";
 import ProductCard from "@/components/ProductCard.vue";
 import DropDown from "@/components/DropDown.vue";
 import { useCartStore } from "@/store/cartStore";
+import Checkout from "@/components/Checkout.vue"; // Import Checkout component
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const route = useRoute();
@@ -15,14 +16,58 @@ const error = ref(null);
 const isLoading = ref(true);
 const similarProducts = ref([]);
 const quantity = ref(1);
+const cartStore = useCartStore();
+
+// Reference to the checkout component
+const checkoutRef = ref(null);
+// Single item cart for direct checkout
+const singleItemCart = ref([]);
+const singleItemTotal = ref(0);
+
+// Image navigation and selection
+const currentImageIndex = ref(0);
+const selectedImage = ref(null);
+
+const selectImage = (index) => {
+  currentImageIndex.value = index;
+  selectedImage.value = product.value.data.imageUrls[index];
+};
+
+const navigateImage = (direction) => {
+  const imagesLength = product.value.data.imageUrls.length;
+  if (direction === 'next') {
+    currentImageIndex.value = (currentImageIndex.value + 1) % imagesLength;
+  } else {
+    currentImageIndex.value = currentImageIndex.value === 0 ? imagesLength - 1 : currentImageIndex.value - 1;
+  }
+  selectedImage.value = product.value.data.imageUrls[currentImageIndex.value];
+};
+
+const openLightbox = (imageUrl) => {
+  if (!imageUrl) return;
+  window.open(imageUrl, '_blank');
+};
 
 const fetchProduct = async (id) => {
   isLoading.value = true;
   try {
     const { data } = await axios.get(`${apiUrl}/product/${id}`);
     product.value = data || {};
-    product.value.images = data?.images || [data?.image_url];
-    product.value.rating = data?.rating || 0;
+    
+    // Check if imageUrls exists and initialize selected image
+    if (product.value.data?.imageUrls && product.value.data.imageUrls.length > 0) {
+      selectedImage.value = product.value.data.imageUrls[0];
+      currentImageIndex.value = 0;
+    } else if (product.value.data?.image_url) {
+      // Create imageUrls array if only single image_url is available
+      product.value.data.imageUrls = [product.value.data.image_url];
+      selectedImage.value = product.value.data.image_url;
+      currentImageIndex.value = 0;
+    } else {
+      // Set default empty array if no images
+      product.value.data.imageUrls = [];
+    }
+    
     console.log("Product data:", product.value);
   } catch (err) {
     console.error("API Error:", err);
@@ -34,7 +79,6 @@ const fetchProduct = async (id) => {
 
 const addToCart = async (phoneId, quantity) => {
   try {
-    const cartStore = useCartStore(); // Access Pinia cart store
     const cookies = new Cookies();
     const token = cookies.get("auth_token");
 
@@ -70,6 +114,44 @@ const addToCart = async (phoneId, quantity) => {
   }
 };
 
+const buyNow = async () => {
+  try {
+    // First add the item to cart
+    await addToCart(product.value.data.id, quantity.value);
+
+    // Fetch the entire cart
+    await cartStore.fetchCart();
+
+    // Use the entire cart for checkout
+    if (cartStore.cartItems.length > 0) {
+      singleItemCart.value = cartStore.cartItems;
+
+      // Calculate total for all items in cart
+      singleItemTotal.value = cartStore.cartItems.reduce(
+        (total, item) => total + item.phone.price * item.quantity,
+        0
+      );
+
+      // Add a small delay to ensure component is ready
+      setTimeout(() => {
+        // Open checkout dialog directly
+        if (checkoutRef.value) {
+          checkoutRef.value.openCheckout();
+        } else {
+          console.error("Checkout reference not found");
+        }
+      }, 100);
+    }
+  } catch (error) {
+    console.error("Error in buy now:", error);
+    alert("An error occurred while processing. Please try again.");
+  }
+};
+
+const handleCheckoutSuccess = () => {
+  // Refresh cart after successful checkout
+  cartStore.fetchCart();
+};
 
 const updateQuantity = (operation) => {
   if (operation === "increment") quantity.value += 1;
@@ -130,54 +212,115 @@ onMounted(() => {
       <div class="w-full flex gap-4">
         <!-- Product Images -->
         <div class="w-1/2 flex flex-col gap-4">
-          <div class="w-full h-[500px] bg-[#d9d9d9] rounded-xl">
-            <img
-              :src="product.data.firstImageUrl"
-              class="w-full h-full object-fill rounded-xl"
-              :alt="product.model"
+          <!-- Main image display -->
+          <div class="w-full relative group overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 bg-white">
+            <img 
+              :src="selectedImage || (product.data.imageUrls && product.data.imageUrls[0])" 
+              alt="Selected Image"
+              class="w-full h-[500px] object-contain p-4"
               @error="(e) => (e.target.src = '/placeholder-image.jpg')"
             />
+            
+            <!-- Image magnification overlay -->
+            <div @click="openLightbox(selectedImage)" class="absolute top-3 right-3 bg-white/80 p-2 rounded-full shadow cursor-pointer hover:bg-white transition-colors">
+              <i class="fa-solid fa-expand"></i>
+            </div>
+            
+            <!-- Navigation arrows -->
+            <div v-if="product.data.imageUrls && product.data.imageUrls.length > 1" class="absolute inset-y-0 left-0 flex items-center">
+              <button 
+                class="bg-white/60 hover:bg-white text-gray-800 h-10 w-10 rounded-r-lg flex items-center justify-center shadow-sm -ml-2 transition-all group-hover:ml-2"
+                @click="navigateImage('prev')"
+              >
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+            </div>
+            
+            <div v-if="product.data.imageUrls && product.data.imageUrls.length > 1" class="absolute inset-y-0 right-0 flex items-center">
+              <button 
+                class="bg-white/60 hover:bg-white text-gray-800 h-10 w-10 rounded-l-lg flex items-center justify-center shadow-sm -mr-2 transition-all group-hover:mr-2"
+                @click="navigateImage('next')"
+              >
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+            
+            <!-- Image counter pill -->
+            <div v-if="product.data.imageUrls && product.data.imageUrls.length > 1" class="absolute bottom-3 left-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+              {{ currentImageIndex + 1 }} / {{ product.data.imageUrls.length }}
+            </div>
           </div>
-          <div class="w-full flex gap-2">
-            <div
-              v-for="(img, index) in product.data.images"
-              :key="index"
-              class="w-[150px] h-[150px] bg-black rounded-xl cursor-pointer"
-              @click="product.image_url = img"
+          
+          <!-- Empty state when no images -->
+          <div v-if="!product.data.imageUrls || product.data.imageUrls.length === 0" class="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center">
+            <i class="fa-regular fa-image text-4xl text-gray-400 mb-2"></i>
+            <p class="text-gray-500">No images available</p>
+          </div>
+          
+          <!-- Thumbnails row -->
+          <div v-if="product.data.imageUrls && product.data.imageUrls.length > 0" class="flex gap-2 w-full overflow-x-auto pb-2">
+            <div 
+              v-for="(img, index) in product.data.imageUrls" 
+              :key="`thumb-${index}`" 
+              class="relative shrink-0 cursor-pointer transition-all duration-200"
+              :class="[currentImageIndex === index ? 'ring-2 ring-blue-500' : 'opacity-80 hover:opacity-100']"
+              @click="selectImage(index)"
             >
-              <img
-                :src="img"
-                class="w-full h-[150px] object-fill rounded-xl"
-                :alt="`Thumbnail ${index + 1}`"
+              <img 
+                :src="img" 
+                alt="Thumbnail"
+                class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-md bg-white"
               />
             </div>
           </div>
+          
+          <!-- Image count indicator -->
+          <p v-if="product.data.imageUrls && product.data.imageUrls.length > 0" class="text-sm text-gray-500 text-center">
+            {{ product.data.imageUrls.length }} {{ product.data.imageUrls.length === 1 ? 'image' : 'images' }} available
+          </p>
         </div>
 
         <!-- Product Info -->
-        <div class="w-1/2 flex flex-col gap-4">
-          <h1 class="text-4xl font-bold">
-            {{ product.data.model || "Product Title" }}
-          </h1>
-          <div class="flex items-center gap-2">
-            <i
-              v-for="star in 5"
-              :key="star"
-              class="fa-solid fa-star"
-              :style="{ color: star <= product.rating ? '#FFD43B' : '#d9d9d9' }"
-            ></i>
+        <div class="w-1/2 flex flex-col gap-6 pl-6">
+          <div>
+            <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm mb-2">
+              {{ product.data.productType.name }}
+            </span>
+            <h1 class="text-3xl font-bold">
+              {{ product.data.model || "Product Title" }}
+            </h1>
           </div>
-          <hr class="w-full" />
+          
+          <div class="flex items-center gap-2">
+            <div class="flex">
+              <i
+                v-for="star in 5"
+                :key="star"
+                class="fa-solid fa-star text-lg"
+                :class="star <= product.rating ? 'text-yellow-400' : 'text-gray-200'"
+              ></i>
+            </div>
+            <span class="text-sm text-gray-600">({{ product.rating || 0 }}/5)</span>
+          </div>
+          
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h2 class="text-2xl font-bold text-blue-600">
+              ${{ product.data.price?.toLocaleString() || "0.00" }}
+            </h2>
+            <p class="text-sm text-gray-500 mt-1">Free shipping & 30-day returns</p>
+          </div>
+          
+          <hr class="border-gray-200" />
 
           <!-- Product Variations -->
           <div v-if="product.variants" class="flex flex-col gap-4">
             <div v-for="(variant, name) in product.variants" :key="name">
-              <h3 class="text-lg font-semibold">Choose {{ name }}</h3>
-              <div class="flex gap-2 mt-2">
+              <h3 class="text-md font-semibold mb-2">Choose {{ name }}</h3>
+              <div class="flex flex-wrap gap-2">
                 <button
                   v-for="option in variant"
                   :key="option"
-                  class="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                  class="px-4 py-2 border rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   {{ option }}
                 </button>
@@ -185,41 +328,54 @@ onMounted(() => {
             </div>
           </div>
 
-          <hr class="w-full" />
-          <div class="flex gap-10 items-center">
-            <h1 class="text-4xl">
-              ${{ product.data.price?.toLocaleString() || "0.00" }}
-            </h1>
-            <div
-              class="flex items-center gap-4 bg-gray-100 rounded-xl px-4 py-2"
-            >
+          <div class="flex items-center gap-4 mt-2">
+            <h3 class="font-medium">Quantity:</h3>
+            <div class="flex items-center border rounded-lg overflow-hidden">
               <button
-                class="text-2xl hover:text-blue-500"
+                class="px-3 py-2 hover:bg-gray-100 transition-colors"
                 @click="updateQuantity('decrement')"
               >
-                &minus;
+                <i class="fa-solid fa-minus"></i>
               </button>
-              <span class="text-xl w-8 text-center">{{ quantity }}</span>
+              <span class="px-4 py-2 border-x">{{ quantity }}</span>
               <button
-                class="text-2xl hover:text-blue-500"
+                class="px-3 py-2 hover:bg-gray-100 transition-colors"
                 @click="updateQuantity('increment')"
               >
-                &plus;
+                <i class="fa-solid fa-plus"></i>
               </button>
             </div>
+            <div class="text-sm text-gray-500">
+              <span v-if="product.data.stock > 10">In Stock</span>
+              <span v-else-if="product.data.stock > 0" class="text-orange-500">Only {{ product.data.stock }} left</span>
+              <span v-else class="text-red-500">Out of Stock</span>
+            </div>
           </div>
-          <hr class="w-full" />
 
           <!-- Action Buttons -->
-          <div class="w-full flex items-center justify-between gap-1">
-            <Buttom
+          <div class="w-full flex items-center gap-3 mt-2">
+            <button
               @click="addToCart(product.data.id, quantity)"
-              class="w-full"
-              variant="secondary"
-              size="lg"
-              >Add to Cart</Buttom
+              class="w-full py-3 px-6 bg-white border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center gap-2"
             >
-            <Buttom class="w-full" variant="primary" size="lg">Buy Now</Buttom>
+              <i class="fa-solid fa-cart-shopping"></i> Add to Cart
+            </button>
+            <button 
+              @click="buyNow" 
+              class="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <i class="fa-solid fa-bolt"></i> Buy Now
+            </button>
+          </div>
+          
+          <div class="flex items-center gap-2 text-sm text-gray-600 mt-2">
+            <button class="flex items-center gap-1 hover:text-blue-600 transition-colors">
+              <i class="fa-regular fa-heart"></i> Add to Wishlist
+            </button>
+            <span>•</span>
+            <button class="flex items-center gap-1 hover:text-blue-600 transition-colors">
+              <i class="fa-solid fa-share-nodes"></i> Share
+            </button>
           </div>
         </div>
       </div>
@@ -361,4 +517,14 @@ onMounted(() => {
       </div>
     </div>
   </div>
+
+  <!-- Add the Checkout component at the end of the template -->
+  <Checkout
+    ref="checkoutRef"
+    :cartItems="singleItemCart"
+    :totalPrice="singleItemTotal"
+    :showButton="false"
+    @payment-successful="handleCheckoutSuccess"
+    @update-cart="handleCheckoutSuccess"
+  />
 </template>

@@ -1,25 +1,27 @@
 <script setup>
 import { RouterView } from "vue-router";
-import { useRoute } from "vue-router";
+import { useRoute, onBeforeRouteUpdate } from "vue-router";
+import { ref, computed } from "vue";
 import NavBar from "./layout/NavBar.vue";
 import Footer from "./layout/Footer.vue";
 import AdminSideBar from "./layout/AdminSideBar.vue";
 
 const route = useRoute();
+const isAdminRoute = computed(() => {
+  return ['/dashboard', '/product', '/user', '/order', '/other'].includes(route.path);
+});
 </script>
 
 <template>
   <div class="w-full flex flex-col">
     <!-- Check if the current route is an admin route -->
-    <div v-if="['dashboard', 'product', 'user', 'order', 'other',].includes(route.name)" class="flex w-full min-h-screen">
+    <div v-if="isAdminRoute" class="flex w-full min-h-screen">
       <!-- Admin Sidebar -->
-      <AdminSideBar class=" w-60 h-full" />
+      <AdminSideBar class="w-60 h-full" />
 
       <!-- Main Content Area -->
       <div class="w-full flex flex-col items-center pl-2">
-     
-          <RouterView />
-       
+        <RouterView :key="route.path" />
       </div>
     </div>
 

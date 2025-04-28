@@ -3,18 +3,18 @@
     v-if="showDialog"
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
-    <div class="bg-white p-5 rounded-md w-[700px] flex gap-6">
+    <div class="bg-white p-5 rounded-md w-[900px] flex gap-6">
       <!-- Left: Image Upload -->
-      <div class="w-1/3 flex flex-col">
+      <div class="w-1/2 flex flex-col">
         <h2 class="text-xl font-bold mb-4">Product Image</h2>
         <Uploads
           v-model:uploadedImages="formData.imageUrls"
-          class="h-64 w-full border-2 border-dashed rounded-lg"
+          class="h-full w-full border-2 border-dashed rounded-lg"
         />
       </div>
 
       <!-- Right: Product Info -->
-      <div class="w-2/3">
+      <div class="w-1/2">
         <form @submit.prevent="handleSubmit">
           <h2 class="text-xl font-bold mb-4">
             {{ isEditMode ? "Edit Product" : "Add Product" }}

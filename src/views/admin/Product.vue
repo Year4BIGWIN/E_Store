@@ -36,9 +36,55 @@
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="productStore.isLoading" class="w-full flex justify-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <!-- Enhanced Loading State -->
+      <div v-if="productStore.isLoading" class="w-full">
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-50 border-b border-t">
+              <th class="p-4 text-left font-medium text-gray-600 text-sm">Image</th>
+              <th class="p-4 text-left font-medium text-gray-600 text-sm">Product Name</th>
+              <th class="p-4 text-left font-medium text-gray-600 text-sm">Price</th>
+              <th class="p-4 text-left font-medium text-gray-600 text-sm">Category</th>
+              <th class="p-4 text-left font-medium text-gray-600 text-sm">Stock</th>
+              <th class="p-4 text-right font-medium text-gray-600 text-sm">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="i in 8" :key="i" class="border-b border-gray-100">
+              <td class="p-4">
+                <div class="h-12 w-12 bg-gray-200 animate-pulse rounded-md"></div>
+              </td>
+              <td class="p-4">
+                <div class="h-5 bg-gray-200 animate-pulse rounded w-40"></div>
+              </td>
+              <td class="p-4">
+                <div class="h-5 bg-gray-200 animate-pulse rounded w-16"></div>
+              </td>
+              <td class="p-4">
+                <div class="h-5 bg-gray-200 animate-pulse rounded w-24"></div>
+              </td>
+              <td class="p-4">
+                <div class="h-5 bg-gray-200 animate-pulse rounded w-12"></div>
+              </td>
+              <td class="p-4 text-right">
+                <div class="flex justify-end gap-2">
+                  <div class="h-8 w-8 bg-gray-200 animate-pulse rounded"></div>
+                  <div class="h-8 w-8 bg-gray-200 animate-pulse rounded"></div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <!-- Skeleton Pagination -->
+        <div class="mt-6 flex justify-between items-center">
+          <div class="h-8 w-20 bg-gray-200 animate-pulse rounded"></div>
+          <div class="flex gap-2">
+            <div class="h-8 w-8 bg-gray-200 animate-pulse rounded"></div>
+            <div class="h-8 w-8 bg-gray-200 animate-pulse rounded"></div>
+            <div class="h-8 w-8 bg-gray-200 animate-pulse rounded"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Empty State -->
@@ -148,3 +194,18 @@ const handleProductSaved = () => {
   showDialog.value = false;
 };
 </script>
+
+<style scoped>
+.animate-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+</style>
