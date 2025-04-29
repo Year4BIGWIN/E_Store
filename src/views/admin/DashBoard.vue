@@ -240,13 +240,14 @@ const loadDashboardData = async () => {
 
     if (salesPerformanceResult.data) {
       salesPerformance.value = {
-        daily: salesPerformanceResult.data.currentMonth.totalSales / 30, // Approximate daily average
-        weekly: salesPerformanceResult.data.currentMonth.totalSales / 4, // Approximate weekly average
+        daily: salesPerformanceResult.data.currentMonth.totalsaledaily, // Approximate daily average
+        weekly: salesPerformanceResult.data.currentMonth.totalsaleweekly, // Approximate weekly average
         monthly: salesPerformanceResult.data.currentMonth.totalSales,
         growthPercentage: salesPerformanceResult.data.currentMonth.growthPercentageComparedToLastMonth,
         averageOrderValue: salesPerformanceResult.data.currentMonth.averageOrderValue,
         numberOfOrders: salesPerformanceResult.data.currentMonth.numberOfOrders,
         graphData: salesPerformanceResult.data.graphData || []
+
       };
     }
     

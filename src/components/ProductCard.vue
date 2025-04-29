@@ -16,14 +16,19 @@ const checkoutRef = ref(null);
 const singleItemCart = ref([]);
 const singleItemTotal = ref(0);
 
+const isAddingToCart = ref(false);
+const isBuyingNow = ref(false);
+const showAddedToast = ref(false);
+
 const addToCart = async (phoneId, quantity) => {
   try {
+    isAddingToCart.value = true;
     const cookies = new Cookies();
     const token = cookies.get("auth_token");
 
     // Validate token
     if (!token || token.split(".").length !== 3) {
-      alert("Invalid or missing authentication token");
+      router.push({ name: 'login', query: { redirect: router.currentRoute.value.fullPath }});
       return;
     }
 
@@ -38,23 +43,26 @@ const addToCart = async (phoneId, quantity) => {
 
     const responseData = await response.json();
 
-    if (!response.ok) {
-      alert(responseData.message || "Failed to add item to cart");
-      return;
-    }
-
     console.log("Add to cart response:", responseData);
 
+    // Show toast notification
+    showAddedToast.value = true;
+    setTimeout(() => {
+      showAddedToast.value = false;
+    }, 2000);
+    
     // Fetch updated cart after adding an item
     await cartStore.fetchCart();
   } catch (error) {
     console.error("Error adding to cart:", error);
-    alert("An error occurred while adding the item. Please try again.");
+  } finally {
+    isAddingToCart.value = false;
   }
 };
 
-const buyNow = async (phoneId, quantity) => {
+const buyNow = async (phoneId, quantity = 1) => {
   try {
+    isBuyingNow.value = true;
     // First add the item to cart
     await addToCart(phoneId, quantity);
 
@@ -83,7 +91,8 @@ const buyNow = async (phoneId, quantity) => {
     }
   } catch (error) {
     console.error("Error in buy now:", error);
-    alert("An error occurred while processing. Please try again.");
+  } finally {
+    isBuyingNow.value = false;
   }
 };
 
@@ -109,53 +118,59 @@ const goToProductDetail = () => {
 
 <template>
   <div
-    class="cursor-pointer w-[265px] border flex flex-col justify-start gap-2"
+    class="cursor-pointer w-[265px] border rounded-lg hover:shadow-lg transition-all duration-300 flex flex-col justify-start gap-2 overflow-hidden"
   >
     <div
       @click="goToProductDetail"
-      class="w-full h-[200px] rounded-xl bg-[#d9d9d9] relative"
+      class="w-full h-[200px] bg-[#f5f5f5] relative group"
     >
       <img
         :src="product.firstImageUrl"
         alt="..."
-        class="w-full h-full object-cover rounded-xl"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
       />
       <h2
-        class="absolute top-1 right-1 text-[12px] bg-white rounded-full px-3 text-black"
+        class="absolute top-2 right-2 text-[12px] bg-white/90 rounded-full px-3 py-1 text-black shadow-sm"
       >
         {{ product.productType.name }}
       </h2>
     </div>
-    <div class="flex flex-col justify-start p-2 gap-4">
+    <div class="flex flex-col p-3 gap-3">
       <div class="flex flex-col">
-        <h1 class="text-lg font-semibold">{{ product.model }}</h1>
-        <div class="flex items-center justify-between">
+        <h1 class="text-lg font-semibold line-clamp-1 hover:line-clamp-none transition-all">{{ product.model }}</h1>
+        <div class="flex items-center justify-between mt-1">
           <div class="flex items-center gap-1">
-            <i class="fa-regular fa-star fa-xs" style="color: #bababa"></i>
-            <h3 class="text-[12px] text-gray-400">( Review)</h3>
+            <div class="flex items-center text-yellow-400">
+              <i class="fa-solid fa-star text-xs"></i>
+              <i class="fa-solid fa-star text-xs"></i>
+              <i class="fa-solid fa-star text-xs"></i>
+              <i class="fa-solid fa-star text-xs"></i>
+              <i class="fa-regular fa-star text-xs"></i>
+            </div>
+            <h3 class="text-[12px] text-gray-500">4.0</h3>
           </div>
           <div class="flex items-center">
-            <i class="fa-solid fa-dollar-sign"></i>
-            <h1 class="font-semibold text-lg">{{ product.price }}</h1>
+            <span class="font-medium text-gray-500 text-sm mr-1">$</span>
+            <h1 class="font-bold text-lg">{{ product.price.toLocaleString() }}</h1>
           </div>
         </div>
       </div>
-      <div class="w-full flex items-center justify-between gap-1">
-        <Buttom
-          @click="addToCart(product.id, product.quantity)"
-          class="w-full"
-          variant="secondary"
-          size="sm"
-          >Add to Cart</Buttom
-        >
-        <Buttom
-          @click.stop="buyNow(product.id, product.quantity)"
-          class="w-full"
-          variant="primary"
-          size="lg"
-          >Buy Now</Buttom
-        >
-      </div>
+    </div>
+    <div class="w-full flex items-center justify-between gap-1">
+      <Buttom
+        @click="addToCart(product.id, product.quantity)"
+        class="w-full"
+        variant="secondary"
+        size="sm"
+        >Add to Cart</Buttom
+      >
+      <Buttom
+        @click.stop="buyNow(product.id, product.quantity)"
+        class="w-full"
+        variant="primary"
+        size="lg"
+        >Buy Now</Buttom
+      >
     </div>
 
     <Checkout
@@ -167,4 +182,21 @@ const goToProductDetail = () => {
       @update-cart="handleCheckoutSuccess"
     />
   </div>
+
+  <transition name="fade">
+    <div v-if="showAddedToast" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg z-50 flex items-center">
+      <i class="fa-solid fa-check-circle mr-2"></i>
+      <span>Added to cart successfully!</span>
+    </div>
+  </transition>
 </template>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s, transform 0.3s;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+</style>

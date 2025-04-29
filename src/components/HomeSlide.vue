@@ -41,8 +41,8 @@ import Buttom from "@/components/Buttom.vue";
             required
           />
           <Buttom
-            variant="primary"
-            size="sm"
+            variant="default"
+            size="default"
             class="absolute right-0 top-0 mt-1 mr-1"
             >Search</Buttom
           >

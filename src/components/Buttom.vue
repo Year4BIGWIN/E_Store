@@ -48,7 +48,7 @@
       case "danger":
         return "bg-red-500 text-white";
       default:
-        return "bg-gray-200 text-gray-800";
+        return "bg-black text-white";
     }
   });
   
@@ -59,7 +59,7 @@
       case "lg":
         return "px-4 py-2 text-md";
       default:
-        return "px-4 py-2 text-base";
+        return "px-4 py-1 text-sm";
     }
   });
   

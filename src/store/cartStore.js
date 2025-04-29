@@ -27,20 +27,53 @@ export const useCartStore = defineStore("cart", {
       }
     },
 
-    async addItemToCart(item) {
+    async addToCart(phoneId, quantity = 1) {
       try {
-        await fetch(`${apiUrl}/cart/add`, {
+        const cookies = new Cookies();
+        const token = cookies.get("auth_token");
+
+        // Validate token
+        if (!token || token.split(".").length !== 3) {
+          router.push({
+            name: "login",
+            query: { redirect: router.currentRoute.value.fullPath },
+          });
+          return;
+        }
+
+        const response = await fetch(`${apiUrl}/cart/add`, {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${cookies.get("auth_token")}`,
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ item }),
+          body: JSON.stringify({ phoneId, quantity }),
         });
 
-        await this.fetchCart(); // Refresh cart after adding
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          return {
+            success: false,
+            message: responseData.message || "Product is out of stock",
+            errorType: "general",
+          };
+        }
+
+        console.log("Add to cart response:", responseData);
+
+        // Use this.fetchCart() instead of cartStore.fetchCart()
+        await this.fetchCart();
+
+        // Return success for UI feedback
+        return { success: true, message: "Item added to cart!" };
       } catch (error) {
-        console.error("Error adding item:", error);
+        console.error("Error adding to cart:", error);
+        return {
+          success: false,
+          message: "An error occurred while adding the item. Please try again.",
+          errorType: "exception",
+        };
       }
     },
 
