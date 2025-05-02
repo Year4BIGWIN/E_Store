@@ -1,7 +1,6 @@
 <template>
     <div v-if="showDialog" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-5 rounded-md w-[700px] flex gap-6">
-            <div class="w-1/2">
+        <div class="bg-white p-5 rounded-md w-[400px] flex gap-6">
                 <form @submit.prevent="handleSubmit">
                     <h2 class="text-xl font-bold mb-4">{{ isEditMode ? 'Edit Category' : 'Add Category' }}</h2>
                     <div class="w-full grid grid-cols-2 gap-2">
@@ -18,7 +17,6 @@
                         {{ message }}
                     </p>
                 </form>
-            </div>
         </div>
     </div>
 </template>

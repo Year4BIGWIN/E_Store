@@ -47,7 +47,7 @@
 import { defineProps, ref, defineEmits } from "vue";
 import Cookies from 'universal-cookie';
 import axios from "axios"; 
-import DialogBrand from '@/components/DialogBrand.vue';
+import DialogBrand from '@/components/Other/DialogBrand.vue';
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const token = new Cookies().get("auth_token");

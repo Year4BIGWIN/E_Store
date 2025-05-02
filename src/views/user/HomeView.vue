@@ -5,16 +5,12 @@ import HomeProduct from '@/components/HomeProduct.vue';
 
 <template>
   <main>
-    <!-- First Section (HomeSlide) -->
-     <div class="h-[2200px]">
-      <div class="absolute inset-0 top-0 z-10">
+      <div class="w-full h-[250px] md:h-[450px] absolute inset-0 top-0 z-10">
       <HomeSlide />
-      <HomeProduct />
-    </div>
      </div>
-    
-      
-    
-   
+
+     <div class="pt-[180px] md:pt-[400px]">
+      <HomeProduct />
+     </div>
   </main>
 </template>

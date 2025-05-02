@@ -10,7 +10,7 @@ import CheckoutButton from "@/components/CheckOut/CheckoutButton.vue";
 import CheckoutDialog from "@/components/CheckOut/CheckoutDialog.vue";
 import PaymentDialog from "@/components/CheckOut/PaymentDialog.vue";
 import RemoveConfirmationDialog from "@/components/CheckOut/RemoveConfirmDialog.vue";
-import ToastNotification from "@/components/CheckOut/ToastNotification.vue";
+import ToastNotification from "@/components/ToastNotification.vue";
 
 const props = defineProps({
   cartItems: {

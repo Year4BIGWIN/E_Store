@@ -51,7 +51,7 @@
 import { defineProps, ref, defineEmits } from "vue";
 import Cookies from 'universal-cookie';
 import axios from "axios"; 
-import DialogCategory from './DialogCategory.vue';
+import DialogCategory from './Other/DialogCategory.vue';
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const token = new Cookies().get("auth_token");

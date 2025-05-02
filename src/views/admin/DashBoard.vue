@@ -23,7 +23,7 @@
             <StatCard 
               title="Total Revenue"
               :changeDirection="statistics.revenueChangeDirection"
-              :changePercentage="statistics.changePercentage"
+              :changePercentage="formatPercentage(statistics.changePercentage)"
             >
               <template #value>${{ formatCurrency(statistics.currentMonthRevenue) }}</template>
             </StatCard>
@@ -33,7 +33,7 @@
               title="Orders"
               :value="statistics.totalOrders"
               :changeDirection="statistics.ordersChangeDirection"
-              :changePercentage="statistics.ordersChangePercentage"
+              :changePercentage="formatPercentage(statistics.ordersChangePercentage)"
             />
 
             <!-- Customers Stat Card -->
@@ -41,14 +41,14 @@
               title="Customers"
               :value="statistics.totalCustomers"
               :changeDirection="statistics.customersChangeDirection"
-              :changePercentage="statistics.customersChangePercentage"
+              :changePercentage="formatPercentage(statistics.customersChangePercentage)"
             />
 
             <!-- Average Order Value Stat Card -->
             <StatCard 
               title="Average Order Value"
               :changeDirection="statistics.aovChange >= 0 ? 'up' : 'down'"
-              :changePercentage="statistics.aovChangePercentage"
+              :changePercentage="formatPercentage(statistics.aovChangePercentage)"
             >
               <template #value>${{ formatCurrency(statistics.averageOrderValue) }}</template>
             </StatCard>
@@ -155,7 +155,20 @@ const salesPerformance = ref({
   graphData: []
 });
 
-// Helper function to format currency
+const formatPercentage = (value) => {
+  if (value === null || value === undefined) {
+    return '0.00';
+  }
+  
+  const numValue = typeof value === 'number' ? value : Number(value);
+  
+  if (isNaN(numValue)) {
+    return '0.00';
+  }
+  
+  return parseFloat(numValue).toFixed(2);
+};
+
 const formatCurrency = (value) => {
   if (value === null || value === undefined) {
     return '0.00';

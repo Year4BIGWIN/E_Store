@@ -8,7 +8,7 @@ import AdminSideBar from "./layout/AdminSideBar.vue";
 
 const route = useRoute();
 const isAdminRoute = computed(() => {
-  return ['/dashboard', '/product', '/user', '/order', '/other'].includes(route.path);
+  return ['/dashboard', '/product', '/user', '/order', '/other', '/Other'].includes(route.path);
 });
 </script>
 

@@ -13,7 +13,7 @@
                 :class="salesData.growthPercentage >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
             <span v-if="salesData.growthPercentage > 0">↑</span>
             <span v-else>↓</span>
-            {{ Math.abs(salesData.growthPercentage) }}%
+            {{ formatPercentage(salesData.growthPercentage) }}%
           </span>
         </div>
       </div>
@@ -125,6 +125,20 @@
       return dateString;
     }
   };
+
+  const formatPercentage = (value) => {
+  if (value === null || value === undefined) {
+    return '0.00';
+  }
+  
+  const numValue = typeof value === 'number' ? value : Number(value);
+  
+  if (isNaN(numValue)) {
+    return '0.00';
+  }
+  
+  return parseFloat(numValue).toFixed(2);
+};
   
   const formatCurrency = (value) => {
     if (value === null || value === undefined) {
