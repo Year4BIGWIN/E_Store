@@ -45,7 +45,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="sticky top-0 z-50 flex max-w-6xl w-full">
+  <div class="sticky top-0 z-20 flex max-w-6xl w-full">
     <nav class="flex w-full items-center justify-between px-6 py-3 bg-white shadow-md rounded-b-xl">
       <!-- Logo -->
       <router-link to="/">

@@ -25,9 +25,22 @@ const useAuth = () => {
       console.error('Logout failed:', error);
     }
   };
+  const getToken = () => {
+    const token = cookies.get("auth_token");
+    return token && token.split(".").length === 3 ? token : null;
+  };
+
+  const getAuthHeaders = () => {
+    const token = getToken();
+    return token
+      ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+      : null;
+  };
 
   return {
     logout,
+    getToken,
+    getAuthHeaders
   };
 };
 

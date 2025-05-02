@@ -145,7 +145,6 @@ import Cookies from "universal-cookie";
 import Input from "@/components/Input.vue";
 import Upload from "@/components/Upload.vue";
 import useAuth from "@/composable/useAuth";
-import map from "@/components/Map.vue";
 
 const { logout } = useAuth();
 

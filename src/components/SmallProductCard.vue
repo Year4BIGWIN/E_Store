@@ -1,7 +1,7 @@
 <template>
   <div 
     @click="goToProductDetail" 
-    class="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full"
+    class="group border cursor-pointer bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full"
   >
     <!-- Product Image with Overlay on Hover -->
     <div class="relative aspect-square overflow-hidden">

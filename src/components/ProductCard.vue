@@ -1,10 +1,10 @@
 <script setup>
-import { defineProps, ref, computed } from "vue";
+import { defineProps, ref, onMounted } from "vue";
 import Buttom from "./Buttom.vue";
 import { useRouter } from "vue-router";
 import Cookies from "universal-cookie";
 import { useCartStore } from "@/store/cartStore";
-import Checkout from "@/components/Checkout.vue";
+import Checkout from "@/components/CheckOut/Checkout.vue";
 
 const router = useRouter();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
@@ -69,16 +69,6 @@ const buyNow = async (phoneId, quantity = 1) => {
     // Fetch the entire cart instead of just the one item
     await cartStore.fetchCart();
 
-    // Use the entire cart for checkout
-    if (cartStore.cartItems.length > 0) {
-      singleItemCart.value = cartStore.cartItems;
-
-      // Calculate total for all items in cart
-      singleItemTotal.value = cartStore.cartItems.reduce(
-        (total, item) => total + item.phone.price * item.quantity,
-        0
-      );
-
       // Add a small delay to ensure component is ready
       setTimeout(() => {
         // Open checkout dialog directly
@@ -88,7 +78,6 @@ const buyNow = async (phoneId, quantity = 1) => {
           console.error("Checkout reference not found");
         }
       }, 100);
-    }
   } catch (error) {
     console.error("Error in buy now:", error);
   } finally {
@@ -175,8 +164,8 @@ const goToProductDetail = () => {
 
     <Checkout
       ref="checkoutRef"
-      :cartItems="singleItemCart"
-      :totalPrice="singleItemTotal"
+      :cartItems="cartStore.cartItems"
+      :totalPrice="cartStore.totalPrice"
       :showButton="false"
       @payment-successful="handleCheckoutSuccess"
       @update-cart="handleCheckoutSuccess"

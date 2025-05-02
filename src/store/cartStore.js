@@ -91,5 +91,89 @@ export const useCartStore = defineStore("cart", {
         console.error("Error removing item:", error);
       }
     },
+
+    // New functions for quantity management
+    async decreaseQuantity(itemId) {
+      try {
+        const item = this.cartItems.find(item => item.phone.id === itemId);
+        
+        // If quantity would be less than 1, this would remove the item
+        if (!item || item.quantity <= 1) {
+          return { success: false, needsConfirmation: true };
+        }
+        
+        const response = await fetch(`${apiUrl}/cart/removeOne/${itemId}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${cookies.get("auth_token")}`,
+          },
+        });
+
+        if (response.ok) {
+          await this.fetchCart();
+          return { success: true };
+        } else {
+          console.error(`Failed to decrease quantity: ${response.statusText}`);
+          return { success: false, needsConfirmation: false };
+        }
+      } catch (error) {
+        console.error("Error decreasing quantity:", error);
+        return { success: false, needsConfirmation: false };
+      }
+    },
+
+    async increaseQuantity(itemId) {
+      try {
+        const response = await fetch(`${apiUrl}/cart/addOne/${itemId}`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${cookies.get("auth_token")}`,
+          },
+        });
+
+        if (response.ok) {
+          await this.fetchCart();
+          return { success: true };
+        } else {
+          console.error(`Failed to increase quantity: ${response.statusText}`);
+          return { success: false };
+        }
+      } catch (error) {
+        console.error("Error increasing quantity:", error);
+        return { success: false };
+      }
+    },
+
+    async updateItemQuantity(itemId, newQuantity) {
+      try {
+        if (newQuantity <= 0) {
+          return this.removeItemFromCart(itemId);
+        }
+        
+        // Get current quantity
+        const currentItem = this.cartItems.find(item => item.id === itemId);
+        if (!currentItem) return { success: false };
+        
+        const currentQuantity = currentItem.quantity;
+        
+        // Optimize API calls by determining if we need to increase or decrease
+        if (newQuantity > currentQuantity) {
+          // Need to increase
+          for (let i = currentQuantity; i < newQuantity; i++) {
+            await this.increaseQuantity(itemId);
+          }
+        } else if (newQuantity < currentQuantity) {
+          // Need to decrease
+          for (let i = currentQuantity; i > newQuantity; i--) {
+            await this.decreaseQuantity(itemId);
+          }
+        }
+        
+        return { success: true };
+      } catch (error) {
+        console.error("Error updating quantity:", error);
+        return { success: false };
+      }
+    },
   },
 });

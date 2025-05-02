@@ -1,7 +1,7 @@
 <template>
     
     <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden">
             <div class="px-6 py-4 border-b flex justify-between items-center">
                 <h3 class="text-xl font-medium">{{ title }}</h3>
                 <div>
@@ -11,7 +11,7 @@
                 </button>
             </div>
             
-            <div class="p-6">
+            <div class="p-2">
                 <slot></slot>
             </div>
         </div>

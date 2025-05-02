@@ -84,73 +84,128 @@
 
     <!-- Order Details Modal -->
     <div v-if="selectedOrder" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div class="bg-white p-6 rounded-lg max-w-2xl w-full overflow-y-auto">
-        <span class="text-gray-600 flex justify-end cursor-pointer" @click="selectedOrder = null"> &times;</span>
-        <h2 class="text-xl font-bold mb-4">Order #{{ selectedOrder.id }}</h2>
-        <div class="space-y-4">
-          <div>
-            <strong>Hash:</strong> {{ selectedOrder.md5Hash }}
-          </div>
-          <div>
-            <strong>Status:</strong> {{ selectedOrder.status }}
-          </div>
-          <div>
-            <strong>Total Amount:</strong> ${{ selectedOrder.totalAmount.toFixed(2) }}
-          </div>
-          <div>
-            <strong>Created At:</strong> {{ formatDate(selectedOrder.createdAt) }}
-          </div>
-          <div>
-            <strong>Invoice:</strong> {{ selectedOrder.invoiceSent ? 'Sent' : 'Not Sent' }}
-          </div>
-          <div>
-            <strong>Process Status:</strong> 
-            <div class="flex items-center gap-2">
-              <span>{{ selectedOrder.processStatus || 'Not Started' }}</span>
-              <select v-if="selectedOrder.status === 'PAID'" v-model="selectedProcessStatus" @change="handleProcessStatusChange" class="p-2 border border-gray-300 rounded">
-                <option value="">Select new status</option>
-                <option v-for="status in validProcessStatuses" :key="status" :value="status">
-                  {{ status }}
-                </option>
-              </select>
+      <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl">
+        <!-- Modal Header -->
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center sticky top-0">
+          <h2 class="text-xl font-bold text-gray-800">Order #{{ selectedOrder.id }}</h2>
+          <button 
+            @click="selectedOrder = null" 
+            class="rounded-full h-8 w-8 flex items-center justify-center bg-gray-200 hover:bg-gray-300 transition-colors duration-200"
+            aria-label="Close modal"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Modal Content -->
+        <div class="p-6 space-y-6">
+          <!-- Order Summary -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div>
+              <p class="text-sm text-gray-500">Hash</p>
+              <p class="font-medium text-gray-800">{{ selectedOrder.md5Hash }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Status</p>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium" 
+                :class="selectedOrder.status === 'PAID' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'">
+                {{ selectedOrder.status }}
+              </span>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Total Amount</p>
+              <p class="font-medium text-gray-800">${{ selectedOrder.totalAmount.toFixed(2) }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Created At</p>
+              <p class="font-medium text-gray-800">{{ formatDate(selectedOrder.createdAt) }}</p>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Invoice</p>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                :class="selectedOrder.invoiceSent ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'">
+                {{ selectedOrder.invoiceSent ? 'Sent' : 'Not Sent' }}
+              </span>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Process Status</p>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  :class="{
+                    'bg-blue-100 text-blue-800': selectedOrder.processStatus === 'PROCESSING',
+                    'bg-purple-100 text-purple-800': selectedOrder.processStatus === 'DELIVERY',
+                    'bg-green-100 text-green-800': selectedOrder.processStatus === 'DELIVERED',
+                    'bg-gray-100 text-gray-800': !selectedOrder.processStatus
+                  }">
+                  {{ selectedOrder.processStatus || 'Not Started' }}
+                </span>
+                <select 
+                  v-if="selectedOrder.status === 'PAID'" 
+                  v-model="selectedProcessStatus" 
+                  @change="handleProcessStatusChange" 
+                  class="p-1.5 text-sm border border-gray-300 rounded"
+                >
+                  <option value="">Update status</option>
+                  <option v-for="status in validProcessStatuses" :key="status" :value="status">
+                    {{ status }}
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
           
-          <div v-if="selectedOrder.location" class="mt-4">
-            <h3 class="text-lg font-bold">Delivery Location</h3>
-            <p><strong>Address:</strong> {{ selectedOrder.location.locationAddress }}</p>
-            <p><strong>Coordinates:</strong> {{ selectedOrder.location.latitude }}, {{ selectedOrder.location.longitude }}</p>
-            <div class="mt-2">
+          <!-- Delivery Location -->
+          <div v-if="selectedOrder.location" class="border border-gray-200 rounded-lg p-4">
+            <h3 class="text-lg font-medium text-gray-800 mb-3">Delivery Location</h3>
+            <div class="space-y-2">
+              <p><span class="text-gray-500">Address:</span> {{ selectedOrder.location.locationAddress }}</p>
+              <p><span class="text-gray-500">Coordinates:</span> {{ selectedOrder.location.latitude }}, {{ selectedOrder.location.longitude }}</p>
               <a 
                 :href="`https://www.google.com/maps?q=${selectedOrder.location.latitude},${selectedOrder.location.longitude}`" 
                 target="_blank"
-                class="text-blue-600 underline"
+                class="inline-flex items-center mt-2 text-blue-600 hover:text-blue-800"
               >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
                 View on Google Maps
               </a>
             </div>
           </div>
           
-          <div class="mt-4">
-            <h3 class="text-lg font-bold">Order Items</h3>
-            <table class="w-full border-collapse mt-2">
-              <thead>
-                <tr>
-                  <th class="p-2 bg-gray-100 border-b border-gray-300 text-left">ID</th>
-                  <th class="p-2 bg-gray-100 border-b border-gray-300 text-left">Quantity</th>
-                  <th class="p-2 bg-gray-100 border-b border-gray-300 text-left">Price</th>
-                  <th class="p-2 bg-gray-100 border-b border-gray-300 text-left">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in selectedOrder.orderItems" :key="item.id">
-                  <td class="p-2 border-b border-gray-300">{{ item.id }}</td>
-                  <td class="p-2 border-b border-gray-300">{{ item.quantity }}</td>
-                  <td class="p-2 border-b border-gray-300">${{ item.price.toFixed(2) }}</td>
-                  <td class="p-2 border-b border-gray-300">${{ (item.quantity * item.price).toFixed(2) }}</td>
-                </tr>
-              </tbody>
-            </table>
+          <!-- Order Items -->
+          <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+              <h3 class="text-lg font-medium text-gray-800">Order Items</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse">
+                <thead>
+                  <tr class="bg-gray-50">
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr v-for="item in selectedOrder.orderItems" :key="item.id" class="hover:bg-gray-50">
+                    <td class="px-4 py-3 whitespace-nowrap">{{ item.id }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">{{ item.quantity }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">${{ item.price.toFixed(2) }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap font-medium">${{ (item.quantity * item.price).toFixed(2) }}</td>
+                  </tr>
+                </tbody>
+                <tfoot class="bg-gray-50">
+                  <tr>
+                    <td colspan="3" class="px-4 py-3 text-right font-medium">Total:</td>
+                    <td class="px-4 py-3 font-bold">${{ selectedOrder.totalAmount.toFixed(2) }}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -247,7 +302,7 @@ const handlePageChange = (page) => {
 
 const updateProcessStatus = async (orderId, newProcessStatus) => {
     try {
-        const response = await fetch(`${apiUrl}/order/process-status/${orderId}?/${newProcessStatus}`, {
+        const response = await fetch(`${apiUrl}/order/process-status/${orderId}?processStatus=${newProcessStatus}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

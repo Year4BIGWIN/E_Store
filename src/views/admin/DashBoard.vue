@@ -94,8 +94,12 @@
             <!-- Top Products -->
             <TopProducts :products="topProducts" />
 
-            <!-- Inventory Status -->
-            <InventoryStatus :products="lowInventoryProducts" />
+            <!-- Inventory Status - Add event handlers -->
+            <InventoryStatus 
+              :products="lowInventoryProducts" 
+              @inventory-updated="refreshInventoryData"
+              @inventory-refreshed="updateInventoryProducts" 
+            />
           </template>
         </div>
       </div>
@@ -258,6 +262,30 @@ const loadDashboardData = async () => {
     setTimeout(() => {
       isLoading.value = false; // End loading state
     }, 300);
+  }
+};
+
+// Add these new functions to handle inventory updates
+const refreshInventoryData = async () => {
+  try {
+    const inventoryResult = await adminApi.fetchInventory();
+    if (inventoryResult.data) {
+      // Update the inventory products
+      lowInventoryProducts.value = inventoryResult.data;
+      console.log('Inventory data refreshed successfully');
+    }
+  } catch (error) {
+    console.error('Error refreshing inventory data:', error);
+  }
+};
+
+// Update inventory products directly when refreshed by child component
+const updateInventoryProducts = (data) => {
+  if (data && Array.isArray(data)) {
+    lowInventoryProducts.value = data;
+    console.log('Inventory products updated with provided data');
+  } else {
+    console.warn('Received invalid inventory data format');
   }
 };
 

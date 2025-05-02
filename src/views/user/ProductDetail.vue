@@ -3,18 +3,15 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import axios from "axios";
 import Cookies from "universal-cookie";
-import Buttom from "@/components/Buttom.vue";
-import ProductCard from "@/components/ProductCard.vue";
 import DropDown from "@/components/DropDown.vue";
 import { useCartStore } from "@/store/cartStore";
-import Checkout from "@/components/Checkout.vue"; // Import Checkout component
+import Checkout from "@/components/CheckOut/Checkout.vue"; // Import Checkout component
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const route = useRoute();
 const product = ref({});
 const error = ref(null);
 const isLoading = ref(true);
-const similarProducts = ref([]);
 const quantity = ref(1);
 const cartStore = useCartStore();
 
@@ -174,6 +171,7 @@ const connectivityDetails = extractDetails("connectivity");
 const buildDetails = extractDetails("build");
 const otherFeatures = extractDetails("otherFeatures");
 const softwareFeatures = extractDetails("softwareFeatures");
+const additionalDetails = extractDetails("additionalInfo");
 
 onMounted(() => {
   if (route.params.id) fetchProduct(route.params.id);
@@ -382,138 +380,187 @@ onMounted(() => {
     </div>
 
     <!-- Product Specifications -->
-    <div class="w-full flex flex-col gap-4">
-    <h1 class="font-semibold text-2xl">Product Specifications</h1>
-    <div class="grid grid-cols-2 gap-4">
-      <div class="p-2 bg-gray-50 flex flex-col rounded-lg">
-        <!-- Display Details -->
-        <DropDown v-if="displayDetails.length" class="w-full" title="Display">
-          <ul>
-            <li
-              v-for="(detail, index) in displayDetails"
-              :key="index"
-              class="w-full flex py-2"
-            >
-              <span class="w-1/4">{{ detail.label }}:</span>
-              <span>{{ detail.value }}</span>
-            </li>
-          </ul>
-        </DropDown>
+    <div class="w-full flex flex-col gap-6 mt-8">
+      <h1 class="font-semibold text-2xl border-b pb-3">Product Specifications</h1>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left Column -->
+        <div class="flex flex-col gap-3">
 
-        <!-- Performance Details -->
-        <DropDown v-if="performanceDetails.length" class="w-full" title="Performance">
-          <ul>
-            <li
-              v-for="(detail, index) in performanceDetails"
-              :key="index"
-              class="flex justify-between"
-            >
-              <span>{{ detail.label }}:</span>
-              <span>{{ detail.value }}</span>
-            </li>
-          </ul>
-        </DropDown>
+          <!-- Additional Details -->
+          <DropDown 
+            v-if="additionalDetails.length" 
+            class="w-full shadow-sm" 
+            title="Discription" 
+            icon="fa-solid fa-info-circle"
+          >
+            <ul class="divide-y divide-gray-100">
+              <li
+                v-for="(detail, index) in additionalDetails"
+                :key="index"
+                class="py-3 flex flex-wrap items-start"
+              >
+                <span class="w-2/5 text-gray-600 font-medium">{{ detail.label }}:</span>
+                <span class="w-3/5 text-gray-800">{{ detail.value }}</span>
+              </li>
+            </ul>
+          </DropDown>
 
-        <!-- Camera Details -->
-        <DropDown v-if="cameraDetails.length" class="w-full" title="Camera">
-          <ul>
-            <li
-              v-for="(detail, index) in cameraDetails"
-              :key="index"
-              class="flex justify-between"
-            >
-              <span>{{ detail.label }}:</span>
-              <span>{{ detail.value }}</span>
-            </li>
-          </ul>
-        </DropDown>
+          <!-- Display Details -->
+          <DropDown 
+            v-if="displayDetails.length" 
+            class="w-full shadow-sm" 
+            title="Display" 
+            icon="fa-solid fa-tv"
+          >
+            <ul class="divide-y divide-gray-100">
+              <li
+                v-for="(detail, index) in displayDetails"
+                :key="index"
+                class="py-3 flex flex-wrap items-start"
+              >
+                <span class="w-2/5 text-gray-600 font-medium">{{ detail.label }}:</span>
+                <span class="w-3/5 text-gray-800">{{ detail.value }}</span>
+              </li>
+            </ul>
+          </DropDown>
 
-        <!-- Battery Details -->
-        <DropDown v-if="batteryDetails.length" class="w-full" title="Battery">
-          <ul>
-            <li
-              v-for="(detail, index) in batteryDetails"
-              :key="index"
-              class="flex justify-between"
-            >
-              <span>{{ detail.label }}:</span>
-              <span>{{ detail.value }}</span>
-            </li>
-          </ul>
-        </DropDown>
+          <!-- Performance Details -->
+          <DropDown 
+            v-if="performanceDetails.length" 
+            class="w-full shadow-sm" 
+            title="Performance" 
+            icon="fa-solid fa-microchip"
+          >
+            <ul class="divide-y divide-gray-100">
+              <li
+                v-for="(detail, index) in performanceDetails"
+                :key="index"
+                class="py-3 flex flex-wrap items-start"
+              >
+                <span class="w-2/5 text-gray-600 font-medium">{{ detail.label }}:</span>
+                <span class="w-3/5 text-gray-800">{{ detail.value }}</span>
+              </li>
+            </ul>
+          </DropDown>
 
-        <!-- Connectivity Details -->
-        <DropDown v-if="connectivityDetails.length" class="w-full" title="Connectivity">
-          <ul>
-            <li
-              v-for="(detail, index) in connectivityDetails"
-              :key="index"
-              class="flex justify-between"
-            >
-              <span>{{ detail.label }}:</span>
-              <span>{{ detail.value }}</span>
-            </li>
-          </ul>
-        </DropDown>
+          <!-- Camera Details -->
+          <DropDown 
+            v-if="cameraDetails.length" 
+            class="w-full shadow-sm" 
+            title="Camera" 
+            icon="fa-solid fa-camera"
+          >
+            <ul class="divide-y divide-gray-100">
+              <li
+                v-for="(detail, index) in cameraDetails"
+                :key="index"
+                class="py-3 flex flex-wrap items-start"
+              >
+                <span class="w-2/5 text-gray-600 font-medium">{{ detail.label }}:</span>
+                <span class="w-3/5 text-gray-800">{{ detail.value }}</span>
+              </li>
+            </ul>
+          </DropDown>
 
-        <!-- Build Details -->
-        <DropDown v-if="buildDetails.length" class="w-full" title="Build & Design">
-          <ul>
-            <li
-              v-for="(detail, index) in buildDetails"
-              :key="index"
-              class="flex justify-between"
-            >
-              <span>{{ detail.label }}:</span>
-              <span>{{ detail.value }}</span>
-            </li>
-          </ul>
-        </DropDown>
+          <!-- Battery Details -->
+          <DropDown 
+            v-if="batteryDetails.length" 
+            class="w-full shadow-sm" 
+            title="Battery" 
+            icon="fa-solid fa-battery-full"
+          >
+            <ul class="divide-y divide-gray-100">
+              <li
+                v-for="(detail, index) in batteryDetails"
+                :key="index"
+                class="py-3 flex flex-wrap items-start"
+              >
+                <span class="w-2/5 text-gray-600 font-medium">{{ detail.label }}:</span>
+                <span class="w-3/5 text-gray-800">{{ detail.value }}</span>
+              </li>
+            </ul>
+          </DropDown>
+        </div>
 
-        <!-- Other Features -->
-        <DropDown v-if="otherFeatures.length" class="w-full" title="Other Features">
-          <ul>
-            <li
-              v-for="(detail, index) in otherFeatures"
-              :key="index"
-              class="flex justify-between"
-            >
-              <span>{{ detail.label }}:</span>
-              <span>{{ detail.value }}</span>
-            </li>
-          </ul>
-        </DropDown>
+        <!-- Right Column -->
+        <div class="flex flex-col gap-3">
+          <!-- Connectivity Details -->
+          <DropDown 
+            v-if="connectivityDetails.length" 
+            class="w-full shadow-sm" 
+            title="Connectivity" 
+            icon="fa-solid fa-wifi"
+          >
+            <ul class="divide-y divide-gray-100">
+              <li
+                v-for="(detail, index) in connectivityDetails"
+                :key="index"
+                class="py-3 flex flex-wrap items-start"
+              >
+                <span class="w-2/5 text-gray-600 font-medium">{{ detail.label }}:</span>
+                <span class="w-3/5 text-gray-800">{{ detail.value }}</span>
+              </li>
+            </ul>
+          </DropDown>
 
-        <!-- Software Features -->
-        <DropDown v-if="softwareFeatures.length" class="w-full" title="Software Features">
-          <ul>
-            <li
-              v-for="(detail, index) in softwareFeatures"
-              :key="index"
-              class="flex justify-between"
-            >
-              <span>{{ detail.label }}:</span>
-              <span>{{ detail.value }}</span>
-            </li>
-          </ul>
-        </DropDown>
-      </div>
-    </div>
-  </div>
+          <!-- Build Details -->
+          <DropDown 
+            v-if="buildDetails.length" 
+            class="w-full shadow-sm" 
+            title="Build & Design" 
+            icon="fa-solid fa-pencil-ruler"
+          >
+            <ul class="divide-y divide-gray-100">
+              <li
+                v-for="(detail, index) in buildDetails"
+                :key="index"
+                class="py-3 flex flex-wrap items-start"
+              >
+                <span class="w-2/5 text-gray-600 font-medium">{{ detail.label }}:</span>
+                <span class="w-3/5 text-gray-800">{{ detail.value }}</span>
+              </li>
+            </ul>
+          </DropDown>
 
-    <!-- Similar Products -->
-    <div v-if="similarProducts.length" class="w-full flex flex-col gap-2">
-      <div class="w-full flex justify-between">
-        <h1 class="text-2xl font-bold">Similar Products</h1>
-        <router-link
-          to="/products"
-          class="hover:text-blue-500 text-lg font-semibold"
-        >
-          View All <i class="fa-solid fa-angles-right"></i>
-        </router-link>
-      </div>
-      <div class="w-full flex gap-8">
-        <ProductCard />
+          <!-- Other Features -->
+          <DropDown 
+            v-if="otherFeatures.length" 
+            class="w-full shadow-sm" 
+            title="Other Features" 
+            icon="fa-solid fa-star"
+          >
+            <ul class="divide-y divide-gray-100">
+              <li
+                v-for="(detail, index) in otherFeatures"
+                :key="index"
+                class="py-3 flex flex-wrap items-start"
+              >
+                <span class="w-2/5 text-gray-600 font-medium">{{ detail.label }}:</span>
+                <span class="w-3/5 text-gray-800">{{ detail.value }}</span>
+              </li>
+            </ul>
+          </DropDown>
+
+          <!-- Software Features -->
+          <DropDown 
+            v-if="softwareFeatures.length" 
+            class="w-full shadow-sm" 
+            title="Software Features" 
+            icon="fa-solid fa-code"
+          >
+            <ul class="divide-y divide-gray-100">
+              <li
+                v-for="(detail, index) in softwareFeatures"
+                :key="index"
+                class="py-3 flex flex-wrap items-start"
+              >
+                <span class="w-2/5 text-gray-600 font-medium">{{ detail.label }}:</span>
+                <span class="w-3/5 text-gray-800">{{ detail.value }}</span>
+              </li>
+            </ul>
+          </DropDown>
+        </div>
       </div>
     </div>
   </div>
