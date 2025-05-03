@@ -40,6 +40,7 @@ export const useProductStore = defineStore('products', {
           stock_price: item.stock_price,
           price: item.price,
           stock: item.stock,
+          averageRating: item.averageRating,
           releaseDate: item.releaseDate,
           brand: item.brand,
           productType: item.productType,

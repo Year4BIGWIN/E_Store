@@ -5,7 +5,7 @@
         ><span class="hover:text-blue-500">My Profile</span></router-link
       >
       <router-link
-        ><span class="hover:text-blue-500">Pending Orders</span></router-link
+        ><span class="hover:text-blue-500">Orders</span></router-link
       >
       <router-link
         ><span class="hover:text-blue-500">History</span></router-link
@@ -79,59 +79,17 @@
         </div>
       </div>
 
-      <!-- Address Section -->
       <div class="w-full flex flex-col rounded-xl bg-gray-100 gap-4 p-5">
-        <div class="w-full flex justify-between">
-          <h1 class="text-xl">Address</h1>
-          
-          <div class="flex w-full gap-2 justify-end items-center">
-              <button @click="toggleEdit">
-                <span class="py-[6px] px-2 text-white bg-red-500 rounded-xl" v-if="isEditing">Cancel</span>
-                <i v-else class="fa-regular fa-pen-to-square"></i>
-              </button>
-              <!-- Save button when editing -->
-              <div v-if="isEditing">
-                <button
-                  @click="saveProfile"
-                  class="py-1 px-2 text-white bg-green-500 rounded-xl"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-        </div>
-
-        <div class="w-full grid grid-cols-2 gap-4">
-          <Input
-            label="House No"
-            v-model="editProfile.house_number"
-            :disabled="!isEditing"
-          />
-          <Input
-            label="Street No"
-            v-model="editProfile.street"
-            :disabled="!isEditing"
-          />
-          <Input
-            label="Village"
-            v-model="editProfile.village"
-            :disabled="!isEditing"
-          />
-          <Input
-            label="District"
-            v-model="editProfile.district"
-            :disabled="!isEditing"
-          />
-          <Input
-            label="City/Province"
-            v-model="editProfile.city"
-            :disabled="!isEditing"
-          />
-          <Input
-            label="Zip Code"
-            v-model="editProfile.zip_code"
-            :disabled="!isEditing"
-          />
+        <h1 class="text-xl">My Orders</h1>
+        <div class="flex flex-col gap-2">
+          <div class="flex justify-between items-center">
+            <span>Order #12345</span>
+            <span class="text-green-500">Completed</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>Order #67890</span>
+            <span class="text-red-500">Pending</span>
+          </div>
         </div>
       </div>
     </div>
@@ -184,12 +142,6 @@ const saveProfile = async () => {
       last_name: editProfile.value.last_name,
       phone_number: editProfile.value.phone_number,
       image_url: editProfile.value.image_url,
-      house_number: editProfile.value.house_number,
-      street: editProfile.value.street,
-      village: editProfile.value.village,
-      district: editProfile.value.district,
-      city: editProfile.value.city,
-      zip_code: editProfile.value.zip_code,
     };
 
     console.log("Sending cleaned data:", dataToSend);

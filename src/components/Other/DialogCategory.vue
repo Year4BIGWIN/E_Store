@@ -1,5 +1,5 @@
 <template>
-    <div v-if="showDialog" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div v-if="showDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white p-5 rounded-md w-[400px] flex gap-6">
                 <form @submit.prevent="handleSubmit">
                     <h2 class="text-xl font-bold mb-4">{{ isEditMode ? 'Edit Category' : 'Add Category' }}</h2>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue';
+import { ref, defineProps, defineEmits, computed } from 'vue';
 
 const props = defineProps({
   initialRating: {
@@ -46,14 +46,17 @@ const updateReview = (event) => {
   emit('update:review', reviewText.value);
 };
 
-const getStarClass = (position) => {
+const getStarFillPercentage = (position) => {
   const rating = hoverRating.value || selectedRating.value;
-  return {
-    'text-yellow-400': position <= rating,
-    'text-gray-300': position > rating,
-    'cursor-pointer': !props.readonly,
-    'hover:scale-110 transition-transform': !props.readonly
-  };
+  if (position <= Math.floor(rating)) {
+    return 100; // Full star
+  } else if (position > Math.ceil(rating)) {
+    return 0; // Empty star
+  } else {
+    // Partial star - calculate percentage
+    const decimal = rating - Math.floor(rating);
+    return Math.round(decimal * 100);
+  }
 };
 </script>
 
@@ -68,12 +71,30 @@ const getStarClass = (position) => {
         :key="position"
         @mouseover="setHoverRating(position)"
         @click="setRating(position)"
-        class="text-lg"
+        class="relative"
+        style="width: 16px; height: 16px;" 
       >
-        <i class="fa-solid fa-star" :class="getStarClass(position)"></i>
+        <!-- SVG Star with precise fill level -->
+        <svg viewBox="0 0 24 24" class="w-full h-full">
+          <!-- Background/empty star -->
+          <path
+            d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+            fill="#e2e8f0" 
+          />
+          <!-- Filled portion -->
+          <path
+            d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+            :style="{
+              fill: '#facc15',
+              clipPath: `inset(0 ${100 - getStarFillPercentage(position)}% 0 0)`
+            }"
+          />
+        </svg>
       </div>
-      <span v-if="selectedRating > 0" class="text-sm text-gray-600 ml-2">
-        {{ selectedRating }}/5
+      
+      <!-- Display numerical rating -->
+      <span class="text-xs ml-2 text-gray-600" v-if="props.readonly">
+        {{ selectedRating.toFixed(1) }}
       </span>
     </div>
     

@@ -15,7 +15,6 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { defineProps, defineEmits } from "vue";
-import defaultImage from "../assets/image/Logo.png";
 
 
 

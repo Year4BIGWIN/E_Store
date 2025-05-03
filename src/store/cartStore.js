@@ -95,12 +95,8 @@ export const useCartStore = defineStore("cart", {
     // New functions for quantity management
     async decreaseQuantity(itemId) {
       try {
-        const item = this.cartItems.find(item => item.phone.id === itemId);
-        
-        // If quantity would be less than 1, this would remove the item
-        if (!item || item.quantity <= 1) {
-          return { success: false, needsConfirmation: true };
-        }
+        // Find the cart item - but don't use it for validation here
+        // Let the API handle validation instead
         
         const response = await fetch(`${apiUrl}/cart/removeOne/${itemId}`, {
           method: "DELETE",
@@ -114,11 +110,11 @@ export const useCartStore = defineStore("cart", {
           return { success: true };
         } else {
           console.error(`Failed to decrease quantity: ${response.statusText}`);
-          return { success: false, needsConfirmation: false };
+          return { success: false };
         }
       } catch (error) {
         console.error("Error decreasing quantity:", error);
-        return { success: false, needsConfirmation: false };
+        return { success: false };
       }
     },
 
@@ -150,26 +146,22 @@ export const useCartStore = defineStore("cart", {
           return this.removeItemFromCart(itemId);
         }
         
-        // Get current quantity
-        const currentItem = this.cartItems.find(item => item.id === itemId);
-        if (!currentItem) return { success: false };
-        
-        const currentQuantity = currentItem.quantity;
-        
-        // Optimize API calls by determining if we need to increase or decrease
-        if (newQuantity > currentQuantity) {
-          // Need to increase
-          for (let i = currentQuantity; i < newQuantity; i++) {
-            await this.increaseQuantity(itemId);
-          }
-        } else if (newQuantity < currentQuantity) {
-          // Need to decrease
-          for (let i = currentQuantity; i > newQuantity; i--) {
-            await this.decreaseQuantity(itemId);
-          }
+        const response = await fetch(`${apiUrl}/cart/update/${itemId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies.get("auth_token")}`,
+          },
+          body: JSON.stringify({ quantity: newQuantity }),
+        });
+
+        if (response.ok) {
+          await this.fetchCart();
+          return { success: true };
+        } else {
+          console.error(`Failed to update quantity: ${response.statusText}`);
+          return { success: false };
         }
-        
-        return { success: true };
       } catch (error) {
         console.error("Error updating quantity:", error);
         return { success: false };

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="showDialog" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div v-if="showDialog" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white p-5 rounded-md w-[700px] flex gap-6">
             <div class="w-1/2">
                 <h2 class="text-xl font-bold mb-4">Brand Image</h2>

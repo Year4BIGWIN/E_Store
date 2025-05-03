@@ -5,16 +5,13 @@ import { useRouter } from "vue-router";
 import Cookies from "universal-cookie";
 import { useCartStore } from "@/store/cartStore";
 import Checkout from "@/components/CheckOut/Checkout.vue";
+import Rating from "./Rating.vue";
 
 const router = useRouter();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const cartStore = useCartStore();
 
-// Reference to the checkout component
 const checkoutRef = ref(null);
-// Single item cart for direct checkout
-const singleItemCart = ref([]);
-const singleItemTotal = ref(0);
 
 const isAddingToCart = ref(false);
 const isBuyingNow = ref(false);
@@ -129,14 +126,9 @@ const goToProductDetail = () => {
         <h1 class="text-lg font-semibold line-clamp-1 hover:line-clamp-none transition-all">{{ product.model }}</h1>
         <div class="flex items-center justify-between mt-1">
           <div class="flex items-center gap-1">
-            <div class="flex items-center text-yellow-400">
-              <i class="fa-solid fa-star text-xs"></i>
-              <i class="fa-solid fa-star text-xs"></i>
-              <i class="fa-solid fa-star text-xs"></i>
-              <i class="fa-solid fa-star text-xs"></i>
-              <i class="fa-regular fa-star text-xs"></i>
+            <div class="flex items-center gap-2">
+              <Rating :initialRating="product.averageRating || 0" :readonly="true" />
             </div>
-            <h3 class="text-[12px] text-gray-500">4.0</h3>
           </div>
           <div class="flex items-center">
             <span class="font-medium text-gray-500 text-sm mr-1">$</span>

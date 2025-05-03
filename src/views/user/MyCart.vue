@@ -1,16 +1,29 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useCartStore } from "@/store/cartStore";
 import CartItem from "@/components/CartItem.vue";
 import Checkout from "@/components/CheckOut/Checkout.vue";
 
 const cartStore = useCartStore();
+const checkoutRef = ref(null); // Add ref to access checkout component methods
 
 onMounted(() => {
   cartStore.fetchCart();
 });
 
 const handleUpdateCart = () => {
+  cartStore.fetchCart();
+};
+
+// Don't update the cart in payment success, wait for modal close instead
+const handlePaymentSuccess = () => {
+  console.log("Payment successful, waiting for modal close before updating cart");
+  // No cart update here
+};
+
+// New handler for after payment modal close
+const handleAfterPaymentClose = () => {
+  console.log("Payment modal closed, updating cart now");
   cartStore.fetchCart();
 };
 </script>
@@ -76,8 +89,9 @@ const handleUpdateCart = () => {
               :cartItems="cartStore.cartItems"
               :totalPrice="cartStore.totalPrice"
               :showButton="true"
-              @payment-successful="handleUpdateCart"
+              @payment-successful="handlePaymentSuccess"
               @update-cart="handleUpdateCart"
+              @after-payment-close="handleAfterPaymentClose"
             />
           </div>
         </div>

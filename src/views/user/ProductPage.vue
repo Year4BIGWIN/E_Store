@@ -1,20 +1,39 @@
 <template>
-  <div class="w-screen justify-center items-center flex flex-col gap-10 py-10">
-    <div class="w-[1152px] flex gap-4 font-semibold text-lg">
-      <router-link to="/"
-        ><span class="hover:text-blue-500">Home</span></router-link
-      >
-      <router-link to="/products"
-        >&#x2022; &nbsp;&nbsp;<span class="hover:text-blue-500"
-          >Product</span
-        ></router-link
-      >
+  <div class="w-full justify-center items-center flex flex-col gap-6 py-4 md:py-10 px-4 md:px-0">
+    <!-- Breadcrumb Navigation -->
+    <div class="w-full max-w-[1152px] flex gap-4 font-semibold text-lg">
+      <router-link to="/">
+        <span class="hover:text-blue-500">Home</span>
+      </router-link>
+      <router-link to="/products">
+        &#x2022; &nbsp;&nbsp;<span class="hover:text-blue-500">Product</span>
+      </router-link>
     </div>
 
-    <div class="w-[1152px] flex flex-col gap-4">
-      <h1 class="text-2xl">PRODUCT CATEGORIES</h1>
+    <!-- Product Categories Section -->
+    <div class="w-full max-w-[1152px] flex flex-col gap-4">
+      <h1 class="text-xl md:text-2xl">PRODUCT CATEGORIES</h1>
+      
+      <!-- Mobile Category Dropdown (shows on small screens) -->
+      <div class="block md:hidden w-full mb-4">
+        <select 
+          class="w-full p-2 border rounded-md"
+          @change="handleCategorySelect($event)"
+        >
+          <option value="">All Categories</option>
+          <option 
+            v-for="category in categories" 
+            :key="category.title"
+            :value="category.title.toLowerCase()"
+            :selected="selectedProductType === category.title.toLowerCase()"
+          >
+            {{ category.title }}
+          </option>
+        </select>
+      </div>
 
-      <div class="w-full flex gap-6">
+      <!-- Desktop Category Cards (hides on small screens) -->
+      <div class="hidden md:flex w-full gap-6">
         <CategoryCard
           v-for="category in categories"
           :key="category.title"
@@ -27,21 +46,32 @@
       </div>
     </div>
 
-    <div class="flex">
-      <div class="w-[1152px] flex gap-4">
+     <!-- Mobile Brand Dropdown (shows on small screens) -->
+     <div  class="block lg:hidden w-full">
+            <select 
+              class="w-full p-2 border rounded-md"
+              @change="handleBrandSelect($event)"
+            >
+              <option value="">All Brands</option>
+              <option 
+                v-for="item in brands" 
+                :key="item.id"
+                :value="item.name"
+                :selected="selectedBrand === item.name"
+              >
+                {{ item.name }}
+              </option>
+            </select>
+          </div>
+    <!-- Main Content Section -->
+    <div class="flex w-full ">
+      <div class="w-full max-w-[1152px] flex flex-col md:flex-row gap-4">
         <!-- Brand Section -->
-        <div class="w-[270px] border p-6">
-          <h1 class="text-2xl font-bold mb-4">BRAND</h1>
-          <div
-            v-if="brandsLoading"
-            class="flex justify-center items-center h-40"
-          >
-            <p>Loading brands...</p>
-          </div>
-          <div v-else-if="brandsError" class="text-red-500">
-            {{ brandsError }}
-          </div>
-          <div v-else class="w-full grid grid-cols-2 gap-2">
+        <div class="hidden lg:block w-[270px] border p-4 md:p-6">
+          <h1 class="text-xl md:text-2xl font-bold mb-4">BRAND</h1>
+          
+          <!-- Desktop Brand Grid (hides on small screens) -->
+          <div class="w-full grid grid-cols-2 gap-2">
             <div
               v-for="item in brands"
               :key="item.id"
@@ -61,9 +91,9 @@
         </div>
 
         <!-- Product Section -->
-        <div class="flex-1 border p-6">
+        <div class="flex-1 border p-4 md:p-6">
           <div class="flex justify-between items-center mb-4">
-            <h1 class="text-2xl font-bold">PRODUCT</h1>
+            <h1 class="text-xl md:text-2xl font-bold">PRODUCT</h1>
             <button
               v-if="selectedProductType || selectedBrand"
               @click="resetFilters"
@@ -83,7 +113,7 @@
             {{ productsError }}
           </div>
           <div v-else>
-            <div class="gap-4 w-full grid grid-cols-4 mt-2">
+            <div class="gap-3 md:gap-4 w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 mt-2">
               <SmallProductCard
                 v-for="product in products"
                 :key="product.id"
@@ -458,6 +488,47 @@ const resetFilters = async () => {
   currentPage.value = 1;
   await productStore.fetchProduct(0, itemsPerPage.value);
   activeFilter.value = "all";
+};
+
+// New handlers for select dropdowns
+const handleCategorySelect = async (event) => {
+  const value = event.target.value;
+  if (value === "") {
+    // No category selected (All Categories)
+    selectedProductType.value = null;
+    
+    if (selectedBrand.value) {
+      // If brand is still selected, filter by brand only
+      await filterByBrand(selectedBrand.value, 0);
+    } else {
+      // Reset to all products
+      await productStore.fetchProduct(0, itemsPerPage.value);
+      activeFilter.value = "all";
+    }
+  } else {
+    // Handle category selection
+    await handleCategoryClick(value);
+  }
+};
+
+const handleBrandSelect = async (event) => {
+  const value = event.target.value;
+  if (value === "") {
+    // No brand selected (All Brands)
+    selectedBrand.value = null;
+    
+    if (selectedProductType.value) {
+      // If category is still selected, filter by category only
+      await filterByProductType(selectedProductType.value, 0);
+    } else {
+      // Reset to all products
+      await productStore.fetchProduct(0, itemsPerPage.value);
+      activeFilter.value = "all";
+    }
+  } else {
+    // Handle brand selection
+    await handleBrandClick(value);
+  }
 };
 
 onMounted(async () => {

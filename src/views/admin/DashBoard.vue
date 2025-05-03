@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div class="w-full min-h-screen bg-gray-100">
     <!-- Main Content -->
     <main class="py-6 sm:py-10">
       <!-- Page header -->
