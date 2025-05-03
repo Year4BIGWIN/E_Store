@@ -107,10 +107,9 @@
 import { ref } from "vue";
 import axios from "axios";
 import router from '@/router';
-// use universal cookies to store user data
-import Cookies from 'universal-cookie';
+import { useAuthStore } from "@/store/authStore";
 
-const cookies = new Cookies();
+const authStore = useAuthStore();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 console.log(apiUrl);
 
@@ -128,15 +127,17 @@ const signup = async () => {
   }
 
   try {
-    const response = await axios.post(`${apiUrl}/signup`, {
+    const response = await axios.post(`${apiUrl}/auth/signup`, {
       email: email.value, // Capture the current email input
       password: password.value, // Capture the current password input
       first_name: firstName.value,
       last_name: lastName.value,
     });
-    const token = response.data.token; // Adjust this line based on your API response structure
-    cookies.set('auth_token', token, { secure: true, sameSite: 'strict' });
-    console.log('Token stored in cookies:', token);
+    const token = response.data.data.token;
+    const role = response.data.data.role;
+
+    authStore.setAuthData(token, role);
+
     router.push('/');
   } catch (error) {
     console.log(error);

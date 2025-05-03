@@ -61,9 +61,9 @@
 
         <!-- Forget Password -->
         <div class="flex justify-end mb-5">
-          <router-link class="hover:text-blue-500" to="/login"
-            >Forget Password?</router-link
-          >
+          <router-link class="hover:text-blue-500" to="/forgot-password">
+  Forget Password?
+</router-link>
         </div>
 
         <!-- Login Button -->
@@ -122,12 +122,14 @@ const login = async () => {
     // Update Pinia store
     authStore.setAuthData(token, role);
     console.log("Token and role updated in store");
-
+    
+    // Fetch profile after successful login
+    await authStore.fetchProfile();
+    
     router.push("/");
-  }catch (error) {
-  console.error("Login failed:", error.response ? error.response.data : error);
-}
-
+  } catch (error) {
+    console.error("Login failed:", error.response ? error.response.data : error);
+  }
 };
 
 const showPassword = ref(false);
