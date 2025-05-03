@@ -333,10 +333,10 @@ onMounted(() => {
         <div class="w-full md:w-full flex flex-col gap-4">
           <!-- Main image display -->
           <div class="w-full relative group overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 bg-white">
-            <img 
+                       <img 
               :src="selectedImage || (product.data.imageUrls && product.data.imageUrls[0])" 
               alt="Selected Image"
-              class="w-full h-[350px] md:h-[500px] object-contain p-4"
+              class="md:w-[800px] w-[350px] h-[350px] md:h-[500px] object-cover object-center p-4 bg-gray-100"
               @error="(e) => (e.target.src = '/placeholder-image.jpg')"
             />
             
