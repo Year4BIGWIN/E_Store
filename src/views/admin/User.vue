@@ -103,6 +103,7 @@
         </div>
       </div>
       
+      
       <!-- Pagination controls -->
       <div class="p-4 flex justify-between items-center bg-gray-50">
         <span class="text-sm text-gray-600">Showing {{ filteredUsers.length }} of {{ users.length }} users</span>
