@@ -137,7 +137,7 @@ const goToProductDetail = () => {
         </div>
       </div>
     </div>
-    <div class="w-full flex items-center justify-between gap-1">
+    <div class="w-full flex items-center px-2 justify-between gap-1">
       <Buttom
         @click="addToCart(product.id, product.quantity)"
         class="w-full"

@@ -52,7 +52,7 @@
       </div>
     </div>
     <div class="bg-gray-50 px-4 py-4 sm:px-6 rounded-b-lg">
-      <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">View all orders<span aria-hidden="true"> &rarr;</span></a>
+      <a href="/order" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">View all orders<span aria-hidden="true"> &rarr;</span></a>
     </div>
   </div>
 </template>

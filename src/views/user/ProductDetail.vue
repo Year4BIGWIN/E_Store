@@ -295,44 +295,48 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-[1152px] justify-start flex flex-col gap-10 py-10">
-  </div>
+  <div class="max-w-6xl w-full mx-auto px-4 md:px-6 flex flex-col gap-6 md:gap-10 py-6 md:py-10">
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-20">
+    <div v-if="isLoading" class="text-center py-10 md:py-20">
       <p class="text-gray-500">Loading product details...</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="text-red-500 text-center py-20">
+    <div v-else-if="error" class="text-red-500 text-center py-10 md:py-20">
       {{ error }}
     </div>
 
     <!-- Product Details -->
     <div v-else class="w-full flex flex-col gap-4">
-      <div class="w-full flex gap-4 font-semibold text-lg">
-        <router-link to="/"
-          ><span class="hover:text-blue-500">Home</span></router-link
-        >
-        <router-link to="/products"
-          >&#x2022;
-          <span class="hover:text-blue-500">Product</span></router-link
-        >
-        <router-link to="/categories">
-          &#x2022;
-          <span class="hover:text-blue-500">
-            {{ product.data.productType.name }}
-          </span>
-        </router-link>
+      <!-- Breadcrumbs - scrollable on mobile -->
+      <div class="w-full overflow-x-auto pb-2 md:pb-0">
+        <div class="flex gap-4 font-semibold text-sm md:text-lg whitespace-nowrap">
+          <router-link to="/">
+            <span class="hover:text-blue-500">Home</span>
+          </router-link>
+          <router-link to="/products">
+            &#x2022;
+            <span class="hover:text-blue-500">Product</span>
+          </router-link>
+          <router-link to="/categories">
+            &#x2022;
+            <span class="hover:text-blue-500">
+              {{ product.data.productType.name }}
+            </span>
+          </router-link>
+        </div>
       </div>
-      <div class="w-full flex gap-4">
+      
+      <!-- Product layout - stack on mobile, side by side on desktop -->
+      <div class="w-full flex flex-col md:flex-row gap-6 md:gap-4">
         <!-- Product Images -->
-        <div class="w-1/2 flex flex-col gap-4">
+        <div class="w-full md:w-full flex flex-col gap-4">
           <!-- Main image display -->
           <div class="w-full relative group overflow-hidden rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 bg-white">
             <img 
               :src="selectedImage || (product.data.imageUrls && product.data.imageUrls[0])" 
               alt="Selected Image"
-              class="w-full h-[500px] object-contain p-4"
+              class="w-full h-[350px] md:h-[500px] object-contain p-4"
               @error="(e) => (e.target.src = '/placeholder-image.jpg')"
             />
             
@@ -344,7 +348,7 @@ onMounted(() => {
             <!-- Navigation arrows -->
             <div v-if="product.data.imageUrls && product.data.imageUrls.length > 1" class="absolute inset-y-0 left-0 flex items-center">
               <button 
-                class="bg-white/60 hover:bg-white text-gray-800 h-10 w-10 rounded-r-lg flex items-center justify-center shadow-sm -ml-2 transition-all group-hover:ml-2"
+                class="bg-white/60 hover:bg-white text-gray-800 h-8 w-8 md:h-10 md:w-10 rounded-r-lg flex items-center justify-center shadow-sm -ml-2 transition-all group-hover:ml-2"
                 @click="navigateImage('prev')"
               >
                 <i class="fa-solid fa-chevron-left"></i>
@@ -353,7 +357,7 @@ onMounted(() => {
             
             <div v-if="product.data.imageUrls && product.data.imageUrls.length > 1" class="absolute inset-y-0 right-0 flex items-center">
               <button 
-                class="bg-white/60 hover:bg-white text-gray-800 h-10 w-10 rounded-l-lg flex items-center justify-center shadow-sm -mr-2 transition-all group-hover:mr-2"
+                class="bg-white/60 hover:bg-white text-gray-800 h-8 w-8 md:h-10 md:w-10 rounded-l-lg flex items-center justify-center shadow-sm -mr-2 transition-all group-hover:mr-2"
                 @click="navigateImage('next')"
               >
                 <i class="fa-solid fa-chevron-right"></i>
@@ -367,8 +371,8 @@ onMounted(() => {
           </div>
           
           <!-- Empty state when no images -->
-          <div v-if="!product.data.imageUrls || product.data.imageUrls.length === 0" class="w-full h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center">
-            <i class="fa-regular fa-image text-4xl text-gray-400 mb-2"></i>
+          <div v-if="!product.data.imageUrls || product.data.imageUrls.length === 0" class="w-full h-48 md:h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center">
+            <i class="fa-regular fa-image text-3xl md:text-4xl text-gray-400 mb-2"></i>
             <p class="text-gray-500">No images available</p>
           </div>
           
@@ -384,52 +388,54 @@ onMounted(() => {
               <img 
                 :src="img" 
                 alt="Thumbnail"
-                class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-md bg-white"
+                class="w-14 h-14 md:w-16 md:h-16 object-cover rounded-md bg-white"
               />
             </div>
           </div>
           
           <!-- Image count indicator -->
-          <p v-if="product.data.imageUrls && product.data.imageUrls.length > 0" class="text-sm text-gray-500 text-center">
+          <p v-if="product.data.imageUrls && product.data.imageUrls.length > 0" class="text-xs md:text-sm text-gray-500 text-center">
             {{ product.data.imageUrls.length }} {{ product.data.imageUrls.length === 1 ? 'image' : 'images' }} available
           </p>
         </div>
 
         <!-- Product Info -->
-        <div class="w-1/2 flex flex-col gap-6 pl-6">
+        <div class="w-full md:w-full flex flex-col gap-4 md:gap-6 md:pl-6 pl-0">
           <div>
             <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm mb-2">
               {{ product.data.productType.name }}
             </span>
-            <h1 class="text-3xl font-bold">
+            <h1 class="text-2xl md:text-3xl font-bold">
               {{ product.data.model || "Product Title" }}
             </h1>
           </div>
           
-            <!-- Average Rating Display -->
-            <div class="flex items-center gap-2">
-              <StarRating :initialRating="product.data?.averageRating || 0" :readonly="true" />
-              <span class="text-sm text-gray-600">({{ product.data?.averageRating || 0 }}/5 - {{ product.data?.reviews.length || 0 }} reviews)</span>
-            </div>
+          <!-- Average Rating Display -->
+          <div class="flex flex-wrap items-center gap-2">
+            <StarRating :initialRating="product.data?.averageRating || 0" :readonly="true" class="flex-shrink-0" />
+            <span class="text-xs md:text-sm text-gray-600 mt-1 md:mt-0">
+              ({{ product.data?.averageRating || 0 }}/5 - {{ product.data?.reviews.length || 0 }} reviews)
+            </span>
+          </div>
           
-          <div class="bg-gray-50 rounded-lg p-4">
-            <h2 class="text-2xl font-bold text-blue-600">
+          <div class="bg-gray-50 rounded-lg p-3 md:p-4">
+            <h2 class="text-xl md:text-2xl font-bold text-blue-600">
               ${{ product.data.price?.toLocaleString() || "0.00" }}
             </h2>
-            <p class="text-sm text-gray-500 mt-1">Free shipping & 30-day returns</p>
+            <p class="text-xs md:text-sm text-gray-500 mt-1">Free shipping & 30-day returns</p>
           </div>
           
           <hr class="border-gray-200" />
 
           <!-- Product Variations -->
-          <div v-if="product.variants" class="flex flex-col gap-4">
+          <div v-if="product.variants" class="flex flex-col gap-3 md:gap-4">
             <div v-for="(variant, name) in product.variants" :key="name">
-              <h3 class="text-md font-semibold mb-2">Choose {{ name }}</h3>
+              <h3 class="text-sm md:text-md font-semibold mb-2">Choose {{ name }}</h3>
               <div class="flex flex-wrap gap-2">
                 <button
                   v-for="option in variant"
                   :key="option"
-                  class="px-4 py-2 border rounded-lg hover:bg-gray-100 transition-colors"
+                  class="px-3 md:px-4 py-1 md:py-2 text-sm md:text-base border rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   {{ option }}
                 </button>
@@ -437,24 +443,24 @@ onMounted(() => {
             </div>
           </div>
 
-          <div class="flex items-center gap-4 mt-2">
-            <h3 class="font-medium">Quantity:</h3>
+          <div class="flex flex-wrap items-center gap-2 md:gap-4 mt-2">
+            <h3 class="font-medium text-sm md:text-base">Quantity:</h3>
             <div class="flex items-center border rounded-lg overflow-hidden">
               <button
-                class="px-3 py-2 hover:bg-gray-100 transition-colors"
+                class="px-2 md:px-3 py-1 md:py-2 hover:bg-gray-100 transition-colors"
                 @click="updateQuantity('decrement')"
               >
                 <i class="fa-solid fa-minus"></i>
               </button>
-              <span class="px-4 py-2 border-x">{{ quantity }}</span>
+              <span class="px-3 md:px-4 py-1 md:py-2 border-x">{{ quantity }}</span>
               <button
-                class="px-3 py-2 hover:bg-gray-100 transition-colors"
+                class="px-2 md:px-3 py-1 md:py-2 hover:bg-gray-100 transition-colors"
                 @click="updateQuantity('increment')"
               >
                 <i class="fa-solid fa-plus"></i>
               </button>
             </div>
-            <div class="text-sm text-gray-500">
+            <div class="text-xs md:text-sm text-gray-500 w-full md:w-auto mt-1 md:mt-0">
               <span v-if="product.data.stock > 10">In Stock</span>
               <span v-else-if="product.data.stock > 0" class="text-orange-500">Only {{ product.data.stock }} left</span>
               <span v-else class="text-red-500">Out of Stock</span>
@@ -462,32 +468,23 @@ onMounted(() => {
           </div>
 
           <!-- Action Buttons -->
-          <div class="w-full flex items-center gap-3 mt-2">
+          <div class="w-full flex flex-col sm:flex-row items-center gap-3 mt-2">
             <button
               @click="addToCart(product.data.id, quantity)"
-              class="w-full py-3 px-6 bg-white border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center gap-2"
+              class="w-full py-2 md:py-3 px-4 md:px-6 bg-white border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
             >
               <i class="fa-solid fa-cart-shopping"></i> Add to Cart
             </button>
             <button 
               @click="buyNow" 
-              class="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+              class="w-full py-2 md:py-3 px-4 md:px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm md:text-base"
             >
               <i class="fa-solid fa-bolt"></i> Buy Now
             </button>
           </div>
-          
-          <div class="flex items-center gap-2 text-sm text-gray-600 mt-2">
-            <button class="flex items-center gap-1 hover:text-blue-600 transition-colors">
-              <i class="fa-regular fa-heart"></i> Add to Wishlist
-            </button>
-            <span>•</span>
-            <button class="flex items-center gap-1 hover:text-blue-600 transition-colors">
-              <i class="fa-solid fa-share-nodes"></i> Share
-            </button>
-          </div>
         </div>
       </div>
+    </div>
     </div>
 
     <!-- Product Specifications -->
