@@ -15,6 +15,7 @@ import ProductDetail from "@/views/user/ProductDetail.vue";
 import Other from "@/views/admin/Other.vue";
 import ForgotPassword from "@/views/user/auth/ForgotPassword.vue";
 import ResetPassword from "@/views/user/auth/ResetPassword.vue";
+import SearchProduct from "@/components/SearchProduct.vue";
 
 // Create an instance of Cookies
 const cookies = new Cookies();
@@ -104,6 +105,14 @@ const router = createRouter({
       path: "/resetpassword",
       name: "ResetPassword",
       component: ResetPassword,
+    },
+    {
+      path: "/search",
+      name: "search",
+      component: SearchProduct,
+      props: (route) => ({
+        query: route.query.q,
+      }),
     },
   ],
 });

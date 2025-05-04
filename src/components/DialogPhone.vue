@@ -4,109 +4,121 @@
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
     <div class="bg-white p-5 rounded-md w-[900px] flex gap-6">
-      <!-- Left: Image Upload -->
-      <div class="w-1/2 flex flex-col">
-        <h2 class="text-xl font-bold mb-4">Product Image</h2>
-        <Uploads
-          v-model:uploadedImages="formData.imageUrls"
-          class="h-full w-full border-2 border-dashed rounded-lg"
-        />
+      <!-- Loading state for entire dialog -->
+      <div v-if="isLoadingDropdowns" class="w-full py-20">
+        <Loader />
+        <p class="text-center mt-4 text-gray-600">Loading form data...</p>
       </div>
 
-      <!-- Right: Product Info -->
-      <div class="w-1/2">
-        <form @submit.prevent="handleSubmit">
-          <h2 class="text-xl font-bold mb-4">
-            {{ isEditMode ? "Edit Product" : "Add Product" }}
-          </h2>
+      <template v-else>
+        <!-- Left: Image Upload -->
+        <div class="w-1/2 flex flex-col">
+          <h2 class="text-xl font-bold mb-4">Product Image</h2>
+          <Uploads
+            v-model:uploadedImages="formData.imageUrls"
+            class="h-full w-full border-2 border-dashed rounded-lg"
+          />
+        </div>
 
-          <div class="grid grid-cols-2 gap-2">
-            <Input label="Model Name :" v-model="formData.model" required />
-            <Input
-              label="Stock :"
-              v-model="formData.stock"
-              type="number"
-              required
-            />
-            <Input
-              label="Price :"
-              v-model="formData.price"
-              type="number"
-              required
-            />
-            <Input
-              label="Release Date :"
-              v-model="formData.releaseDate"
-              type="date"
-            />
+        <!-- Right: Product Info -->
+        <div class="w-1/2">
+          <!-- Loading state for edit mode data -->
+          <div v-if="isLoadingData" class="py-20">
+            <Loader />
+            <p class="text-center mt-4 text-gray-600">Loading product data...</p>
           </div>
 
-          <div class="mt-2">
-            <Input label="Description :" v-model="formData.description" />
-          </div>
+          <form v-else @submit.prevent="handleSubmit">
+            <h2 class="text-xl font-bold mb-4">
+              {{ isEditMode ? "Edit Product" : "Add Product" }}
+            </h2>
 
-          <div class="mt-4 flex gap-2">
-            <DropdownSelection
-              label="Choose Type:"
-              :options="typeOptions"
-              v-model:selectedValue="selectedType"
-              class="flex-1"
-              required
-            />
-            <DropdownSelection
-              label="Choose Brand:"
-              :options="brandOptions"
-              :selectedValue="selectedBrand"
-              @update:selectedValue="updateSelectedBrand"
-              class="flex-1"
-              required
-            />
-          </div>
+            <div class="grid grid-cols-2 gap-2">
+              <Input label="Model Name :" v-model="formData.model" required />
+              <Input
+                label="Stock :"
+                v-model="formData.stock"
+                type="number"
+                required
+              />
+              <Input
+                label="Price :"
+                v-model="formData.price"
+                type="number"
+                required
+              />
+              <Input
+                label="Release Date :"
+                v-model="formData.releaseDate"
+                type="date"
+              />
+            </div>
 
-          <div class="mt-4">
-            <DropdownSelection
-              label="Add Description:"
-              :options="sectionOptions"
-              v-model:selectedValue="selectedSection"
-              class="w-full"
-            />
-          </div>
+            <div class="mt-2">
+              <Input label="Description :" v-model="formData.description" />
+            </div>
 
-          <div class="mt-4">
-            <component
-              v-if="sectionComponents[selectedSection]"
-              :is="sectionComponents[selectedSection]"
-              v-model:modelValue="formData[selectedSection]"
-              :key="selectedSection"
-            />
-          </div>
+            <div class="mt-4 flex gap-2">
+              <DropdownSelection
+                label="Choose Type:"
+                :options="typeOptions"
+                v-model:selectedValue="selectedType"
+                class="flex-1"
+                required
+              />
+              <DropdownSelection
+                label="Choose Brand:"
+                :options="brandOptions"
+                :selectedValue="selectedBrand"
+                @update:selectedValue="updateSelectedBrand"
+                class="flex-1"
+                required
+              />
+            </div>
 
-          <div class="flex justify-end mt-4">
-            <button
-              type="button"
-              @click="closeDialog"
-              class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              :disabled="isSubmitting"
-            >
-              {{ isSubmitting ? "Saving..." : isEditMode ? "Update" : "Save" }}
-            </button>
-          </div>
+            <div class="mt-4">
+              <DropdownSelection
+                label="Add Description:"
+                :options="sectionOptions"
+                v-model:selectedValue="selectedSection"
+                class="w-full"
+              />
+            </div>
 
-          <p
-            v-if="message"
-            class="mt-2 text-center"
-            :class="isSuccess ? 'text-green-600' : 'text-red-600'"
-          >
-            {{ message }}
-          </p>
-        </form>
-      </div>
+            <div class="mt-4">
+              <component
+                v-if="sectionComponents[selectedSection]"
+                :is="sectionComponents[selectedSection]"
+                v-model:modelValue="formData[selectedSection]"
+                :key="selectedSection"
+              />
+            </div>
+
+            <div class="flex justify-end mt-4">
+              <button
+                type="button"
+                @click="closeDialog"
+                class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+                :disabled="isSubmitting"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                :disabled="isSubmitting"
+              >
+                <span v-if="isSubmitting" class="flex items-center">
+                  <Loader />
+                </span>
+                <span v-else>
+                  {{ isEditMode ? "Update" : "Save" }}
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -115,11 +127,13 @@
 import { ref, reactive, onMounted, watch } from "vue";
 import axios from "axios";
 import Cookies from "universal-cookie";
+import { toast } from "vue3-toastify";
 
 // Components
 import Input from "@/components/Input.vue";
 import DropdownSelection from "@/components/DropDownSelect.vue";
 import Uploads from "@/components/Uploads.vue";
+import Loader from "@/components/Loader.vue";
 import DisplaySection from "@/components/SlectionSection/DisplaySection.vue";
 import CameraSection from "@/components/SlectionSection/CameraSection.vue";
 import PerformanceSection from "@/components/SlectionSection/PerformanceSection.vue";
@@ -148,6 +162,8 @@ const selectedSection = ref("");
 const isSubmitting = ref(false);
 const message = ref("");
 const isSuccess = ref(false);
+const isLoadingData = ref(false);
+const isLoadingDropdowns = ref(true);
 
 const typeOptions = ref([{ value: "", label: "Choose Type" }]);
 const brandOptions = ref([{ value: "", label: "Choose Brand" }]);
@@ -278,8 +294,9 @@ function updateSelectedBrand(value) {
   selectedBrand.value = value;
 }
 
-// Fetch dropdown data
+// Enhanced fetch dropdown data with loader
 onMounted(async () => {
+  isLoadingDropdowns.value = true;
   try {
     const [types, brands] = await Promise.all([
       axios.get(`${apiUrl}/productType`),
@@ -289,7 +306,7 @@ onMounted(async () => {
     typeOptions.value = [
       { value: "", label: "Choose Type" },
       ...types.data.data.map((t) => ({ 
-        value: t.id.toString(), // Explicitly convert to string
+        value: t.id.toString(),
         label: t.name 
       }))
     ];
@@ -297,7 +314,7 @@ onMounted(async () => {
     brandOptions.value = [
       { value: "", label: "Choose Brand" },
       ...brands.data.data.map((b) => ({ 
-        value: b.id.toString(), // Explicitly convert to string
+        value: b.id.toString(),
         label: b.name 
       }))
     ];
@@ -308,10 +325,13 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error("Error loading types/brands:", error);
+    toast.error("Failed to load form data. Please try again.");
+  } finally {
+    isLoadingDropdowns.value = false;
   }
 });
 
-// Form submission
+// Enhanced form submission with toast notifications
 async function handleSubmit() {
   isSubmitting.value = true;
   message.value = "";
@@ -322,8 +342,7 @@ async function handleSubmit() {
     !selectedType.value ||
     !selectedBrand.value
   ) {
-    message.value =
-      "Please fill out all required fields including at least one image.";
+    toast.error("Please fill out all required fields including at least one image.");
     isSuccess.value = false;
     isSubmitting.value = false;
     return;
@@ -346,9 +365,11 @@ async function handleSubmit() {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    message.value = props.isEditMode
+    const successMsg = props.isEditMode
       ? "Product updated successfully!"
-      : "Product added!";
+      : "Product added successfully!";
+    
+    toast.success(successMsg);
     isSuccess.value = true;
 
     props.isEditMode
@@ -358,83 +379,93 @@ async function handleSubmit() {
     setTimeout(() => closeDialog(), 1500);
   } catch (error) {
     console.error("Submission error:", error);
-    message.value = error.response?.data?.message || "Something went wrong.";
+    const errorMsg = error.response?.data?.message || "Something went wrong.";
+    toast.error(errorMsg);
     isSuccess.value = false;
   } finally {
     isSubmitting.value = false;
   }
 }
 
+// Enhanced function to load product data with loader
 function loadProductData() {
-  const product = props.currentProduct;
+  isLoadingData.value = true;
+  try {
+    const product = props.currentProduct;
 
-  // Reset base fields
-  formData.model = product.model || "";
-  formData.releaseDate = product.releaseDate || "";
-  formData.price = product.price || 0;
-  formData.stock = product.stock || 0;
-  formData.description = product.description || "";
+    // Reset base fields
+    formData.model = product.model || "";
+    formData.releaseDate = product.releaseDate || "";
+    formData.price = product.price || 0;
+    formData.stock = product.stock || 0;
+    formData.description = product.description || "";
 
-  // Handle image formats
-  const imgs = Array.isArray(product.imageUrls)
-    ? product.imageUrls
-    : Array.isArray(product.image_url)
-    ? product.image_url
-    : Array.isArray(product.images)
-    ? product.images
-    : typeof product.image_url === "string"
-    ? [product.image_url]
-    : [];
+    // Handle image formats
+    const imgs = Array.isArray(product.imageUrls)
+      ? product.imageUrls
+      : Array.isArray(product.image_url)
+      ? product.image_url
+      : Array.isArray(product.images)
+      ? product.images
+      : typeof product.image_url === "string"
+      ? [product.image_url]
+      : [];
 
-  formData.imageUrls = [...imgs]; // force reactivity
+    formData.imageUrls = [...imgs]; // force reactivity
 
-  // Select dropdowns - ensure they're converted to strings for dropdown selection
-  selectedBrand.value = product.brandId ? product.brandId.toString() : 
-                        product.brand?.id ? product.brand.id.toString() : "";
-  selectedType.value = product.productTypeId ? product.productTypeId.toString() : 
-                       product.productType?.id ? product.productType.id.toString() : "";
+    // Select dropdowns - ensure they're converted to strings for dropdown selection
+    selectedBrand.value = product.brandId ? product.brandId.toString() : 
+                          product.brand?.id ? product.brand.id.toString() : "";
+    selectedType.value = product.productTypeId ? product.productTypeId.toString() : 
+                         product.productType?.id ? product.productType.id.toString() : "";
 
-  console.log("Setting brand to:", selectedBrand.value, "from product:", product);
-  
-  // Load sections with proper defaults for each section type
-  formData.display = product.display ? { ...product.display } : {
-    screenSize: "", displayType: "", resolution: "", refreshRate: "", brightness: ""
-  };
-  
-  formData.camera = product.camera ? { ...product.camera } : {
-    mainCamera: "", ultraWideCamera: "", telephotoCamera: "", frontCamera: "", 
-    videoRecording: "", features: ""
-  };
-  
-  formData.performance = product.performance ? { ...product.performance } : {
-    chipset: "", cpu: "", gpu: "", ram: "", storageOptions: ""
-  };
-  
-  formData.battery = product.battery ? { ...product.battery } : {
-    batteryCapacity: "", chargingSpeed: "", batteryLife: ""
-  };
-  
-  formData.connectivity = product.connectivity ? { ...product.connectivity } : {
-    fiveGSupport: "", wifi: "", bluetooth: "", nfc: "", usb: "", gps: ""
-  };
-  
-  formData.buildAndDesign = product.buildAndDesign ? { ...product.buildAndDesign } : {
-    material: "", dimensions: "", weight: "", waterResistance: "", colorOptions: ""
-  };
-  
-  formData.otherFeatures = product.otherFeatures ? { ...product.otherFeatures } : {
-    fingerprintSensor: "", faceUnlock: "", audio: "", biometrics: "", customFeatures: ""
-  };
-  
-  formData.softwareFeatures = product.softwareFeatures ? { ...product.softwareFeatures } : {
-    userInterface: "", softwareUpdates: "", preInstalledApps: ""
-  };
-  
-  formData.additionalInfo = product.additionalInfo ? { ...product.additionalInfo } : {};
+    console.log("Setting brand to:", selectedBrand.value, "from product:", product);
+    
+    // Load sections with proper defaults for each section type
+    formData.display = product.display ? { ...product.display } : {
+      screenSize: "", displayType: "", resolution: "", refreshRate: "", brightness: ""
+    };
+    
+    formData.camera = product.camera ? { ...product.camera } : {
+      mainCamera: "", ultraWideCamera: "", telephotoCamera: "", frontCamera: "", 
+      videoRecording: "", features: ""
+    };
+    
+    formData.performance = product.performance ? { ...product.performance } : {
+      chipset: "", cpu: "", gpu: "", ram: "", storageOptions: ""
+    };
+    
+    formData.battery = product.battery ? { ...product.battery } : {
+      batteryCapacity: "", chargingSpeed: "", batteryLife: ""
+    };
+    
+    formData.connectivity = product.connectivity ? { ...product.connectivity } : {
+      fiveGSupport: "", wifi: "", bluetooth: "", nfc: "", usb: "", gps: ""
+    };
+    
+    formData.buildAndDesign = product.buildAndDesign ? { ...product.buildAndDesign } : {
+      material: "", dimensions: "", weight: "", waterResistance: "", colorOptions: ""
+    };
+    
+    formData.otherFeatures = product.otherFeatures ? { ...product.otherFeatures } : {
+      fingerprintSensor: "", faceUnlock: "", audio: "", biometrics: "", customFeatures: ""
+    };
+    
+    formData.softwareFeatures = product.softwareFeatures ? { ...product.softwareFeatures } : {
+      userInterface: "", softwareUpdates: "", preInstalledApps: ""
+    };
+    
+    formData.additionalInfo = product.additionalInfo ? { ...product.additionalInfo } : {};
 
-  // Set initial selected section for better UX
-  if (product.display && Object.keys(product.display).some(k => product.display[k])) {
-    selectedSection.value = "display";
+    // Set initial selected section for better UX
+    if (product.display && Object.keys(product.display).some(k => product.display[k])) {
+      selectedSection.value = "display";
+    }
+  } catch (error) {
+    console.error("Error loading product data:", error);
+    toast.error("Failed to load product data");
+  } finally {
+    isLoadingData.value = false;
   }
 }
 

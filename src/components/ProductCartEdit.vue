@@ -1,6 +1,5 @@
 <template>
   <tr class="border-t border-gray-200 hover:bg-gray-50 transition-colors">
-    <!-- Product Image -->
     <td class="px-2">
       <div class="w-14 h-14 rounded-lg overflow-hidden bg-gray-100">
         <img 
@@ -12,7 +11,6 @@
       </div>
     </td>
     
-    <!-- Product Details -->
     <td class="p-4">
       <h3 class="font-semibold text-gray-800">{{ name }}</h3>
       <p class="text-xs text-gray-500">ID: #{{ id }}</p>
@@ -26,7 +24,6 @@
       <span class="text-gray-800 font-medium">{{ productData.productType.name }}</span>
     </td>
     
-    <!-- Inventory with dynamic styling -->
     <td class="p-4">
       <span 
         class="px-2.5 py-1 text-xs font-medium rounded-full"
@@ -36,7 +33,6 @@
       </span>
     </td>
     
-    <!-- Actions -->
     <td class="p-4 text-right">
       <div class="flex justify-end space-x-2">
         <button 
@@ -53,26 +49,54 @@
           class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-md transition-colors inline-flex items-center"
           :disabled="isDeleting"
         >
-          <svg v-if="!isDeleting" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-          </svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" class="animate-spin h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          {{ isDeleting ? 'Deleting' : 'Delete' }}
+          <template v-if="!isDeleting">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
+            Delete
+          </template>
+          <template v-else>
+            <Loader size="small" class="mr-1" />
+            Deleting
+          </template>
         </button>
       </div>
     </td>
   </tr>
-  
-  <!-- Product Edit Dialog -->
   <DialogPhone 
     v-model:showDialog="showEditDialog" 
     :isEditMode="true" 
     :currentProduct="productData"
     @updatesuccess="handleUpdateSuccess" 
   />
+  
+  <div v-if="showDeleteConfirm" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+      <h3 class="text-lg font-medium text-gray-900 mb-3">Confirm Delete</h3>
+      <p class="text-gray-600 mb-5">
+        Are you sure you want to delete <span class="font-semibold">{{ props.name }}</span>? This action cannot be undone.
+      </p>
+      <div class="flex justify-end space-x-3">
+        <button 
+          @click="cancelDelete" 
+          class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors"
+        >
+          Cancel
+        </button>
+        <button 
+          @click="handleDelete" 
+          class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
+          :disabled="isDeleting"
+        >
+          <span v-if="!isDeleting">Delete</span>
+          <span v-else class="flex items-center">
+            <Loader size="small" class="mr-1" />
+            Deleting...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -80,10 +104,13 @@ import { defineProps, defineEmits, ref } from "vue";
 import defaultImage from "../assets/image/Logo.png";
 import { useProductStore } from '@/store/productStore';
 import DialogPhone from '@/components/DialogPhone.vue';
+import { toast } from 'vue3-toastify';
+import Loader from "./Loader.vue";
 
 const productStore = useProductStore();
 const isDeleting = ref(false);
 const showEditDialog = ref(false);
+const showDeleteConfirm = ref(false);
 const hasImageError = ref(false);
 const emit = defineEmits(['deleted', 'updated']);
 
@@ -110,16 +137,15 @@ const props = defineProps({
   }
 });
 
-// Add the getInventoryStatusClasses function
 const getInventoryStatusClasses = (stock) => {
   if (stock === 0) {
-    return 'bg-gray-100 text-gray-800'; // Out of stock
+    return 'bg-gray-100 text-gray-800';
   } else if (stock <= 3) {
-    return 'bg-red-100 text-red-800'; // Very low stock
+    return 'bg-red-100 text-red-800';
   } else if (stock <= 10) {
-    return 'bg-yellow-100 text-yellow-800'; // Low stock
+    return 'bg-yellow-100 text-yellow-800';
   } else {
-    return 'bg-green-100 text-green-800'; // Plenty of stock
+    return 'bg-green-100 text-green-800';
   }
 };
 
@@ -132,9 +158,11 @@ const handleUpdateSuccess = () => {
 };
 
 const confirmDelete = () => {
-  if (confirm(`Are you sure you want to delete ${props.name}?`)) {
-    handleDelete();
-  }
+  showDeleteConfirm.value = true;
+};
+
+const cancelDelete = () => {
+  showDeleteConfirm.value = false;
 };
 
 const handleDelete = async () => {
@@ -142,17 +170,23 @@ const handleDelete = async () => {
   try {
     const success = await productStore.deleteProduct(props.id);
     if (success) {
-      console.log("Product deleted");
+      toast.success(`${props.name} has been successfully deleted`);
       emit('deleted', props.id);
     } else {
-      console.log("Failed to delete product");
-      alert("Failed to delete the product. Please try again.");
+      toast.error("Failed to delete the product. Please try again.");
     }
   } catch (error) {
-    console.error("Error deleting product:", error);
-    alert("An error occurred while deleting the product.");
+    if (error.message && error.message.includes('constraint')) {
+      toast.error(
+        "This product cannot be deleted because it's currently in use (it may be in orders or cart items).",
+        { autoClose: 5000 }
+      );
+    } else {
+      toast.error("An error occurred while deleting the product.");
+    }
   } finally {
     isDeleting.value = false;
+    showDeleteConfirm.value = false;
   }
 };
 

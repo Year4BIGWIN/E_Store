@@ -1,5 +1,5 @@
 <template>
-<div class="w-full">
+<div class="w-full p-5 bg-gray-100">
   <OderContent/>
 </div>
 </template>

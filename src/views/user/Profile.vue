@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-[1152px] w-full mx-auto px-4 md:px-6 flex flex-col md:flex-row md:gap-10 py-10">
+  <div class="max-w-[1152px] w-[100vw] mx-auto px-4 md:px-6 flex flex-col md:flex-row md:gap-10 py-10">
     <!-- Sidebar navigation - horizontal on mobile, vertical sidebar on larger screens -->
     <div class="w-full md:w-1/6 hidden md:flex md:flex-col gap-4 font-semibold text-lg sticky top-20 h-fit mb-6 md:mb-0 overflow-x-auto pb-2 md:pb-0">
       <a 
@@ -165,7 +165,7 @@ const profile = async () => {
       
       // Sort orders by date (most recent first), exclude DELIVERED orders, and get the 4 latest
       latestOrders.value = [...response.data.data.orders]
-        .filter(order => order.processStatus !== "DELIVERED")
+        .filter(order => order.processStatus !== "DELIVERED" && order.status == "PAID")
         .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
         .slice(0, 4);
       

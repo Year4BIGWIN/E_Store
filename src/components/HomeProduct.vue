@@ -348,7 +348,7 @@ const selectedCategory = computed(() => {
 
 onMounted(async () => {
   isLoading.value = true;
-  await productStore.fetchProduct(0, 20);
+  await productStore.fetchProduct(0, 30);
   isLoading.value = false;
 });
 
