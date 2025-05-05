@@ -1,4 +1,3 @@
-import { ref } from 'vue';
 import Cookies from 'universal-cookie';
 
 export default function useAdminApi() {

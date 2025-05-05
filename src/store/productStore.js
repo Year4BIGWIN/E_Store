@@ -22,13 +22,11 @@ export const useProductStore = defineStore('products', {
         const response = await fetch(`${apiUrl}/product?page=${page}&size=${size}`);
         if (!response.ok) {
           const errorData = await response.json();
-          console.error("Error response from server:", errorData);
           throw new Error("Network response was not ok");
         }
         
         const data = await response.json();
         
-        // Store pagination metadata
         this.totalPages = data.data.totalPages;
         this.totalElements = data.data.totalElements;
         this.currentPage = data.data.pageable.pageNumber;
@@ -57,17 +55,9 @@ export const useProductStore = defineStore('products', {
           imageUrls: item.imageUrls,
           firstImageUrl: item.firstImageUrl,
           additionalInfo: item.additionalInfo,
-          quantity: 1, // Default quantity for cart functionality
+          quantity: 1,
         }));
-        
-        console.log("Product:", this.products);
-        console.log("Pagination:", {
-          currentPage: this.currentPage,
-          totalPages: this.totalPages,
-          totalElements: this.totalElements
-        });
       } catch (error) {
-        console.error("Error fetching products:", error);
         this.error = error.message;
       } finally {
         this.loading = false;
@@ -88,17 +78,12 @@ export const useProductStore = defineStore('products', {
         
         if (!response.ok) {
           const errorData = await response.json();
-          console.error("Error response from server:", errorData);
           throw new Error("Failed to delete product");
         }
         
-        // Remove the deleted product from the local state
         this.products = this.products.filter(product => product.id !== productId);
-        
-        console.log("Product deleted successfully");
         return true;
       } catch (error) {
-        console.error("Error deleting product:", error);
         this.error = error.message;
         return false;
       } finally {

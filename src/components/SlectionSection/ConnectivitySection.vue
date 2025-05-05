@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="grid grid-cols-2 gap-2">
     <Input label="5G Support :" v-model="localConnectivity.fiveGSupport" />
     <Input label="Wi-Fi :" v-model="localConnectivity.wifi" />
     <Input label="Bluetooth :" v-model="localConnectivity.bluetooth" />

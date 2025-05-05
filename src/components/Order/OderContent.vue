@@ -30,14 +30,14 @@
       <table class="w-full border-collapse mt-4">
         <thead>
           <tr>
-            <th @click="sortBy('id')" class="p-3 bg-gray-100 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-200">ID</th>
-            <th @click="sortBy('status')" class="p-3 bg-gray-100 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-200">Status</th>
-            <th @click="sortBy('processStatus')" class="p-3 bg-gray-100 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-200">Process Status</th>
-            <th @click="sortBy('totalAmount')" class="p-3 bg-gray-100 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-200">Amount</th>
-            <th @click="sortBy('createdAt')" class="p-3 bg-gray-100 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-200">Date</th>
-            <th @click="sortBy('invoiceSent')" class="p-3 bg-gray-100 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-200">Invoice</th>
-            <th class="p-3 bg-gray-100 border-b border-gray-300 text-left">Location</th>
-            <th class="p-3 bg-gray-100 border-b border-gray-300 text-left">Actions</th>
+            <th @click="sortBy('id')" class="p-3 bg-gray-200 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-300">ID</th>
+            <th @click="sortBy('status')" class="p-3 bg-gray-200 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-300">Status</th>
+            <th @click="sortBy('processStatus')" class="p-3 bg-gray-200 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-300">Process Status</th>
+            <th @click="sortBy('totalAmount')" class="p-3 bg-gray-200 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-300">Amount</th>
+            <th @click="sortBy('createdAt')" class="p-3 bg-gray-200 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-300">Date</th>
+            <th @click="sortBy('invoiceSent')" class="p-3 bg-gray-200 border-b border-gray-300 text-left cursor-pointer hover:bg-gray-300">Invoice</th>
+            <th class="p-3 bg-gray-200 border-b border-gray-300 text-left">Location</th>
+            <th class="p-3 bg-gray-200 border-b border-gray-300 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -77,6 +77,7 @@
 
     <!-- Add Pagination Component -->
     <Pagination 
+      class="mt-4"
       :current-page="currentPage" 
       :total-pages="totalPages" 
       @page-change="handlePageChange" 
@@ -255,7 +256,7 @@ const selectedProcessStatus = ref('');
 // Add pagination state
 const currentPage = ref(1);
 const totalPages = ref(1);
-const pageSize = ref(10);
+const pageSize = ref(9);
 const totalItems = ref(0);
 
 const fetchOrder = async (page = 0, size = 8) => {
