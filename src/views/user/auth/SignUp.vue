@@ -1,17 +1,19 @@
 <template>
   <div
-    class="w-[1024px] mt-10 bg-[#d9d9d9] rounded-xl flex items-center justify-between"
+    class="w-[100vw] max-w-[1024px] mx-auto mt-6 mb-6 md:mt-10 md:mb-10 bg-[#d9d9d9] rounded-xl flex flex-col md:flex-row items-center justify-between"
   >
-    <div class="w-1/2 flex justify-center p-10">
+    <!-- Image side - hidden on mobile, visible on md screens and up -->
+    <div class="hidden md:block md:w-1/2 justify-center p-10">
       <img src="/src/assets/image/loin.svg" alt="..." />
     </div>
+    <!-- Form side - full width on mobile, half width on md screens and up -->
     <div
-      class="w-1/2 p-10 bg-[#f5f5f5] flex flex-col justify-center items-center rounded-xl"
+      class="w-full md:w-1/2 p-6 md:py-8 md:p-5 bg-[#f5f5f5] flex flex-col justify-center items-center rounded-xl"
     >
       <h1 class="font-bold text-2xl mb-5">Sign Up</h1>
-      <form class="max-w-sm" @submit.prevent="signup">
-        <div class="mb-5 flex justify-between">
-          <div>
+      <form class="w-full max-w-sm px-4 md:px-0" @submit.prevent="signup">
+        <div class="mb-5 flex flex-col md:flex-row md:justify-between md:gap-4">
+          <div class="w-full mb-4 md:mb-0">
             <label
               for="first-name"
               class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -26,7 +28,7 @@
               required
             />
           </div>
-          <div>
+          <div class="w-full">
             <label
               for="last-name"
               class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -37,7 +39,7 @@
               id="last-name"
               v-model="lastName"
               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="John"
+              placeholder="Doe"
               required
             />
           </div>
@@ -54,7 +56,7 @@
             v-model="email"
             id="email"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="name@flowbite.com"
+            placeholder="name@example.com"
             required
           />
         </div>
@@ -66,7 +68,7 @@
             >Password</label
           >
           <input
-            type="password"
+            :type="showPassword ? 'text' : 'password'"
             id="password"
             v-model="password"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -76,27 +78,39 @@
 
         <div class="mb-5">
           <label
-            for="password"
+            for="confirm-password"
             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >Comfirm Password</label
+            >Confirm Password</label
           >
           <input
-            type="password"
+            :type="showPassword ? 'text' : 'password'"
             v-model="confirmPassword"
-            id="comfirm-password"
+            id="confirm-password"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             required
           />
+          <div v-if="passwordError" class="mt-1 text-red-500 text-sm">{{ passwordError }}</div>
         </div>
+
+        <div class="mb-4 flex items-center">
+          <input 
+            id="show-password" 
+            type="checkbox" 
+            v-model="showPassword" 
+            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+          >
+          <label for="show-password" class="ms-2 text-sm font-medium text-gray-900">Show password</label>
+        </div>
+
         <button
           type="submit"
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-[384px] px-5 py-2.5 text-center"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-3 text-center"
         >
-          SignUp
+          Sign Up
         </button>
       </form>
-      <div class="mt-5">
-        Already have an account? <router-link class="hover:text-blue-500" to="/login">Login</router-link>
+      <div class="mt-5 text-center">
+        Already have an account? <router-link class="text-blue-700 hover:text-blue-500" to="/login">Login</router-link>
       </div>
     </div>
   </div>
