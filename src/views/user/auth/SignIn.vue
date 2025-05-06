@@ -1,17 +1,17 @@
 <template>
   <div
-    class="w-[1024px] bg-[#d9d9d9] rounded-xl flex items-center justify-between mt-10 mb-10"
+    class="w-[100vw] max-w-[1024px] mx-auto mt-6 mb-6 md:mt-10 md:mb-10 bg-[#d9d9d9] rounded-xl flex flex-col md:flex-row items-center justify-between"
   >
-    <!-- Left Image Section -->
-    <div class="w-1/2 flex justify-center p-10">
+    <!-- Left Image Section - hidden on mobile -->
+    <div class="hidden md:block md:w-1/2 justify-center p-10">
       <img src="/src/assets/image/loin.svg" alt="..." />
     </div>
-    <!-- Right Login Form Section -->
+    <!-- Right Login Form Section - full width on mobile -->
     <div
-      class="w-1/2 p-10 bg-[#f5f5f5] flex flex-col justify-center items-center rounded-xl"
+      class="w-full md:w-1/2 p-6 md:p-10 bg-[#f5f5f5] flex flex-col justify-center items-center rounded-xl"
     >
       <h1 class="font-bold text-2xl mb-5">Login</h1>
-      <form class="max-w-sm" @submit.prevent="login">
+      <form class="w-full max-w-sm px-4 md:px-0" @submit.prevent="login">
         <!-- Email Input -->
         <div class="mb-5">
           <label
@@ -62,20 +62,20 @@
         <!-- Forget Password -->
         <div class="flex justify-end mb-5">
           <router-link class="hover:text-blue-500" to="/forgot-password">
-  Forget Password?
-</router-link>
+            Forget Password?
+          </router-link>
         </div>
 
         <!-- Login Button -->
         <button
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-[384px] px-5 py-2.5 text-center"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
         >
           Login
         </button>
       </form>
 
       <!-- Sign Up -->
-      <div class="my-5">
+      <div class="my-5 text-center">
         Don't have an account?
         <router-link class="hover:text-blue-500" to="/signup"
           >SignUp</router-link
@@ -83,10 +83,10 @@
       </div>
 
       <!-- Divider -->
-      <div class="w-[384px] mb-5 flex justify-center items-center">
-        <hr class="w-[125px] border-gray-300" />
-        <h1>Or Sign in with</h1>
-        <hr class="w-[125px] border-gray-300" />
+      <div class="w-full max-w-sm mb-5 flex justify-center items-center px-4 md:px-0">
+        <hr class="w-full md:w-[125px] border-gray-300" />
+        <span class="mx-2 whitespace-nowrap">Or Sign in with</span>
+        <hr class="w-full md:w-[125px] border-gray-300" />
       </div>
 
       <!-- Google Sign-in -->
