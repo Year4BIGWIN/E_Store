@@ -1,132 +1,76 @@
 <template>
-  <div
-    class="w-[100vw] max-w-[1024px] mx-auto mt-6 mb-6 md:mt-10 md:mb-10 bg-[#d9d9d9] rounded-xl flex flex-col md:flex-row items-center justify-between"
-  >
-    <!-- Image side - hidden on mobile, visible on md screens and up -->
-    <div class="hidden md:block md:w-1/2 justify-center p-10">
+  <div class="w-[1024px] mt-10 bg-[#d9d9d9] rounded-xl flex items-center justify-between">
+    <div class="w-1/2 flex justify-center p-10">
       <img src="/src/assets/image/loin.svg" alt="..." />
     </div>
-    <!-- Form side - full width on mobile, half width on md screens and up -->
-    <div
-      class="w-full md:w-1/2 p-6 md:py-8 md:p-5 bg-[#f5f5f5] flex flex-col justify-center items-center rounded-xl"
-    >
+    <div class="w-1/2 p-10 bg-[#f5f5f5] flex flex-col justify-center items-center rounded-xl">
       <h1 class="font-bold text-2xl mb-5">Sign Up</h1>
-      <form class="w-full max-w-sm px-4 md:px-0" @submit.prevent="signup">
-        <div class="mb-5 flex flex-col md:flex-row md:justify-between md:gap-4">
-          <div class="w-full mb-4 md:mb-0">
-            <label
-              for="first-name"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              >First Name</label
-            >
-            <input
-              type="text"
-              id="first-name"
-              v-model="firstName"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="John"
-              required
-            />
+      <form class="max-w-sm" @submit.prevent="signup">
+        <!-- First Name and Last Name Inputs -->
+        <div class="mb-5 flex justify-between">
+          <div>
+            <label for="first-name" class="block mb-2 text-sm font-medium text-gray-900">First Name</label>
+            <input type="text" id="first-name" v-model="firstName" placeholder="John" class="input-style" required />
           </div>
-          <div class="w-full">
-            <label
-              for="last-name"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              >Last Name</label
-            >
-            <input
-              type="text"
-              id="last-name"
-              v-model="lastName"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="Doe"
-              required
-            />
+          <div>
+            <label for="last-name" class="block mb-2 text-sm font-medium text-gray-900">Last Name</label>
+            <input type="text" id="last-name" v-model="lastName" placeholder="Doe" class="input-style" required />
           </div>
         </div>
 
+        <!-- Email Input -->
         <div class="mb-5">
-          <label
-            for="email"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >Email</label
-          >
-          <input
-            type="email"
-            v-model="email"
-            id="email"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="name@example.com"
-            required
-          />
+          <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
+          <input type="email" id="email" v-model="email" placeholder="name@flowbite.com" class="input-style" required />
         </div>
 
+        <!-- Password and Confirm Password Inputs -->
         <div class="mb-5">
-          <label
-            for="password"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >Password</label
-          >
-          <input
-            :type="showPassword ? 'text' : 'password'"
-            id="password"
-            v-model="password"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            required
-          />
+          <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Password</label>
+          <input type="password" id="password" v-model="password" class="input-style" required />
         </div>
-
         <div class="mb-5">
-          <label
-            for="confirm-password"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >Confirm Password</label
-          >
-          <input
-            :type="showPassword ? 'text' : 'password'"
-            v-model="confirmPassword"
-            id="confirm-password"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            required
-          />
-          <div v-if="passwordError" class="mt-1 text-red-500 text-sm">{{ passwordError }}</div>
+          <label for="confirm-password" class="block mb-2 text-sm font-medium text-gray-900">Confirm Password</label>
+          <input type="password" id="confirm-password" v-model="confirmPassword" class="input-style" required />
         </div>
 
-        <div class="mb-4 flex items-center">
-          <input 
-            id="show-password" 
-            type="checkbox" 
-            v-model="showPassword" 
-            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-          >
-          <label for="show-password" class="ms-2 text-sm font-medium text-gray-900">Show password</label>
+        <!-- Password Error Display -->
+        <div v-if="passwordError" class="text-red-500 text-sm mb-5">
+          {{ passwordError }}
         </div>
 
-        <button
-          type="submit"
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-3 text-center"
-        >
-          Sign Up
-        </button>
+        <!-- Sign Up Button -->
+        <button type="submit" class="submit-btn">Sign Up</button>
       </form>
-      <div class="mt-5 text-center">
-        Already have an account? <router-link class="text-blue-700 hover:text-blue-500" to="/login">Login</router-link>
+
+      <div class="mt-5">
+        Already have an account? <router-link class="hover:text-blue-500" to="/login">Login</router-link>
       </div>
+
+      <!-- Divider -->
+      <div class="my-5 flex justify-center items-center w-[384px]">
+        <hr class="divider" />
+        <span>Or sign up with</span>
+        <hr class="divider" />
+      </div>
+
+      <!-- Google Sign-Up Button -->
+      <div id="googleSignupButton"></div>
     </div>
   </div>
 </template>
 
-
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import router from '@/router';
 import { useAuthStore } from "@/store/authStore";
 
 const authStore = useAuthStore();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
-console.log(apiUrl);
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+console.log("Google Client ID:", googleClientId);
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
@@ -134,7 +78,12 @@ const firstName = ref('');
 const lastName = ref('');
 const passwordError = ref('');
 
+// Sign up with email and password
 const signup = async () => {
+  // Reset password error
+  passwordError.value = '';
+
+  // Check if passwords match
   if (password.value !== confirmPassword.value) {
     passwordError.value = 'Passwords do not match';
     return;
@@ -142,28 +91,82 @@ const signup = async () => {
 
   try {
     const response = await axios.post(`${apiUrl}/auth/signup`, {
-      email: email.value, // Capture the current email input
-      password: password.value, // Capture the current password input
+      email: email.value,
+      password: password.value,
       first_name: firstName.value,
       last_name: lastName.value,
     });
+
     const token = response.data.data.token;
     const role = response.data.data.role;
 
     authStore.setAuthData(token, role);
 
+    // Redirect to home page
     router.push('/');
   } catch (error) {
-    console.log(error);
+    console.error("Sign up error:", error.response ? error.response.data : error);
   }
 };
 
+// Initialize Google Sign-Up
+const initGoogleSignup = () => {
+  if (window.google) {
+    window.google.accounts.id.initialize({
+      client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      callback: handleGoogleSignup,
+    });
 
-
-const showPassword = ref(false);
-
-const togglePassword = () => {
-  showPassword.value = !showPassword.value;
+    window.google.accounts.id.renderButton(
+      document.getElementById("googleSignupButton"),
+      { theme: "outline", size: "large" }
+    );
+  } else {
+    console.error("Google API not loaded");
+  }
 };
 
+// Handle Google Sign-Up Token Response
+const handleGoogleSignup = async (response) => {
+  try {
+    const token = response.credential;
+    const apiResponse = await axios.post(`${apiUrl}/google-signup`, { token });
+
+    const { token: googleToken, role } = apiResponse.data.data;
+    authStore.setAuthData(googleToken, role);
+
+    router.push('/');
+  } catch (error) {
+    console.error("Google sign-up error:", error.response ? error.response.data : error);
+  }
+};
+
+// Initialize Google Sign-In
+onMounted(() => {
+  initGoogleSignup();
+});
 </script>
+
+<style scoped>
+.input-style {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.submit-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  width: 100%;
+  border-radius: 8px;
+}
+
+.divider {
+  width: 125px;
+  border-color: #ccc;
+}
+</style>
