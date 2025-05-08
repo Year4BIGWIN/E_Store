@@ -135,6 +135,7 @@
 <script setup>
 import { defineProps, defineEmits, ref, computed } from 'vue';
 import Cookies from 'universal-cookie';
+import { toast } from 'vue3-toastify';
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const cookies = new Cookies();
@@ -210,6 +211,7 @@ const confirmRemove = () => {
 
 const removeItemCompletely = async () => {
   await makeCartRequest(`/cart/remove/${props.cart.phone.id}`, "DELETE");
+  toast.success("Item removed from cart");
   showConfirm.value = false;
 };
 </script>

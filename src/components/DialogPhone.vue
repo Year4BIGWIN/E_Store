@@ -25,7 +25,9 @@
           <!-- Loading state for edit mode data -->
           <div v-if="isLoadingData" class="py-20">
             <Loader />
-            <p class="text-center mt-4 text-gray-600">Loading product data...</p>
+            <p class="text-center mt-4 text-gray-600">
+              Loading product data...
+            </p>
           </div>
 
           <form v-else @submit.prevent="handleSubmit">
@@ -63,15 +65,19 @@
                 label="Choose Type:"
                 :options="typeOptions"
                 v-model:selectedValue="selectedType"
+                searchable
                 class="flex-1"
                 required
+                :disabled="isEditMode"
               />
               <DropdownSelection
                 label="Choose Brand:"
                 :options="brandOptions"
                 :selectedValue="selectedBrand"
                 @update:selectedValue="updateSelectedBrand"
+                searchable
                 class="flex-1"
+                :disabled="isEditMode"
                 required
               />
             </div>
@@ -81,6 +87,7 @@
                 label="Add Description:"
                 :options="sectionOptions"
                 v-model:selectedValue="selectedSection"
+                searchable
                 class="w-full"
               />
             </div>
@@ -275,18 +282,22 @@ watch(selectedBrand, (newValue, oldValue) => {
   console.log("Brand selection changed:", { old: oldValue, new: newValue });
 });
 
-// Enhanced debug watch for brand changes 
-watch(selectedBrand, (newValue, oldValue) => {
-  console.log("BRAND SELECTION CHANGED:", { 
-    old: oldValue, 
-    new: newValue,
-    availableBrands: brandOptions.value.map(b => `${b.value}: ${b.label}`)
-  });
-  
-  // Force the payload to update with the new brand
-  const brandId = Number(newValue);
-  console.log("New brandId will be:", brandId);
-}, { deep: true });
+// Enhanced debug watch for brand changes
+watch(
+  selectedBrand,
+  (newValue, oldValue) => {
+    console.log("BRAND SELECTION CHANGED:", {
+      old: oldValue,
+      new: newValue,
+      availableBrands: brandOptions.value.map((b) => `${b.value}: ${b.label}`),
+    });
+
+    // Force the payload to update with the new brand
+    const brandId = Number(newValue);
+    console.log("New brandId will be:", brandId);
+  },
+  { deep: true }
+);
 
 // Direct handler for brand selection changes
 function updateSelectedBrand(value) {
@@ -302,23 +313,23 @@ onMounted(async () => {
       axios.get(`${apiUrl}/productType`),
       axios.get(`${apiUrl}/brand`),
     ]);
-    
+
     typeOptions.value = [
       { value: "", label: "Choose Type" },
-      ...types.data.data.map((t) => ({ 
+      ...types.data.data.map((t) => ({
         value: t.id.toString(),
-        label: t.name 
-      }))
+        label: t.name,
+      })),
     ];
-    
+
     brandOptions.value = [
       { value: "", label: "Choose Brand" },
-      ...brands.data.data.map((b) => ({ 
+      ...brands.data.data.map((b) => ({
         value: b.id.toString(),
-        label: b.name 
-      }))
+        label: b.name,
+      })),
     ];
-    
+
     // If in edit mode and dialog is open, reload data to ensure proper selection
     if (props.isEditMode && props.showDialog) {
       loadProductData();
@@ -342,7 +353,9 @@ async function handleSubmit() {
     !selectedType.value ||
     !selectedBrand.value
   ) {
-    toast.error("Please fill out all required fields including at least one image.");
+    toast.error(
+      "Please fill out all required fields including at least one image."
+    );
     isSuccess.value = false;
     isSubmitting.value = false;
     return;
@@ -368,7 +381,7 @@ async function handleSubmit() {
     const successMsg = props.isEditMode
       ? "Product updated successfully!"
       : "Product added successfully!";
-    
+
     toast.success(successMsg);
     isSuccess.value = true;
 
@@ -414,51 +427,112 @@ function loadProductData() {
     formData.imageUrls = [...imgs]; // force reactivity
 
     // Select dropdowns - ensure they're converted to strings for dropdown selection
-    selectedBrand.value = product.brandId ? product.brandId.toString() : 
-                          product.brand?.id ? product.brand.id.toString() : "";
-    selectedType.value = product.productTypeId ? product.productTypeId.toString() : 
-                         product.productType?.id ? product.productType.id.toString() : "";
+    selectedBrand.value = product.brandId
+      ? product.brandId.toString()
+      : product.brand?.id
+      ? product.brand.id.toString()
+      : "";
+    selectedType.value = product.productTypeId
+      ? product.productTypeId.toString()
+      : product.productType?.id
+      ? product.productType.id.toString()
+      : "";
 
-    console.log("Setting brand to:", selectedBrand.value, "from product:", product);
-    
+    console.log(
+      "Setting brand to:",
+      selectedBrand.value,
+      "from product:",
+      product
+    );
+
     // Load sections with proper defaults for each section type
-    formData.display = product.display ? { ...product.display } : {
-      screenSize: "", displayType: "", resolution: "", refreshRate: "", brightness: ""
-    };
-    
-    formData.camera = product.camera ? { ...product.camera } : {
-      mainCamera: "", ultraWideCamera: "", telephotoCamera: "", frontCamera: "", 
-      videoRecording: "", features: ""
-    };
-    
-    formData.performance = product.performance ? { ...product.performance } : {
-      chipset: "", cpu: "", gpu: "", ram: "", storageOptions: ""
-    };
-    
-    formData.battery = product.battery ? { ...product.battery } : {
-      batteryCapacity: "", chargingSpeed: "", batteryLife: ""
-    };
-    
-    formData.connectivity = product.connectivity ? { ...product.connectivity } : {
-      fiveGSupport: "", wifi: "", bluetooth: "", nfc: "", usb: "", gps: ""
-    };
-    
-    formData.buildAndDesign = product.buildAndDesign ? { ...product.buildAndDesign } : {
-      material: "", dimensions: "", weight: "", waterResistance: "", colorOptions: ""
-    };
-    
-    formData.otherFeatures = product.otherFeatures ? { ...product.otherFeatures } : {
-      fingerprintSensor: "", faceUnlock: "", audio: "", biometrics: "", customFeatures: ""
-    };
-    
-    formData.softwareFeatures = product.softwareFeatures ? { ...product.softwareFeatures } : {
-      userInterface: "", softwareUpdates: "", preInstalledApps: ""
-    };
-    
-    formData.additionalInfo = product.additionalInfo ? { ...product.additionalInfo } : {};
+    formData.display = product.display
+      ? { ...product.display }
+      : {
+          screenSize: "",
+          displayType: "",
+          resolution: "",
+          refreshRate: "",
+          brightness: "",
+        };
+
+    formData.camera = product.camera
+      ? { ...product.camera }
+      : {
+          mainCamera: "",
+          ultraWideCamera: "",
+          telephotoCamera: "",
+          frontCamera: "",
+          videoRecording: "",
+          features: "",
+        };
+
+    formData.performance = product.performance
+      ? { ...product.performance }
+      : {
+          chipset: "",
+          cpu: "",
+          gpu: "",
+          ram: "",
+          storageOptions: "",
+        };
+
+    formData.battery = product.battery
+      ? { ...product.battery }
+      : {
+          batteryCapacity: "",
+          chargingSpeed: "",
+          batteryLife: "",
+        };
+
+    formData.connectivity = product.connectivity
+      ? { ...product.connectivity }
+      : {
+          fiveGSupport: "",
+          wifi: "",
+          bluetooth: "",
+          nfc: "",
+          usb: "",
+          gps: "",
+        };
+
+    formData.buildAndDesign = product.buildAndDesign
+      ? { ...product.buildAndDesign }
+      : {
+          material: "",
+          dimensions: "",
+          weight: "",
+          waterResistance: "",
+          colorOptions: "",
+        };
+
+    formData.otherFeatures = product.otherFeatures
+      ? { ...product.otherFeatures }
+      : {
+          fingerprintSensor: "",
+          faceUnlock: "",
+          audio: "",
+          biometrics: "",
+          customFeatures: "",
+        };
+
+    formData.softwareFeatures = product.softwareFeatures
+      ? { ...product.softwareFeatures }
+      : {
+          userInterface: "",
+          softwareUpdates: "",
+          preInstalledApps: "",
+        };
+
+    formData.additionalInfo = product.additionalInfo
+      ? { ...product.additionalInfo }
+      : {};
 
     // Set initial selected section for better UX
-    if (product.display && Object.keys(product.display).some(k => product.display[k])) {
+    if (
+      product.display &&
+      Object.keys(product.display).some((k) => product.display[k])
+    ) {
       selectedSection.value = "display";
     }
   } catch (error) {

@@ -91,7 +91,7 @@
         </div>
 
         <!-- Product Section -->
-        <div class="flex-1 border p-4 md:p-6">
+        <div class="flex-1 w-full border p-4 md:p-6">
           <div class="flex justify-between items-center mb-4">
             <h1 class="text-xl md:text-2xl font-bold">PRODUCT</h1>
             <button
@@ -104,33 +104,36 @@
           </div>
 
           <div
-            v-if="productsLoading"
-            class="flex justify-center items-center h-40"
+            v-if="productStore.loading"
+            class="w-full flex justify-center items-center h-[400px]"
           >
-            <p>Loading products...</p>
+            <Loader />
           </div>
           <div v-else-if="productsError" class="text-red-500">
             {{ productsError }}
           </div>
           <div v-else>
-            <div class="gap-3 md:gap-4 w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 mt-2">
-              <SmallProductCard
-                v-for="product in products"
-                :key="product.id"
-                :product="product"
-              />
-            </div>
-
-            <!-- Pagination -->
-            <div class="mt-6">
-              <Pagination
-                :currentPage="currentPage"
-                :totalPages="totalPages"
-                @page-change="changePage"
-              />
+            <div>
+              <Transition-group name="product-list" tag="div" class="gap-3 md:gap-4 w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 mt-2">
+                <SmallProductCard
+                  v-for="product in products"
+                  :key="product.id"
+                  :product="product"
+                />
+              </Transition-group>
             </div>
           </div>
+
+          <!-- Pagination -->
+          <div class="mt-6">
+            <Pagination
+              :currentPage="currentPage"
+              :totalPages="totalPages"
+              @page-change="changePage"
+            />
+          </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -143,7 +146,10 @@ import { onMounted, ref, computed, watch } from "vue";
 import { useProductStore } from "@/store/productStore";
 import SmallProductCard from "@/components/SmallProductCard.vue";
 import Pagination from "@/components/Pagination.vue";
+import Loader from "@/components/Loader.vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const productStore = useProductStore();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const brands = ref([]);
@@ -277,11 +283,8 @@ const fetchBrands = async () => {
 
 // Filter by product type only
 const filterByProductType = async (typeName, page = 0) => {
-  productsLoading.value = true;
+  productStore.loading = true;
   try {
-    console.log(
-      `Fetching products by type: ${typeName}, page: ${page}, items per page: ${itemsPerPage.value}`
-    );
     const response = await fetch(
       `${apiUrl}/product/type/${typeName}?page=${page}&size=${itemsPerPage.value}`
     );
@@ -291,9 +294,6 @@ const filterByProductType = async (typeName, page = 0) => {
     }
 
     const data = await response.json();
-    console.log(
-      `Got ${data.data.content.length} products, total: ${data.data.totalElements}, pages: ${data.data.totalPages}`
-    );
     productStore.products = data.data.content.map(mapProductData);
     updatePagination(data.data);
     activeFilter.value = "type";
@@ -301,13 +301,13 @@ const filterByProductType = async (typeName, page = 0) => {
     console.error("Error filtering by product type:", err);
     productStore.error = err.message;
   } finally {
-    productsLoading.value = false;
+    productStore.loading = false;
   }
 };
 
 // Filter by product type and brand
 const filterByTypeAndBrand = async (typeName, brandName, page = 0) => {
-  productsLoading.value = true;
+  productStore.loading = true;
   try {
     const response = await fetch(
       `${apiUrl}/brand/${typeName}/${brandName}?page=${page}&size=${itemsPerPage.value}`
@@ -325,13 +325,13 @@ const filterByTypeAndBrand = async (typeName, brandName, page = 0) => {
     console.error("Error filtering by type and brand:", err);
     productStore.error = err.message;
   } finally {
-    productsLoading.value = false;
+    productStore.loading = false;
   }
 };
 
 // Filter by brand only
 const filterByBrand = async (brandName, page = 0) => {
-  productsLoading.value = true;
+  productStore.loading = true;
   try {
     const response = await fetch(
       `${apiUrl}/brand/product-by-brand/${brandName}?page=${page}&size=${itemsPerPage.value}`
@@ -349,7 +349,7 @@ const filterByBrand = async (brandName, page = 0) => {
     console.error("Error filtering by brand:", err);
     productStore.error = err.message;
   } finally {
-    productsLoading.value = false;
+    productStore.loading = false;
   }
 };
 
@@ -398,29 +398,8 @@ const updatePagination = (data) => {
 
 // Helper function to map product data
 const mapProductData = (item) => ({
-  id: item.id,
-  model: item.model,
-  description: item.description,
-  stock_price: item.stock_price,
-  price: item.price,
-  stock: item.stock,
-  releaseDate: item.releaseDate,
-  brand: item.brand,
-  productType: item.productType,
-  brandId: item.brandId,
-  productTypeId: item.productTypeId,
-  display: item.display,
-  performance: item.performance,
-  camera: item.camera,
-  battery: item.battery,
-  connectivity: item.connectivity,
-  buildAndDesign: item.buildAndDesign,
-  otherFeatures: item.otherFeatures,
-  softwareFeatures: item.softwareFeatures,
-  imageUrls: item.imageUrls,
-  firstImageUrl: item.firstImageUrl,
-  additionalInfo: item.additionalInfo,
-  quantity: 1,
+  ...item,
+  quantity: 1 // Only add quantity if it's not already in the item
 });
 
 // Add these handler methods in your script section
@@ -533,7 +512,50 @@ const handleBrandSelect = async (event) => {
 
 onMounted(async () => {
   fetchBrands();
-  // Initial product fetch with pagination
-  await productStore.fetchProduct(currentPage.value - 1, itemsPerPage.value);
+  
+  // Check if we have a category query parameter
+  const categoryParam = route.query.category;
+  if (categoryParam) {
+    // Map URL category parameter to product type name
+    const categoryMapping = {
+      'mobile-phone': 'phone',
+      'smart-watch': 'watch',
+      'tablet': 'tablet',
+      'accessories': 'accessory'
+    };
+    
+    // Get the mapped category name
+    const productType = categoryMapping[categoryParam];
+    if (productType) {
+      // Set the selected product type and filter products
+      selectedProductType.value = productType;
+      await filterByProductType(productType, 0);
+    } else {
+      // If no mapping found, fetch all products
+      await productStore.fetchProduct(currentPage.value - 1, itemsPerPage.value);
+    }
+  } else {
+    // No category parameter, fetch all products
+    await productStore.fetchProduct(currentPage.value - 1, itemsPerPage.value);
+  }
 });
 </script>
+
+<style scoped>
+/* Product list animations */
+.product-list-enter-active,
+.product-list-leave-active {
+  transition: all 0.4s ease;
+}
+
+.product-list-enter-from,
+.product-list-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+/* Staggered list effect */
+.product-list-enter-active {
+  transition-delay: calc(0.1s * var(--i));
+}
+</style>

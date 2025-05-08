@@ -2,7 +2,7 @@
     <div class="bg-white shadow rounded-lg">
       <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900">
-          Low Stock Items (5)
+          Low Stock Items
         </h3>
       </div>
       <div class="p-4 sm:p-6">
@@ -15,12 +15,12 @@
                 </svg>
                 <img v-else :src="product.firstImageUrl" alt="Product Image" class="h-10 w-10 rounded-md object-cover">
               </div>
-              <div class="ml-3">
-                <p class="text-sm font-medium text-gray-900">{{ product.model }}</p>
+              <div class="mx-4 w-[225px]">
+                <p class="text-sm font-medium line-clamp-1 text-gray-900">{{ product.model }}</p>
                 <p class="text-sm text-gray-500">Type: {{ product.productTypeName }}</p>
               </div>
             </div>
-            <div class="flex items-center">
+            <div class="w-full flex justify-end items-center">
               <!-- Display editable input when restocking -->
               <div v-if="restockingProductId === product.id" class="flex items-center">
                 <input 
@@ -146,7 +146,6 @@
 
   const restockItem = async (productId, newQuantity) => {
     try {
-      // Call your API to restock the item
       await fetch(`${apiUrl}/product/restock/${productId}?quantity=${newQuantity}`, {
         method: 'put',
         headers: {
@@ -156,7 +155,7 @@
       });
     } catch (error) {
       console.error('Error restocking item:', error);
-      throw error; // Re-throw to handle in the calling function
+      throw error; 
     }
   };
 
@@ -168,12 +167,11 @@
   
   const getInventoryStatusClasses = (stock) => {
     return {
-      'bg-green-100 text-green-800': stock > 10,
-      'bg-yellow-100 text-yellow-800': stock <= 10 && stock > 0,
+      'bg-green-100 text-green-800': stock >= 10,
+      'bg-yellow-100 text-yellow-800': stock <= 10 && stock > 5,
       'bg-red-100 text-red-800': stock <= 5
     };
   };
 
-  // Define emit for parent component communication
   const emit = defineEmits(['inventory-updated', 'inventory-refreshed']);
   </script>

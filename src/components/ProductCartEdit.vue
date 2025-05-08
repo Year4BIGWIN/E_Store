@@ -90,7 +90,6 @@
         >
           <span v-if="!isDeleting">Delete</span>
           <span v-else class="flex items-center">
-            <Loader size="small" class="mr-1" />
             Deleting...
           </span>
         </button>

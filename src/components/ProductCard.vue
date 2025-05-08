@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, ref, onMounted } from "vue";
+import { defineProps, ref } from "vue";
 import Buttom from "./Buttom.vue";
 import { useRouter } from "vue-router";
 import Cookies from "universal-cookie";
@@ -16,6 +16,11 @@ const checkoutRef = ref(null);
 const isAddingToCart = ref(false);
 const isBuyingNow = ref(false);
 const showAddedToast = ref(false);
+const defaultImage = new URL('/src/assets/image/Logo.png', import.meta.url).href;
+
+const handleImageError = (e) => {
+  e.target.src = defaultImage;
+};
 
 const addToCart = async (phoneId, quantity) => {
   try {
@@ -23,9 +28,12 @@ const addToCart = async (phoneId, quantity) => {
     const cookies = new Cookies();
     const token = cookies.get("auth_token");
 
-    // Validate token
-    if (!token || token.split(".").length !== 3) {
-      router.push({ name: 'login', query: { redirect: router.currentRoute.value.fullPath }});
+    // Check if user is authenticated
+    if (!token) {
+      router.push({ 
+        name: "login", 
+        query: { redirect: router.currentRoute.value.fullPath } 
+      });
       return;
     }
 
@@ -40,7 +48,16 @@ const addToCart = async (phoneId, quantity) => {
 
     const responseData = await response.json();
 
-    console.log("Add to cart response:", responseData);
+    if (!response.ok) {
+      if (responseData.message === "Out of stock") {
+        // Show out of stock toast notification
+        toast.error("Item is out of stock!");
+      } else {
+        // Handle other errors
+        toast.error("Failed to add item to cart.");
+      }
+      return;
+    }
 
     // Show toast notification
     showAddedToast.value = true;
@@ -48,7 +65,6 @@ const addToCart = async (phoneId, quantity) => {
       showAddedToast.value = false;
     }, 2000);
     
-    // Fetch updated cart after adding an item
     await cartStore.fetchCart();
   } catch (error) {
     console.error("Error adding to cart:", error);
@@ -60,21 +76,35 @@ const addToCart = async (phoneId, quantity) => {
 const buyNow = async (phoneId, quantity = 1) => {
   try {
     isBuyingNow.value = true;
+    
+    // Check if user is authenticated
+    const cookies = new Cookies();
+    const token = cookies.get("auth_token");
+    
+    if (!token) {
+      // Redirect to login page with return URL
+      router.push({ 
+        name: "login", 
+        query: { redirect: router.currentRoute.value.fullPath } 
+      });
+      return;
+    }
+    
     // First add the item to cart
     await addToCart(phoneId, quantity);
 
     // Fetch the entire cart instead of just the one item
     await cartStore.fetchCart();
 
-      // Add a small delay to ensure component is ready
-      setTimeout(() => {
-        // Open checkout dialog directly
-        if (checkoutRef.value) {
-          checkoutRef.value.openCheckout();
-        } else {
-          console.error("Checkout reference not found");
-        }
-      }, 100);
+    // Add a small delay to ensure component is ready
+    setTimeout(() => {
+      // Open checkout dialog directly
+      if (checkoutRef.value) {
+        checkoutRef.value.openCheckout();
+      } else {
+        console.error("Checkout reference not found");
+      }
+    }, 100);
   } catch (error) {
     console.error("Error in buy now:", error);
   } finally {
@@ -106,21 +136,22 @@ const goToProductDetail = () => {
   <div
     class="cursor-pointer w-[265px] border rounded-lg hover:shadow-lg transition-all duration-300 flex flex-col justify-start gap-2 overflow-hidden"
   >
-    <div
-      @click="goToProductDetail"
-      class="w-full h-[200px] bg-[#f5f5f5] relative group"
-    >
-      <img
-        :src="product.firstImageUrl"
-        alt="..."
-        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-      />
-      <h2
-        class="absolute top-2 right-2 text-[12px] bg-white/90 rounded-full px-3 py-1 text-black shadow-sm"
-      >
-        {{ product.productType.name }}
-      </h2>
-    </div>
+  <div
+  @click="goToProductDetail"
+  class="aspect-square w-full overflow-hidden bg-[#f5f5f5] relative group"
+>
+  <img
+    :src="product.firstImageUrl || defaultImage"
+    alt="Product image"
+    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+    @error="handleImageError"
+  />
+  <h2
+    class="absolute top-2 right-2 text-[12px] bg-gray-200/60 rounded-full px-3 py-1 text-black shadow-sm"
+  >
+    {{ product.productType.name }}
+  </h2>
+</div>
     <div class="flex flex-col p-3 gap-3">
       <div class="flex flex-col">
         <h1 class="text-lg font-semibold line-clamp-1 hover:line-clamp-none transition-all">{{ product.model }}</h1>
@@ -163,13 +194,6 @@ const goToProductDetail = () => {
       @update-cart="handleCheckoutSuccess"
     />
   </div>
-
-  <transition name="fade">
-    <div v-if="showAddedToast" class="fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg z-50 flex items-center">
-      <i class="fa-solid fa-check-circle mr-2"></i>
-      <span>Added to cart successfully!</span>
-    </div>
-  </transition>
 </template>
 
 <style scoped>

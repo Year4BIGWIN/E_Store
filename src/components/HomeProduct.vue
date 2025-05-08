@@ -9,9 +9,9 @@
       <div class="w-full max-w-6xl flex flex-wrap justify-between">
         <div class="flex flex-wrap gap-1 overflow-x-auto pb-2 scrollbar-hide">
           <button
-            @click="navigateTo('/', { category: 'all' })"
+            @click="selectedCategory = 'all'"
             class="text-xs sm:text-sm px-3 sm:px-4 py-2 border rounded-full hover:bg-black hover:text-white flex items-center"
-            :class="{ 'bg-black text-white': selectedCategorySlug === 'all' }"
+            :class="{ 'bg-black text-white': selectedCategory === 'all' }"
           >
             <span class="sm:inline hidden">All</span>
             <svg
@@ -26,10 +26,10 @@
             </svg>
           </button>
           <button
-            @click="navigateTo('/', { category: 'mobile-phone' })"
+            @click="selectedCategory = 'mobile-phone'"
             class="text-xs sm:text-sm px-3 sm:px-4 py-2 border rounded-full hover:bg-black hover:text-white flex items-center"
             :class="{
-              'bg-black text-white': selectedCategorySlug === 'mobile-phone',
+              'bg-black text-white': selectedCategory === 'mobile-phone',
             }"
           >
             <span class="sm:inline hidden">Mobile Phone</span>
@@ -47,9 +47,9 @@
             </svg>
           </button>
           <button
-            @click="navigateTo('/', { category: 'tablet' })"
+            @click="selectedCategory = 'tablet'"
             class="text-xs sm:text-sm px-3 sm:px-4 py-2 border rounded-full hover:bg-black hover:text-white flex items-center"
-            :class="{ 'bg-black text-white': selectedCategorySlug === 'tablet' }"
+            :class="{ 'bg-black text-white': selectedCategory === 'tablet' }"
           >
             <span class="sm:inline hidden">Tablet</span>
             <svg
@@ -66,10 +66,10 @@
             </svg>
           </button>
           <button
-            @click="navigateTo('/', { category: 'smart-watch' })"
+            @click="selectedCategory = 'smart-watch'"
             class="text-xs sm:text-sm px-3 sm:px-4 py-2 border rounded-full hover:bg-black hover:text-white flex items-center"
             :class="{
-              'bg-black text-white': selectedCategorySlug === 'smart-watch',
+              'bg-black text-white': selectedCategory === 'smart-watch',
             }"
           >
             <span class="sm:inline hidden">Smart Watch</span>
@@ -87,10 +87,10 @@
             </svg>
           </button>
           <button
-            @click="navigateTo('/', { category: 'accessories' })"
+            @click="selectedCategory = 'accessories'"
             class="text-xs sm:text-sm px-3 sm:px-4 py-2 border rounded-full hover:bg-black hover:text-white flex items-center"
             :class="{
-              'bg-black text-white': selectedCategorySlug === 'accessories',
+              'bg-black text-white': selectedCategory === 'accessories',
             }"
           >
             <span class="sm:inline hidden">Accessories</span>
@@ -146,10 +146,10 @@
         </div>
       </div>
 
-      <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 pb-8">
+      <div class="max-w-7xl w-full mx-auto sm:px-6 pb-8">
         <!-- Phone Section -->
         <div
-          class="bg-white shadow-sm rounded-xl p-4 sm:p-6 mb-8 transition-all hover:shadow-md"
+          class="bg-white shadow-sm rounded-xl sm:p-6 mb-8 transition-all hover:shadow-md"
         >
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl sm:text-2xl font-bold text-gray-800">
@@ -189,7 +189,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <!-- Smart Watch Section -->
           <div
-            class="bg-white shadow-sm rounded-xl p-4 sm:p-6 transition-all hover:shadow-md"
+            class="bg-white shadow-sm rounded-xl sm:p-6 transition-all hover:shadow-md"
           >
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-xl sm:text-2xl font-bold text-gray-800">
@@ -229,7 +229,7 @@
 
           <!-- Accessories Section -->
           <div
-            class="bg-white shadow-sm rounded-xl p-4 sm:p-6 transition-all hover:shadow-md"
+            class="bg-white shadow-sm rounded-xl sm:p-6 transition-all hover:shadow-md"
           >
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-xl sm:text-2xl font-bold text-gray-800">
@@ -268,7 +268,7 @@
 
         <!-- Tablet Section -->
         <div
-          class="bg-white shadow-sm rounded-xl p-4 sm:p-6 transition-all hover:shadow-md"
+          class="bg-white shadow-sm rounded-xl sm:p-6 transition-all hover:shadow-md"
         >
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl sm:text-2xl font-bold text-gray-800">
@@ -310,19 +310,18 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import ProductCard from "@/components/ProductCard.vue";
 import SmallProductCard from "./SmallProductCard.vue";
 import { useProductStore } from "@/store/productStore";
 import Loader from "@/components/Loader.vue";
 
 const productStore = useProductStore();
-const products = ref([]);
-const route = useRoute();
 const router = useRouter();
 const isLoading = ref(true);
+const selectedCategory = ref('all'); // Local state for selected category
 
-// Map URL slugs to category names
+// Map category slugs to category names
 const categoryMap = {
   all: "All",
   "mobile-phone": "Phone",
@@ -331,19 +330,14 @@ const categoryMap = {
   accessories: "Accessory",
 };
 
-// Navigation function to replace router-link
+// Navigation function for other links only
 const navigateTo = (path, query = {}) => {
   router.push({ path, query });
 };
 
-// Get current category slug from URL
-const selectedCategorySlug = computed(() => {
-  return route.query.category || "all";
-});
-
-// Get actual category name from slug
-const selectedCategory = computed(() => {
-  return categoryMap[selectedCategorySlug.value] || "All";
+// Get actual category name from selected category
+const currentCategoryName = computed(() => {
+  return categoryMap[selectedCategory.value] || "All";
 });
 
 onMounted(async () => {
@@ -355,9 +349,9 @@ onMounted(async () => {
 const sortedProducts = computed(() => {
   let filtered = productStore.products;
 
-  if (selectedCategory.value !== "All") {
+  if (currentCategoryName.value !== "All") {
     filtered = filtered.filter(
-      (product) => product.productType.name === selectedCategory.value
+      (product) => product.productType.name === currentCategoryName.value
     );
   }
 

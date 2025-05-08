@@ -1,8 +1,20 @@
 <template>
   <div class="relative w-full h-full overflow-hidden">
     <!-- Loading state -->
-    <div v-if="loading" class="w-full h-full flex items-center justify-center bg-gray-100">
-      <div class="animate-spin rounded-full h-8 w-8 md:h-12 md:w-12 border-t-2 border-b-2 border-indigo-500"></div>
+    <div v-if="loading" class="w-full h-full flex flex-col items-center justify-center bg-gray-50">
+      <div class="relative">
+        <!-- Outer ring with gradient -->
+        <div class="absolute inset-0 rounded-full animate-spin h-10 w-10 md:h-16 md:w-16 border-4 border-transparent border-t-blue-500 border-r-indigo-300"></div>
+        
+        <!-- Inner ring with opposite spin -->
+        <div class="rounded-full animate-spin-slow h-10 w-10 md:h-16 md:w-16 border-4 border-transparent border-b-blue-600 border-l-indigo-400 opacity-75"></div>
+        
+        <!-- Center dot -->
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="h-2 w-2 md:h-3 md:w-3 bg-blue-600 rounded-full animate-pulse"></div>
+        </div>
+      </div>
+      <p class="mt-3 text-sm text-blue-600 font-medium animate-pulse">Loading...</p>
     </div>
     
     <!-- Error state -->
@@ -161,3 +173,15 @@ onUnmounted(() => {
   }
 });
 </script>
+
+<style scoped>
+@keyframes spin-slow {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+</style>

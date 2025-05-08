@@ -3,7 +3,6 @@
     @click="goToProductDetail" 
     class="group border cursor-pointer bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col h-full"
   >
-    <!-- Product Image with Overlay on Hover -->
     <div class="relative aspect-square overflow-hidden">
       <img
         :src="product.firstImageUrl || defaultImage"
@@ -46,22 +45,6 @@
           </button>
         </div>
       </div>
-      
-      <!-- Success toast notification -->
-      <div 
-        v-if="showSuccessToast" 
-        class="absolute top-2 left-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs shadow-md z-10 animate-fade-in-down"
-      >
-        Added to cart!
-      </div>
-      
-      <!-- Out of Stock toast notification -->
-      <div 
-        v-if="showOutOfStockToast" 
-        class="absolute top-2 left-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs shadow-md z-10 animate-fade-in-down"
-      >
-        Sorry, this product is out of stock!
-      </div>
     </div>
     
     <!-- Product Details -->
@@ -80,18 +63,17 @@
 </template>
 
 <script setup>
-import { defineProps, ref, computed } from 'vue';
+import { defineProps, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/store/cartStore';
+import { toast } from 'vue3-toastify';
+import useAuth from '@/composable/useAuth';
 
+const user = useAuth();
 const cartStore = useCartStore();
 const router = useRouter();
-
-// Use import.meta.url for more reliable asset paths
 const defaultImage = new URL('/src/assets/image/Logo.png', import.meta.url).href;
 const isAddingToCart = ref(false);
-const showSuccessToast = ref(false);
-const showOutOfStockToast = ref(false);
 
 const props = defineProps({
   product: {
@@ -113,6 +95,12 @@ const addItemToCart = async (event) => {
     event.stopPropagation();
     event.preventDefault();
   }
+
+  // Check if user is logged in
+  if (user.getToken() === null) {
+    router.push({ name: 'login' });
+    return;
+  }
   
   if (isAddingToCart.value) return;
   
@@ -123,19 +111,13 @@ const addItemToCart = async (event) => {
     
     if (result.success) {
       // Show success toast
-      showSuccessToast.value = true;
-      setTimeout(() => {
-        showSuccessToast.value = false;
-      }, 2000);
+      toast.success('Item added to cart successfully!');
     } else {
-      showOutOfStockToast.value = true;
-      // Add timeout to hide the out-of-stock toast after 2 seconds
-      setTimeout(() => {
-        showOutOfStockToast.value = false;
-      }, 2000);
+      // Show out of stock toast
+      toast.error('Item is out of stock!');
     }
   } catch (error) {
-    console.error("Error adding to cart:", error);
+    toast.error('Failed to add item to cart.');
   } finally {
     isAddingToCart.value = false;
   }

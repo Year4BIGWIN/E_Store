@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 import Cookies from "universal-cookie";
 import { useCartStore } from "@/store/cartStore";
@@ -10,9 +10,11 @@ import SpectComponent from "@/components/SpectComponent.vue";
 import ProductGallery from "@/components/ProductDetail/ProductGallery.vue";
 import ProductSpecifications from "@/components/ProductDetail/ProductSpecifications.vue";
 import ReviewSection from "@/components/ProductDetail/ReviewSection.vue";
+import Loader from "@/components/Loader.vue";
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const route = useRoute();
+const router = useRouter(); // Add this line
 const product = ref({});
 const error = ref(null);
 const isLoading = ref(true);
@@ -62,8 +64,12 @@ const addToCart = async (phoneId, quantity) => {
     const cookies = new Cookies();
     const token = cookies.get("auth_token");
 
-    if (!token || token.split(".").length !== 3) {
-      alert("Invalid or missing authentication token");
+    // Check if user is authenticated
+    if (!token) {
+      router.push({ 
+        name: "login", 
+        query: { redirect: route.fullPath } 
+      });
       return;
     }
 
@@ -78,11 +84,6 @@ const addToCart = async (phoneId, quantity) => {
 
     const responseData = await response.json();
 
-    if (!response.ok) {
-      alert(responseData.message || "Failed to add item to cart");
-      return;
-    }
-
     // Fetch updated cart after adding an item
     await cartStore.fetchCart();
   } catch (error) {
@@ -94,6 +95,19 @@ const addToCart = async (phoneId, quantity) => {
 const buyNow = async (phoneId, quantity = 1) => {
   try {
     isBuyingNow.value = true;
+
+    // Check if user is authenticated
+    const cookies = new Cookies();
+    const token = cookies.get("auth_token");
+
+    if (!token) {
+      router.push({ 
+        name: "login", 
+        query: { redirect: route.fullPath } 
+      });
+      return;
+    }
+
     // First add the item to cart
     await addToCart(phoneId, quantity);
 
@@ -139,8 +153,12 @@ onMounted(() => {
     class="max-w-6xl w-full mx-auto px-4 md:px-6 flex flex-col gap-6 md:gap-10 py-6 md:py-10"
   >
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-10 md:py-20">
-      <p class="text-gray-500">Loading product details...</p>
+    <div
+      v-if="isLoading"
+      class="flex flex-col items-center justify-center py-10 md:py-20"
+    >
+      <Loader />
+      <p class="text-gray-500 mt-4">Loading product details...</p>
     </div>
 
     <!-- Error State -->
@@ -257,7 +275,7 @@ onMounted(() => {
             <div
               class="text-xs md:text-sm text-gray-500 w-full md:w-auto mt-1 md:mt-0"
             >
-              <span v-if="product.data.stock > 10">In Stock</span>
+              <span v-if="product.data.stock > 10">{{ product.data.stock }} In Stock</span>
               <span v-else-if="product.data.stock > 0" class="text-orange-500"
                 >Only {{ product.data.stock }} left</span
               >

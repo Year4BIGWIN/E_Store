@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-[100vw] max-w-[1024px] mx-auto mt-6 mb-6 md:mt-10 md:mb-10 bg-[#d9d9d9] rounded-xl flex flex-col md:flex-row items-center justify-between"
+    class="w-[100vw] max-w-[1024px] px-4 md:px-0 my-6 md:my-10 md:bg-[#d9d9d9] rounded-xl flex flex-col md:flex-row items-center justify-between"
   >
     <!-- Left Image Section - hidden on mobile -->
     <div class="hidden md:block md:w-1/2 justify-center p-10">
@@ -8,7 +8,7 @@
     </div>
     <!-- Right Login Form Section - full width on mobile -->
     <div
-      class="w-full md:w-1/2 p-6 md:p-10 bg-[#f5f5f5] flex flex-col justify-center items-center rounded-xl"
+      class="w-full md:w-1/2 py-4 md:p-10 bg-[#f5f5f5] flex flex-col justify-center items-center rounded-xl"
     >
       <h1 class="font-bold text-2xl mb-5">Login</h1>
       <form class="w-full max-w-sm px-4 md:px-0" @submit.prevent="login">
@@ -16,7 +16,7 @@
         <div class="mb-5">
           <label
             for="email"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            class="block mb-2 text-sm font-medium text-gray-900"
           >
             Email
           </label>
@@ -30,7 +30,6 @@
           />
         </div>
 
-        <!-- Password Input -->
         <div class="relative mb-5">
           <label
             for="password"
@@ -59,14 +58,12 @@
           </button>
         </div>
 
-        <!-- Forget Password -->
         <div class="flex justify-end mb-5">
           <router-link class="hover:text-blue-500" to="/forgot-password">
             Forget Password?
           </router-link>
         </div>
 
-        <!-- Login Button -->
         <button
           class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center"
         >
@@ -74,7 +71,6 @@
         </button>
       </form>
 
-      <!-- Sign Up -->
       <div class="my-5 text-center">
         Don't have an account?
         <router-link class="hover:text-blue-500" to="/signup"
