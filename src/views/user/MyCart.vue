@@ -4,6 +4,7 @@ import { useCartStore } from "@/store/cartStore";
 import CartItem from "@/components/CartItem.vue";
 import Checkout from "@/components/CheckOut/Checkout.vue";
 
+
 const cartStore = useCartStore();
 const checkoutRef = ref(null); // Add ref to access checkout component methods
 

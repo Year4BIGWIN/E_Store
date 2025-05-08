@@ -26,7 +26,7 @@
     </div>
 
     <!-- Orders Table -->
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto h-[570px]">
       <table class="w-full border-collapse mt-4">
         <thead>
           <tr>
@@ -75,9 +75,7 @@
       </table>
     </div>
 
-    <!-- Add Pagination Component -->
     <Pagination 
-      class="mt-4"
       :current-page="currentPage" 
       :total-pages="totalPages" 
       @page-change="handlePageChange" 
@@ -213,20 +211,42 @@
     </div>
 
     <!-- Location Modal -->
-    <div v-if="selectedLocation" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div class="bg-white p-6 rounded-lg max-w-lg w-full">
-        <span class="absolute top-4 right-4 text-gray-600 cursor-pointer" @click="selectedLocation = null">&times;</span>
-        <h2 class="text-xl font-bold mb-4">Delivery Location</h2>
-        <p><strong>Address:</strong> {{ selectedLocation.locationAddress }}</p>
-        <p><strong>Coordinates:</strong> {{ selectedLocation.latitude }}, {{ selectedLocation.longitude }}</p>
-        <div class="mt-2">
-          <a 
-            :href="`https://www.google.com/maps?q=${selectedLocation.latitude},${selectedLocation.longitude}`" 
-            target="_blank"
-            class="text-blue-600 underline"
+    <div 
+      v-if="selectedLocation" 
+      class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+      @click="selectedLocation = null"
+    >
+      <div 
+        class="bg-white p-6 rounded-lg max-w-lg w-full"
+        @click.stop
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Delivery Location</h2>
+          <button 
+            @click="selectedLocation = null" 
+            class="text-gray-500 hover:text-gray-700 rounded-full p-1 hover:bg-gray-100"
           >
-            View on Google Maps
-          </a>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+        
+        <div class="space-y-3">
+          <p><strong>Address:</strong> {{ selectedLocation.locationAddress }}</p>
+          <p><strong>Coordinates:</strong> {{ selectedLocation.latitude }}, {{ selectedLocation.longitude }}</p>
+          <div class="mt-4">
+            <a 
+              :href="`https://www.google.com/maps?q=${selectedLocation.latitude},${selectedLocation.longitude}`" 
+              target="_blank"
+              class="inline-flex items-center text-blue-600 hover:text-blue-800"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              View on Google Maps
+            </a>
+          </div>
         </div>
       </div>
     </div>

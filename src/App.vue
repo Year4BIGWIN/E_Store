@@ -1,7 +1,7 @@
 <script setup>
 import { RouterView } from "vue-router";
-import { useRoute, onBeforeRouteUpdate } from "vue-router";
-import { ref, computed } from "vue";
+import { useRoute } from "vue-router";
+import { computed, ref, watch } from "vue";
 import NavBar from "./layout/NavBar.vue";
 import Footer from "./layout/Footer.vue";
 import AdminSideBar from "./layout/AdminSideBar.vue";
@@ -10,6 +10,9 @@ const route = useRoute();
 const isAdminRoute = computed(() => {
   return ['/dashboard', '/product', '/user', '/order', '/other', '/Other'].includes(route.path);
 });
+
+// Transition control
+const transitionName = ref('fade-slide');
 </script>
 
 <template>
@@ -21,7 +24,9 @@ const isAdminRoute = computed(() => {
 
       <!-- Main Content Area -->
       <div class="w-full flex flex-col items-center pl-2">
-        <RouterView :key="route.path" />
+        <transition name="fade-slide" mode="out-in">
+          <RouterView :key="route.path" />
+        </transition>
       </div>
     </div>
 
@@ -32,7 +37,9 @@ const isAdminRoute = computed(() => {
 
       <!-- Main Content -->
       <div>
-        <RouterView />
+        <transition name="fade-slide" mode="out-in">
+          <RouterView :key="route.path" />
+        </transition>
       </div>
 
       <!-- Footer -->
@@ -40,3 +47,35 @@ const isAdminRoute = computed(() => {
     </div>
   </div>
 </template>
+
+<style>
+/* Page Transitions */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* Alternative slide transition */
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.4s ease;
+}
+
+.slide-enter-from {
+  transform: translateX(100%);
+}
+
+.slide-leave-to {
+  transform: translateX(-100%);
+}
+</style>

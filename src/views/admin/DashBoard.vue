@@ -47,7 +47,7 @@
             <!-- Average Order Value Stat Card -->
             <StatCard 
               title="Average Order Value"
-              :changeDirection="statistics.aovChange >= 0 ? 'up' : 'down'"
+              :changeDirection="statistics.aovChangeDirection"
               :changePercentage="formatPercentage(statistics.aovChangePercentage)"
             >
               <template #value>${{ formatCurrency(statistics.averageOrderValue) }}</template>

@@ -87,7 +87,7 @@ const openLightbox = (imageUrl) => {
     </div>
     
     <!-- Thumbnails row -->
-    <div v-if="images && images.length > 0" class="flex gap-2 w-full overflow-x-auto pb-2">
+    <div v-if="images && images.length > 0" class="flex gap-2 w-full bg-gray-100 rounded-xl overflow-x-auto p-2">
       <div 
         v-for="(img, index) in images" 
         :key="`thumb-${index}`" 
@@ -102,10 +102,5 @@ const openLightbox = (imageUrl) => {
         />
       </div>
     </div>
-    
-    <!-- Image count indicator -->
-    <p v-if="images && images.length > 0" class="text-xs md:text-sm text-gray-500 text-center">
-      {{ images.length }} {{ images.length === 1 ? 'image' : 'images' }} available
-    </p>
   </div>
 </template>

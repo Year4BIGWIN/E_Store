@@ -42,24 +42,46 @@
           </button>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-4">
+        <div v-if="loading" class="py-10">
+          <Loader />
+        </div>
+
+        <div v-else class="flex flex-col md:flex-row gap-4">
           <!-- Image and Edit Button -->
           <div class="w-full md:w-32 flex flex-col md:flex-col gap-2 items-center md:items-start">
             <div
-              class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-blue-400 overflow-hidden flex items-center justify-center"
+              class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-blue-400 overflow-hidden flex items-center justify-center relative group"
             >
               <img
-                v-if="editProfile.image_url"
-                :src="editProfile.image_url"
+                :src="editProfile.image_url ? editProfile.image_url : generateDefaultAvatar()"
                 class="w-full h-full object-cover"
               />
-              <div v-if="isEditing" class="w-0 translate-x-[-100px]">
-                <Upload v-model:uploadedImageUrl="editProfile.image_url" />
+              <!-- Image overlay with upload button when in edit mode -->
+              <div 
+                v-if="isEditing" 
+                class="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <button 
+                  @click="openImageUpload"
+                  class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg text-sm font-medium"
+                >
+                  <i class="fa-solid fa-camera mr-1"></i>
+                  {{ editProfile.image_url ? 'Change' : 'Upload' }}
+                </button>
+              </div>
+              <!-- Loading indicator during image upload -->
+              <div 
+                v-if="isEditing && uploadingImage" 
+                class="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center"
+              >
+                <div class="w-8 h-8">
+                  <Loader />
+                </div>
               </div>
             </div>
 
             <div class="flex w-full gap-2 justify-center items-center">
-              <button @click="toggleEdit">
+              <button @click="toggleEdit" :disabled="savingProfile">
                 <span class="py-[6px] px-2 text-white bg-red-500 rounded-xl" v-if="isEditing">Cancel</span>
                 <i v-else class="fa-regular fa-pen-to-square"></i>
               </button>
@@ -67,9 +89,10 @@
               <div v-if="isEditing">
                 <button
                   @click="saveProfile"
-                  class="py-1 px-2 text-white bg-green-500 rounded-xl"
+                  class="py-1 px-2 text-white bg-green-500 rounded-xl flex items-center gap-2"
+                  :disabled="savingProfile"
                 >
-                  Save
+                  <span>{{ savingProfile ? 'Saving...' : 'Save' }}</span>
                 </button>
               </div>
             </div>
@@ -80,18 +103,18 @@
             <Input
               label="First Name"
               v-model="editProfile.first_name"
-              :disabled="!isEditing"
+              :disabled="!isEditing || savingProfile"
             />
             <Input
               label="Last Name"
               v-model="editProfile.last_name"
-              :disabled="!isEditing"
+              :disabled="!isEditing || savingProfile"
             />
             <Input label="Email" v-model="editProfile.email" disabled />
             <Input
               label="Phone Number"
               v-model="editProfile.phone_number"
-              :disabled="!isEditing"
+              :disabled="!isEditing || savingProfile"
             />
           </div>
         </div>
@@ -102,27 +125,38 @@
           <h1 class="text-xl">My Orders</h1>
           <span class="text-sm text-gray-500">Showing latest 4 orders</span>
         </div>
-        <div class="flex flex-col gap-2">
+        <div v-if="loading" class="py-10">
+          <Loader />
+        </div>
+        <div v-else-if="latestOrders.length > 0" class="flex flex-col gap-2">
           <OderCard 
             v-for="order in latestOrders" 
             :key="order.id" 
             :order="order" 
           />
         </div>
+        <div v-else class="py-8 text-center text-gray-500">
+          No active orders found
+        </div>
       </div>
-
 
       <div id="history-section" class="w-full flex flex-col rounded-xl bg-gray-100 gap-4 p-3 md:p-5 scroll-mt-20">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-1 md:gap-0">
           <h1 class="text-xl">History</h1>
           <span class="text-sm text-gray-500">Showing latest 4 orders</span>
         </div>
-        <div class="flex flex-col gap-2">
+        <div v-if="loading" class="py-10">
+          <Loader />
+        </div>
+        <div v-else-if="deliveredOrders.length > 0" class="flex flex-col gap-2">
           <OderCard 
             v-for="order in deliveredOrders" 
             :key="order.id" 
             :order="order" 
           />
+        </div>
+        <div v-else class="py-8 text-center text-gray-500">
+          No order history found
         </div>
       </div>
     </div>
@@ -134,9 +168,9 @@ import { ref, onMounted } from "vue";
 import axios from "axios";
 import Cookies from "universal-cookie";
 import Input from "@/components/Input.vue";
-import Upload from "@/components/Upload.vue";
 import useAuth from "@/composable/useAuth";
 import OderCard from "@/components/OderCard.vue";
+import Loader from "@/components/Loader.vue";
 
 const { logout } = useAuth();
 
@@ -146,10 +180,34 @@ const isEditing = ref(false);
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const orders = ref([]);
 const latestOrders = ref([]);
-const deliveredOrders = ref([]); // Add this new ref
+const deliveredOrders = ref([]);
 const activeSection = ref("");
+const loading = ref(true);
+const savingProfile = ref(false);
+const uploadingImage = ref(false);
+let uploadWidget = null;
+
+const generateDefaultAvatar = () => {
+  const firstName = editProfile.value?.first_name || '';
+  const lastName = editProfile.value?.last_name || '';
+  const email = editProfile.value?.email || '';
+  const displayName = (firstName || lastName) 
+    ? `${firstName} ${lastName}`.trim() 
+    : (email || "User");
+  let colorHash = 0;
+  for (let i = 0; i < displayName.length; i++) {
+    colorHash = displayName.charCodeAt(i) + ((colorHash << 5) - colorHash);
+  }
+  let color = (colorHash & 0x00FFFFFF).toString(16).toUpperCase();
+  while (color.length < 6) {
+    color = "0" + color;
+  }
+  
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=${color}&color=fff&size=128&bold=true`;
+};
 
 const profile = async () => {
+  loading.value = true;
   try {
     const cookies = new Cookies();
     const token = cookies.get("auth_token");
@@ -177,6 +235,8 @@ const profile = async () => {
     }
   } catch (error) {
     console.error("Profile fetch failed:", error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -188,6 +248,7 @@ const toggleEdit = () => {
 };
 
 const saveProfile = async () => {
+  savingProfile.value = true;
   try {
     const cookies = new Cookies();
     const token = cookies.get("auth_token");
@@ -212,6 +273,8 @@ const saveProfile = async () => {
       "Profile update failed:",
       error.response?.data || error.message
     );
+  } finally {
+    savingProfile.value = false;
   }
 };
 
@@ -223,7 +286,32 @@ const scrollToSection = (sectionId) => {
   }
 };
 
+const openImageUpload = () => {
+  if (uploadWidget) {
+    uploadingImage.value = true;
+    uploadWidget.open();
+  }
+};
+
 onMounted(() => {
   profile();
+  
+  // Initialize the upload widget if Cloudinary is available
+  if (typeof window.cloudinary !== 'undefined') {
+    uploadWidget = window.cloudinary.createUploadWidget(
+      { 
+        cloudName: "dpq5cxfaa", 
+        uploadPreset: "bontub" 
+      },
+      (error, result) => {
+        if (!error && result && result.event === "success") {
+          editProfile.value.image_url = result.info.secure_url;
+          uploadingImage.value = false;
+        } else if (result && result.event === "close") {
+          uploadingImage.value = false;
+        }
+      }
+    );
+  }
 });
 </script>
