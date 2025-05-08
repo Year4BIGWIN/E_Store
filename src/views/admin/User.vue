@@ -315,7 +315,6 @@ const updateUser = async () => {
 };
 
 const onImageError = (event) => {
-  // Fallback to a default avatar if the image fails to load
   event.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(event.target.alt) + '&background=random';
 };
 
