@@ -1,34 +1,83 @@
 <template>
-  <div class="relative w-full h-full overflow-hidden">
-    <!-- Loading state -->
-    <div v-if="loading" class="w-full h-full flex flex-col items-center justify-center bg-gray-50">
-      <div class="relative">
-        <!-- Outer ring with gradient -->
-        <div class="absolute inset-0 rounded-full animate-spin h-10 w-10 md:h-16 md:w-16 border-4 border-transparent border-t-blue-500 border-r-indigo-300"></div>
+  <!-- Mobile Skeleton (shown while loading) -->
+  <div v-if="!isReady" class="relative w-full h-[250px] bg-gray-200 md:hidden">
+    <!-- Center loader -->
+    <div class="absolute inset-0 flex items-center justify-center">
+      <Loader />
+    </div>
+    <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+      <div v-for="i in 4" :key="i" class="w-2 h-2 rounded-full "></div>
+    </div>
+  </div>
         
-        <!-- Inner ring with opposite spin -->
-        <div class="rounded-full animate-spin-slow h-10 w-10 md:h-16 md:w-16 border-4 border-transparent border-b-blue-600 border-l-indigo-400 opacity-75"></div>
-        
-        <!-- Center dot -->
+  <!-- Desktop Skeleton (shown while loading) -->
+  <div v-if="!isReady" class="relative w-screen h-[450px]  hidden md:block">
+    <!-- Center loader -->
         <div class="absolute inset-0 flex items-center justify-center">
-          <div class="h-2 w-2 md:h-3 md:w-3 bg-blue-600 rounded-full animate-pulse"></div>
+      <Loader />
+    </div>
+    <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+      <div v-for="i in 4" :key="i" class="w-3 h-3 rounded-full bg-gray-300"></div>
+    </div>
+  </div>
+
+  <!-- Mobile Carousel (hidden on md screens and up) -->
+  <div class="relative w-full h-[250px] overflow-hidden md:hidden" v-show="isReady">
+    <!-- Error state -->
+    <div v-if="error" class="w-full h-full flex items-center justify-center bg-gray-100">
+      <div class="text-red-500 text-sm">Failed to load slides</div>
         </div>
+    
+    <!-- Mobile Carousel Container -->
+    <div
+      v-else
+      class="flex w-full h-full"
+      :style="{
+        transform: `translateX(-${currentIndex * 100}%)`,
+        transition: isInitialized ? 'transform 2s cubic-bezier(0.25, 1, 0.5, 1)' : 'none',
+      }"
+    >
+      <div
+        v-for="(slide, index) in slides"
+        :key="index"
+        class="min-w-full h-full"
+      >
+        <img
+          :src="slide.imageUrl"
+          :alt="slide.title || 'carousel image'"
+          class="w-full h-[250px] object-cover"
+        />
       </div>
       <p class="mt-3 text-sm text-blue-600 font-medium animate-pulse">Loading...</p>
     </div>
     
+    <!-- Mobile Navigation Dots -->
+    <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+      <button 
+        v-for="(_, index) in slides" 
+        :key="index"
+        @click="currentIndex = index"
+        class="w-2 h-2 rounded-full transition-all"
+        :class="currentIndex === index ? 'bg-white scale-125' : 'bg-white/50'"
+        aria-label="Go to slide"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Desktop Carousel (hidden on smaller screens) -->
+  <div class="relative w-screen h-[450px] overflow-hidden hidden md:block" v-show="isReady">
     <!-- Error state -->
-    <div v-else-if="error" class="w-full h-full flex items-center justify-center bg-gray-100">
-      <div class="text-red-500 text-sm md:text-base">Failed to load slides</div>
+    <div v-if="error" class="w-full h-full flex items-center justify-center bg-gray-100">
+      <div class="text-red-500 text-base">Failed to load slides</div>
     </div>
     
-    <!-- Carousel Container -->
+    <!-- Desktop Carousel Container -->
     <div
       v-else
-      class="flex"
+      class="flex w-full h-full"
       :style="{
         transform: `translateX(-${currentIndex * 100}%)`,
-        transition: 'transform 2s cubic-bezier(0.25, 1, 0.5, 1)',
+        transition: isInitialized ? 'transform 2s cubic-bezier(0.25, 1, 0.5, 1)' : 'none',
       }"
     >
       <!-- Slides -->
@@ -40,18 +89,18 @@
         <img
           :src="slide.imageUrl"
           :alt="slide.title || 'carousel image'"
-          class="w-full h-[250px] sm:h-[350px] md:h-[450px] object-cover"
+          class="w-full h-[450px] object-cover"
         />
       </div>
     </div>
     
-    <!-- Navigation Dots (helps with mobile navigation) -->
+    <!-- Desktop Navigation Dots -->
     <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
       <button 
         v-for="(_, index) in slides" 
         :key="index"
         @click="currentIndex = index"
-        class="w-2 h-2 md:w-3 md:h-3 rounded-full transition-all"
+        class="w-3 h-3 rounded-full transition-all"
         :class="currentIndex === index ? 'bg-white scale-125' : 'bg-white/50'"
         aria-label="Go to slide"
       ></button>
@@ -67,6 +116,7 @@ import Wala from "@/assets/image/image copy.png";
 import Slide2 from "@/assets/image/image copy 2.png";
 
 import { ref, onMounted, onUnmounted } from "vue";
+import Loader from "@/components/Loader.vue";
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -75,6 +125,8 @@ const slides = ref([]);
 const loading = ref(true);
 const error = ref(false);
 const currentIndex = ref(0);
+const isInitialized = ref(false);
+const isReady = ref(false);  // New ref to control visibility
 
 // Fallback images in case API fails
 const fallbackImages = [
@@ -106,13 +158,8 @@ const fetchSlides = async () => {
     }
     const data = await response.json();
     
-    // Assuming the API returns an array of slide objects with imageUrl property
-    slides.value = data.data || [];
-    
-    // If no slides were returned, use fallback images
-    if (slides.value.length === 0) {
-      slides.value = fallbackImages;
-    }
+    // Use API data or fallback to default images
+    slides.value = (data.data && data.data.length > 0) ? data.data : fallbackImages;
   } catch (err) {
     console.error("Error fetching slides:", err);
     error.value = true;
@@ -151,7 +198,27 @@ let touchStartX = 0;
 
 // Start auto-slide on mount and stop on unmount
 onMounted(async () => {
+  // Reset state for route changes
+  currentIndex.value = 0;
+  isInitialized.value = false;
+  isReady.value = false;
+  
+  // Initialize with fallback images first for immediate display
+  slides.value = fallbackImages;
+  
+  // Then fetch from API
   await fetchSlides();
+  
+  // Small delay before showing content to prevent flashing
+  setTimeout(() => {
+    isReady.value = true;
+    
+    // Then after a short delay, enable transitions
+    setTimeout(() => {
+      isInitialized.value = true;
+    }, 100);
+  }, 300);
+  
   startAutoSlide();
   
   // Add touch event listeners

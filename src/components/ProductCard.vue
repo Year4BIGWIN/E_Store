@@ -6,10 +6,13 @@ import Cookies from "universal-cookie";
 import { useCartStore } from "@/store/cartStore";
 import Checkout from "@/components/CheckOut/Checkout.vue";
 import Rating from "./Rating.vue";
+import useAuth from "@/composable/useAuth";
+import { toast } from "vue3-toastify";
 
 const router = useRouter();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const cartStore = useCartStore();
+const user = useAuth();
 
 const checkoutRef = ref(null);
 
@@ -22,52 +25,30 @@ const handleImageError = (e) => {
   e.target.src = defaultImage;
 };
 
-const addToCart = async (phoneId, quantity) => {
+const addItemToCart = async (phoneId, quantity = 1) => {
+
+  // Check if user is logged in
+  if (user.getToken() === null) {
+    router.push({ name: 'login' });
+      return;
+    }
+
+  if (isAddingToCart.value) return;
+  
+  isAddingToCart.value = true;
+  
   try {
-    isAddingToCart.value = true;
-    const cookies = new Cookies();
-    const token = cookies.get("auth_token");
-
-    // Check if user is authenticated
-    if (!token) {
-      router.push({ 
-        name: "login", 
-        query: { redirect: router.currentRoute.value.fullPath } 
-      });
-      return;
-    }
-
-    const response = await fetch(`${apiUrl}/cart/add`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ phoneId, quantity }),
-    });
-
-    const responseData = await response.json();
-
-    if (!response.ok) {
-      if (responseData.message === "Out of stock") {
-        // Show out of stock toast notification
-        toast.error("Item is out of stock!");
-      } else {
-        // Handle other errors
-        toast.error("Failed to add item to cart.");
-      }
-      return;
-    }
-
-    // Show toast notification
-    showAddedToast.value = true;
-    setTimeout(() => {
-      showAddedToast.value = false;
-    }, 2000);
+    const result = await cartStore.addToCart(phoneId, quantity);
     
-    await cartStore.fetchCart();
+    if (result.success) {
+      // Show success toast
+      toast.success('Item added to cart successfully!');
+      } else {
+      // Show out of stock toast
+      toast.error('Item is out of stock!');
+    }
   } catch (error) {
-    console.error("Error adding to cart:", error);
+    toast.error('Failed to add item to cart.');
   } finally {
     isAddingToCart.value = false;
   }
@@ -91,7 +72,7 @@ const buyNow = async (phoneId, quantity = 1) => {
     }
     
     // First add the item to cart
-    await addToCart(phoneId, quantity);
+    await addItemToCart(phoneId, quantity);
 
     // Fetch the entire cart instead of just the one item
     await cartStore.fetchCart();
@@ -147,7 +128,7 @@ const goToProductDetail = () => {
     @error="handleImageError"
   />
   <h2
-    class="absolute top-2 right-2 text-[12px] bg-gray-200/60 rounded-full px-3 py-1 text-black shadow-sm"
+    class="absolute top-2 right-2 text-[12px] bg-white/90 rounded-full px-3 py-1 text-black shadow-sm"
   >
     {{ product.productType.name }}
   </h2>
@@ -170,7 +151,7 @@ const goToProductDetail = () => {
     </div>
     <div class="w-full flex items-center px-2 justify-between gap-1">
       <Buttom
-        @click="addToCart(product.id, product.quantity)"
+        @click="addItemToCart(product.id, product.quantity)"
         class="w-full"
         variant="secondary"
         size="sm"

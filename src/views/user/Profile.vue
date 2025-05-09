@@ -171,9 +171,11 @@ import Input from "@/components/Input.vue";
 import useAuth from "@/composable/useAuth";
 import OderCard from "@/components/OderCard.vue";
 import Loader from "@/components/Loader.vue";
+import { useAuthStore } from "@/store/authStore";
 
 const { logout } = useAuth();
 
+const authStore = useAuthStore();
 const profiles = ref({});
 const editProfile = ref({});
 const isEditing = ref(false);
@@ -267,6 +269,7 @@ const saveProfile = async () => {
     });
 
     profiles.value = { ...profiles.value, ...dataToSend };
+    authStore.fetchProfile();
     isEditing.value = false;
   } catch (error) {
     console.error(

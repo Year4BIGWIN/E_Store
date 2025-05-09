@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useCartStore } from '@/store/cartStore';
 import RemoveConfirmDialog from './RemoveConfirmDialog.vue';
+import { toast } from 'vue3-toastify';
 
 const props = defineProps({
   item: {
@@ -49,6 +50,7 @@ const confirmRemove = async () => {
     showRemoveDialog.value = false;
     // Still emit for any parent components that might need to know
     emit('remove-item', props.item.phone.id);
+    toast.success('Item removed from cart successfully!');
   } catch (error) {
     console.error("Error removing item:", error);
   }

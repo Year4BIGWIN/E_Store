@@ -128,33 +128,32 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import axios from "axios";
-import router from '@/router';
+import router from "@/router";
 import { useAuthStore } from "@/store/authStore";
-
 
 const authStore = useAuthStore();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
-console.log(apiUrl);
-
-const email = ref('');
-const password = ref('');
-const confirmPassword = ref('');
-const firstName = ref('');
-const lastName = ref('');
-const passwordError = ref('');
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+const email = ref("");
+const password = ref("");
+const confirmPassword = ref("");
+const firstName = ref("");
+const lastName = ref("");
+const passwordError = ref("");
+const showPassword = ref(false);
 
+// Sign-Up form submit
 const signup = async () => {
   if (password.value !== confirmPassword.value) {
-    passwordError.value = 'Passwords do not match';
+    passwordError.value = "Passwords do not match";
     return;
   }
 
   try {
     const response = await axios.post(`${apiUrl}/auth/signup`, {
-      email: email.value, // Capture the current email input
-      password: password.value, // Capture the current password input
+      email: email.value,
+      password: password.value,
       first_name: firstName.value,
       last_name: lastName.value,
     });
@@ -162,102 +161,55 @@ const signup = async () => {
     const role = response.data.data.role;
 
     authStore.setAuthData(token, role);
-
-    router.push('/');
+    router.push("/");
   } catch (error) {
-    console.log(error);
+    console.error("Sign-Up failed:", error.response?.data?.message || error.message);
+    alert("Sign-Up failed. Please try again.");
   }
 };
-const initGoogleSignIn = () => {
-  console.log("Initializing Google Sign-In...");
 
-  if (!googleClientId) {
-    console.error("Google Client ID is missing");
-    return;
-  }
-
-  window.google.accounts.id.initialize({
-    client_id: googleClientId,
-    callback: handleGoogleCredentialResponse,
-    cancel_on_tap_outside: true,
-  });
-
-  const buttonElement = document.getElementById("googleSignInButton");
-  if (!buttonElement) {
-    console.error("Google Sign-In button element not found");
-    return;
-  }
-
-  window.google.accounts.id.renderButton(buttonElement, {
-    theme: "outline",
-    size: "large",
-  });
-  console.log("Google Sign-In button rendered successfully");
-
-  window.google.accounts.id.prompt((notification) => {
-    if (notification.isNotDisplayed()) {
-      console.error(
-        "Google Sign-In button not displayed:",
-        notification.getNotDisplayedReason()
-      );
-    }
-    if (notification.isSkippedMoment()) {
-      console.warn("Google Sign-In skipped:", notification.getSkippedReason());
-    }
-    if (notification.isDismissedMoment()) {
-      console.warn(
-        "Google Sign-In dismissed:",
-        notification.getDismissedReason()
-      );
-    }
-  });
-};
-
+// Google Sign-In callback
 const handleGoogleCredentialResponse = async (response) => {
-  console.log("Google Sign-In Response:", response);
-
   try {
-    const apiUrl = import.meta.env.VITE_APP_API_URL;
-
-    // Send the ID token to the backend
-    const res = await fetch(`${apiUrl}/google-signup`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ token: response.credential }),
+    const res = await axios.post(`${apiUrl}/google-signup`, {
+      token: response.credential,
     });
 
-    const data = await res.json();
+    const data = res.data;
 
     if (data.status === "200") {
       const token = data.data.token;
       const role = data.data.role;
 
-      // Update Pinia store
       authStore.setAuthData(token, role);
-
-      // Fetch profile after successful login
-      await authStore.fetchProfile();
-
-      // Redirect to home page after successful login
-      router.push("/profile");
-      alert("Google login successful!");
+      router.push("/");
     } else {
-      console.error("Google login failed:", data.message);
-      alert("Google login failed: " + data.message);
+      console.error("Google Sign-Up failed:", data.message);
+      alert("Google Sign-Up failed: " + data.message);
+      console.error("Error details:", data);
     }
-  } catch (err) {
-    console.error("Error during Google login:", err);
-    alert("An error occurred during Google login. Please try again.");
+  } catch (error) {
+    console.error("Error during Google Sign-Up:", error.response?.data || error.message);
+    alert("An error occurred during Google Sign-Up. Please try again.");
   }
 };
 
+// Google Sign-In initialization
+const initGoogleSignIn = () => {
+  if (window.google && window.google.accounts) {
+    window.google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: handleGoogleCredentialResponse,
+      cancel_on_tap_outside: true,
+    });
 
-const showPassword = ref(false);
-
-const togglePassword = () => {
-  showPassword.value = !showPassword.value;
+    window.google.accounts.id.renderButton(
+      document.getElementById("googleSignInButton"),
+      { theme: "outline", size: "large" }
+    );
+  } else {
+    console.error("Google Identity script not loaded.");
+  }
 };
 
 onMounted(() => {

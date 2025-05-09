@@ -12,7 +12,7 @@ const closeDialog = () => {
 };
 
 const viewMyOrders = () => {
-  emit('profile'); // Emit the profile event to parent component
+  emit('profile');
 };
 
 onMounted(() => {
