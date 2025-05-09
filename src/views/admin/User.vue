@@ -212,7 +212,6 @@
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- Enhanced Edit User Modal -->

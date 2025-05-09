@@ -6,6 +6,11 @@ import PaymentSuccessDialog from "./PaymentSuccess.vue"; // Import the new compo
 import QRCode from "qrcode";
 import Cookies from "universal-cookie";
 import router from "@/router";
+import { toast } from "vue3-toastify";
+import { useCartStore } from "@/store/cartStore";
+
+
+const cartStore = useCartStore();
 
 const props = defineProps({
   cartItems: {
@@ -57,13 +62,16 @@ const getAuthHeaders = () => {
 
 const proceedToPayment = async () => {
   showCheckoutDialog.value = false;
-  await checkout();
+  const success = await checkout();
+  // Only show payment dialog if checkout was successful
+  if (success) {
   showPaymentDialog.value = true;
+  }
 };
 
 const checkout = async () => {
   const headers = getAuthHeaders();
-  if (!headers || props.cartItems.length === 0) return;
+  if (!headers || props.cartItems.length === 0) return false;
 
   try {
     const res = await fetch(`${apiUrl}/order/checkout`, {
@@ -81,11 +89,14 @@ const checkout = async () => {
       console.log("Generated QR Code:", qrCode.value);
       startTransactionPolling();
       startCountdownTimer(); // Start the countdown
+      return true;
     } else {
-      alert(data.message || "Checkout failed.");
+      toast.error("Checkout failed: " + ("don't have location"));
+      return false;
     }
   } catch (err) {
     console.error("Checkout error:", err);
+    return false;
   }
 };
 
@@ -94,9 +105,19 @@ const handleUpdateQuantity = (id, qty) => {
   emit('update-quantity', id, qty);
 };
 
-const navigateToProfile = () => {
+const navigateToProfile = async () => {
   showPaymentSuccessDialog.value = false;
-  router.push('/profile');
+  
+  try {
+    // Wait for the navigation to complete
+    await router.push('/profile');
+    // Only fetch cart after navigation is successful
+    cartStore.fetchCart();
+  } catch (error) {
+    console.error('Navigation error:', error);
+    // Still try to fetch cart even if navigation fails
+    cartStore.fetchCart();
+  }
 };
 
 // Handle cart item removal

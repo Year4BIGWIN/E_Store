@@ -33,7 +33,7 @@
         <div class="relative mb-5">
           <label
             for="password"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            class="block mb-2 text-sm font-medium text-gray-900 "
           >
             Password
           </label>
@@ -85,22 +85,21 @@
         <hr class="w-full md:w-[125px] border-gray-300" />
       </div>
 
-      <!-- Google Sign-in -->
-      <router-link class="hover:text-blue-500" to="/signup">
-        <i class="fa-brands fa-google fa-2x"></i>
-      </router-link>
+        <div id="googleSignInButton"></div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import router from "@/router";
 
+
 const authStore = useAuthStore();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const email = ref("");
 const password = ref("");
@@ -133,4 +132,51 @@ const showPassword = ref(false);
 const togglePassword = () => {
   showPassword.value = !showPassword.value;
 };
+
+const handleGoogleCredentialResponse = async (response) => {
+  try {
+    const res = await axios.post(`${apiUrl}/google-login`, {
+      token: response.credential,
+    });
+
+    const data = res.data;
+
+    if (data.status === "200") {
+      const token = data.data.token;
+      const role = data.data.role;
+
+      authStore.setAuthData(token, role);
+      router.push("/");
+    } else {
+      console.error("Google Sign-Up failed:", data.message);
+      alert("Google Sign-Up failed: " + data.message);
+      console.error("Error details:", data);
+    }
+  } catch (error) {
+    console.error("Error during Google Sign-Up:", error.response?.data || error.message);
+    alert("An error occurred during Google Sign-Up. Please try again.");
+  }
+};
+
+// Google Sign-In initialization
+const initGoogleSignIn = () => {
+  if (window.google && window.google.accounts) {
+    window.google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: handleGoogleCredentialResponse,
+      cancel_on_tap_outside: true,
+    });
+
+    window.google.accounts.id.renderButton(
+      document.getElementById("googleSignInButton"),
+      { theme: "outline", size: "large" }
+    );
+  } else {
+    console.error("Google Identity script not loaded.");
+  }
+};
+
+onMounted(() => {
+  initGoogleSignIn();
+});
 </script>

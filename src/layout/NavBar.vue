@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, computed, watch } from "vue";
+import { onMounted, computed, watch, ref } from "vue";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import avatar from "../assets/image/avatar.webp";
@@ -7,11 +7,12 @@ import img from "../assets/image/Logo.png";
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
+const profileImageKey = ref(0); // Add a key to force re-render
 
 const cartItemCount = computed(() => cartStore.cartItems.length);
 
 const profileImage = computed(() => {
-  return authStore.profile?.image_url || generateDefaultAvatar();
+  return authStore.profile?.image_url ? authStore.profile.image_url : generateDefaultAvatar();
 });
 
 const generateDefaultAvatar = () => {
@@ -48,6 +49,16 @@ watch(
       authStore.fetchProfile();
     }
   }
+);
+
+// Watch for profile changes (deep watch)
+watch(
+  () => authStore.profile,
+  () => {
+    // Force image re-render by updating the key
+    profileImageKey.value++;
+  },
+  { deep: true }
 );
 
 onMounted(() => {
@@ -94,7 +105,7 @@ onMounted(() => {
 
         <!-- Profile or Sign In -->
         <router-link to="/profile" v-if="authStore.token">
-          <img :src="profileImage" alt="Profile" class="h-8 w-8 rounded-full object-cover border border-gray-300" />
+          <img :src="profileImage" :key="profileImageKey" alt="Profile" class="h-8 w-8 rounded-full object-cover border border-gray-300" />
         </router-link>
         <router-link to="/login" v-else>
           <img :src="avatar" alt="Profile" class="h-8 w-8 rounded-full object-cover border border-gray-300" />
