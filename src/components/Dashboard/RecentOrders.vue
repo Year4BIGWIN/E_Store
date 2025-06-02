@@ -32,7 +32,7 @@
               <td class="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 #{{ order.orderId }}
               </td>
-              <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td class="line-clamp-1 w-[100px] px-3 py-4 whitespace-nowrap text-sm text-gray-500">
                 {{ order.customerName }}
               </td>
               <td class="px-3 py-4 whitespace-nowrap text-sm text-gray-500">

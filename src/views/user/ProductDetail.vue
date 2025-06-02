@@ -11,6 +11,7 @@ import ProductGallery from "@/components/ProductDetail/ProductGallery.vue";
 import ProductSpecifications from "@/components/ProductDetail/ProductSpecifications.vue";
 import ReviewSection from "@/components/ProductDetail/ReviewSection.vue";
 import Loader from "@/components/Loader.vue";
+import { toast } from "vue3-toastify";
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const route = useRoute();
@@ -86,6 +87,9 @@ const addToCart = async (phoneId, quantity) => {
 
     // Fetch updated cart after adding an item
     await cartStore.fetchCart();
+    toast.success(
+      `Item has been added to your cart!`
+    );
   } catch (error) {
     console.error("Error adding to cart:", error);
     alert("An error occurred while adding the item. Please try again.");

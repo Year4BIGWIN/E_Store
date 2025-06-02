@@ -114,8 +114,8 @@
               </span>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Total Amount</p>
-              <p class="font-medium text-gray-800">${{ selectedOrder.totalAmount.toFixed(2) }}</p>
+              <p class="text-sm text-gray-500">Customer</p>
+              <p class="font-medium text-gray-800">{{ selectedOrder.userName }}</p>
             </div>
             <div>
               <p class="text-sm text-gray-500">Created At</p>
@@ -183,7 +183,7 @@
               <table class="w-full border-collapse">
                 <thead>
                   <tr class="bg-gray-50">
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
@@ -191,7 +191,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                   <tr v-for="item in selectedOrder.orderItems" :key="item.id" class="hover:bg-gray-50">
-                    <td class="px-4 py-3 whitespace-nowrap">{{ item.id }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap w-[300px] line-clamp-1">{{ item.productName }}</td>
                     <td class="px-4 py-3 whitespace-nowrap">{{ item.quantity }}</td>
                     <td class="px-4 py-3 whitespace-nowrap">${{ item.price.toFixed(2) }}</td>
                     <td class="px-4 py-3 whitespace-nowrap font-medium">${{ (item.quantity * item.price).toFixed(2) }}</td>
