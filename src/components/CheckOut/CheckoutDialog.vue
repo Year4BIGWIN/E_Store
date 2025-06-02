@@ -57,17 +57,9 @@ const emit = defineEmits(['close', 'proceed-payment', 'update-quantity', 'remove
               </svg>
               Shipping Address
             </summary>
-            <div class="p-3 pt-0">
-              <div class="rounded-lg overflow-hidden border">
+              <div class="rounded-lg overflow-hidden">
                 <Map class="h-[180px]"></Map>
               </div>
-              <div class="mt-3 p-2 bg-gray-50 rounded-md">
-                <p class="text-sm text-gray-700">
-                  Your order will be delivered to:
-                </p>
-                <p class="font-medium">{{ userAddress || 'Please confirm your shipping address' }}</p>
-              </div>
-            </div>
           </details>
           
           <div class="flex justify-end gap-3 mt-2 sticky bottom-0 bg-white py-2">

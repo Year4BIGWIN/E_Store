@@ -48,7 +48,7 @@
               <!-- Display normal span when not restocking -->
               <div v-else class="flex items-center">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" :class="getInventoryStatusClasses(product.stock)">
-                  {{ product.stock }} in stock (ID: {{ product.id }})
+                  {{ product.stock }} in stock
                 </span>
                 <button 
                   @click="showRestockInput(product.id, product.stock)" 

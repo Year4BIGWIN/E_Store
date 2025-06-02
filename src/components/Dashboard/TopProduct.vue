@@ -16,7 +16,7 @@
               <img v-else :src="product.image" alt="Product Image" class="h-10 w-10 rounded-md object-cover">
             </div>
             <div class="ml-3">
-              <p class="text-sm font-medium text-gray-900">{{ product.model }}</p>
+              <p class="line-clamp-1 w-[400px] text-sm font-medium text-gray-900">{{ product.model }}</p>
               <p class="text-sm text-gray-500">{{ product.type }}</p>
             </div>
           </div>

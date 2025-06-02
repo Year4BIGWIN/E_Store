@@ -1,5 +1,4 @@
 <script setup>
-import router from '@/router';
 import { defineEmits, onMounted, ref } from 'vue';
 
 const emit = defineEmits(['close', 'profile', 'after-close']);
@@ -7,7 +6,6 @@ const showConfetti = ref(false);
 
 const closeDialog = () => {
   emit('close');
-  // Add this to emit a specific after-close event
   emit('after-close');
 };
 
@@ -46,11 +44,6 @@ onMounted(() => {
         
         <h2 class="text-3xl font-bold text-gray-800 dark:text-white mb-3 animate-fade-in">Payment Successful!</h2>
         <p class="text-gray-600 dark:text-gray-300 mb-6 animate-fade-in-delay">Thank you for your purchase. Your order has been confirmed.</p>
-        
-        <div class="border border-gray-100 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-700/50 w-full mb-6 animate-fade-in-delay-2">
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Order Reference</p>
-          <p class="font-mono font-medium text-gray-800 dark:text-gray-200">#{{ Math.random().toString(36).substring(2, 10).toUpperCase() }}</p>
-        </div>
         
         <div class="flex flex-col sm:flex-row gap-3 w-full animate-fade-in-delay-3">
           <button 

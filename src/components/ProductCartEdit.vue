@@ -12,7 +12,7 @@
     </td>
     
     <td class="p-4">
-      <h3 class="font-semibold text-gray-800">{{ name }}</h3>
+      <h3 class="w-[200px] font-semibold text-gray-800 line-clamp-1">{{ name }}</h3>
       <p class="text-xs text-gray-500">ID: #{{ id }}</p>
     </td>
 
