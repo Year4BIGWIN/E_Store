@@ -58,8 +58,61 @@
           <div v-if="brands.length === 0" class="py-12 text-center text-gray-500">
             <p>No brands found. Add your first brand to get started.</p>
           </div>
-          <div v-else v-for="brand in brands" :key="brand.id" class="px-2 py-1">
-            <BrandItem :brand="brand" @refresh="fetchData" @edit="editBrand" />
+          <div v-else>
+            <!-- Use paginatedBrands instead of brands -->
+            <div v-for="brand in paginatedBrands" :key="brand.id" class="px-2 py-1">
+              <BrandItem :brand="brand" @refresh="fetchData" @edit="editBrand" />
+            </div>
+            
+            <!-- Pagination UI -->
+            <div v-if="totalBrandPages > 1" class="mt-4 mb-4 flex justify-center">
+              <nav class="inline-flex rounded-md shadow">
+                <!-- Previous Page Button -->
+                <button 
+                  @click="goToBrandPage(currentBrandPage - 1)" 
+                  :disabled="currentBrandPage === 1"
+                  :class="[
+                    'relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium',
+                    currentBrandPage === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'
+                  ]"
+                >
+                  <span class="sr-only">Previous</span>
+                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+                
+                <!-- Page Numbers -->
+                <template v-for="page in brandPaginationRange" :key="page">
+                  <button 
+                    @click="goToBrandPage(page)" 
+                    :class="[
+                      'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium',
+                      page === currentBrandPage 
+                        ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                        : 'text-gray-500 hover:bg-gray-50'
+                    ]"
+                  >
+                    {{ page }}
+                  </button>
+                </template>
+                
+                <!-- Next Page Button -->
+                <button 
+                  @click="goToBrandPage(currentBrandPage + 1)" 
+                  :disabled="currentBrandPage === totalBrandPages"
+                  :class="[
+                    'relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium',
+                    currentBrandPage === totalBrandPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50'
+                  ]"
+                >
+                  <span class="sr-only">Next</span>
+                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </nav>
+            </div>
           </div>
         </div>
       </div>
@@ -165,7 +218,7 @@
                 :imageUrl="slide.imageUrl"
                 :title="slide.title" 
                 @edit="editSlide" 
-                @delete="deleteSlide"
+                @refresh="fetchData"
               />
             </div>
           </div>
@@ -212,7 +265,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import BrandItem from "@/components/BrandItem.vue";
 import DialogBrand from "@/components/Other/DialogBrand.vue";
@@ -233,7 +286,47 @@ const currentCategory = ref({});
 const currentSlide = ref({});
 const isEditMode = ref(false);
 const isSlideEditMode = ref(false);
-const activeSlideId = ref(null);
+
+// Pagination variables for brands
+const currentBrandPage = ref(1);
+const brandsPerPage = ref(5);
+
+// Computed property to get paginated brands
+const paginatedBrands = computed(() => {
+  const startIndex = (currentBrandPage.value - 1) * brandsPerPage.value;
+  return brands.value.slice(startIndex, startIndex + brandsPerPage.value);
+});
+
+// Calculate total pages for brands
+const totalBrandPages = computed(() => {
+  return Math.ceil(brands.value.length / brandsPerPage.value);
+});
+
+// Generate pagination range
+const brandPaginationRange = computed(() => {
+  const range = [];
+  const displayPages = 5; // Show up to 5 page numbers
+  
+  let start = Math.max(1, currentBrandPage.value - Math.floor(displayPages / 2));
+  let end = Math.min(totalBrandPages.value, start + displayPages - 1);
+  
+  // Adjust start if we're near the end
+  if (end === totalBrandPages.value) {
+    start = Math.max(1, end - displayPages + 1);
+  }
+  
+  for (let i = start; i <= end; i++) {
+    range.push(i);
+  }
+  
+  return range;
+});
+
+// Function to navigate to specific page
+const goToBrandPage = (page) => {
+  currentBrandPage.value = page;
+  window.scrollTo(0, 0);
+};
 
 async function fetchData() {
   isLoading.value = true;
@@ -293,27 +386,9 @@ function editSlide(slideId) {
   }
 }
 
-function deleteSlide(slideId) {
-  if (confirm('Are you sure you want to delete this slide?')) {
-    axios.delete(`${apiUrl}/slide/${slideId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-    .then(() => {
-      fetchData();
-    })
-    .catch(error => {
-      console.error('Error deleting slide:', error);
-      alert('Failed to delete slide. ' + (error.response?.data?.message || 'Please try again.'));
-    });
-  }
-}
-
 function handleSlideDialogClose(value) {
   showDialogSlide.value = value;
   if (!value) {
-    // Reset edit mode when dialog closes
     isSlideEditMode.value = false;
     currentSlide.value = {};
   }
@@ -323,8 +398,8 @@ const isBrandEditMode = ref(false);
 const currentBrand = ref({});
 
 function openBrandDialog() {
-  isBrandEditMode.value = false;  // Reset edit mode to ensure we're adding, not editing
-  currentBrand.value = {}; // Clear any previous brand data
+  isBrandEditMode.value = false; 
+  currentBrand.value = {};
   showDialog.value = true;
 }
 
@@ -337,7 +412,6 @@ function editBrand(brand) {
 function handleBrandDialogClose(value) {
   showDialog.value = value;
   if (!value) {
-    // Reset edit mode when dialog closes
     isBrandEditMode.value = false;
     currentBrand.value = {};
   }

@@ -22,7 +22,7 @@
           Edit
         </button>
         <button 
-          @click="deleteCategory" 
+          @click="showDeleteDialog" 
           class="px-3 py-1 text-red-600 hover:bg-red-50 rounded-md flex items-center gap-1"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -32,12 +32,42 @@
         </button>
       </div>
     </div>
+    
+    <!-- Delete confirmation dialog -->
+    <DialogInfo 
+      :show="showDeleteConfirm" 
+      title="Confirm Delete" 
+      @close="showDeleteConfirm = false"
+    >
+      <div class="p-4">
+        <p class="text-gray-700 mb-6">
+          Are you sure you want to delete category "{{ product_type.name }}"? This action cannot be undone.
+        </p>
+        
+        <div class="flex justify-end gap-3 mt-4">
+          <button 
+            @click="showDeleteConfirm = false" 
+            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+          <button 
+            @click="confirmDelete()" 
+            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </DialogInfo>
   </template>
   
   <script setup>
-  import { defineProps, defineEmits } from 'vue';
+  import { defineProps, defineEmits, ref } from 'vue';
   import axios from 'axios';
   import Cookies from 'universal-cookie';
+  import DialogInfo from '@/components/DialogInfo.vue';
+  import { toast } from "vue3-toastify";
   
   const props = defineProps({
     product_type: {
@@ -50,24 +80,30 @@
   
   const token = new Cookies().get("auth_token");
   const apiUrl = import.meta.env.VITE_APP_API_URL;
+  const showDeleteConfirm = ref(false);
   
   function editCategory() {
     emit('edit', props.product_type);
   }
   
-  async function deleteCategory() {
-    if (confirm(`Are you sure you want to delete "${props.product_type.name}"?`)) {
-      try {
-        await axios.delete(`${apiUrl}/productType/${props.product_type.id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        emit('refresh');
-      } catch (error) {
-        console.error('Error deleting category:', error);
-        alert('Failed to delete category. ' + (error.response?.data?.message || 'Please try again.'));
-      }
+  function showDeleteDialog() {
+    showDeleteConfirm.value = true;
+  }
+  
+  async function confirmDelete() {
+    try {
+      await axios.delete(`${apiUrl}/productType/${props.product_type.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      toast.success(`Category "${props.product_type.name}" deleted successfully`);
+      emit('refresh');
+      showDeleteConfirm.value = false;
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      toast.error('Failed to delete category. ' + (error.response?.data?.message || 'Please try again.'));
     }
   }
   </script>

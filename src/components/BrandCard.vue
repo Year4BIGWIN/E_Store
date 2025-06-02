@@ -16,11 +16,7 @@
 import { useRouter } from "vue-router";
 import { defineProps, defineEmits } from "vue";
 
-
-
 const router = useRouter();
-
-
 
 
 const goToProductPage = () => {

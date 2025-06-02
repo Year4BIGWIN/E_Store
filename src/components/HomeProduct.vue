@@ -342,7 +342,7 @@ const currentCategoryName = computed(() => {
 
 onMounted(async () => {
   isLoading.value = true;
-  await productStore.fetchProduct(0, 30);
+  await productStore.fetchProduct(0, 100);
   isLoading.value = false;
 });
 
