@@ -22,7 +22,7 @@
           Edit
         </button>
         <button 
-          @click="DeleteBrand(brand.id)" 
+          @click="confirmDeleteBrand(brand.id)" 
           class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-1"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -41,6 +41,32 @@
     :currentBrand="brand"
     @updatesuccess="handleUpdateSuccess" 
   />
+
+  <!-- Delete confirmation dialog -->
+  <DialogInfo 
+    :show="showDeleteConfirm" 
+    title="Confirm Delete" 
+    @close="showDeleteConfirm = false"
+  >
+    <div class="p-4">
+      <p class="text-gray-700 mb-6">Are you sure you want to delete this brand? This action cannot be undone.</p>
+      
+      <div class="flex justify-end gap-3 mt-4">
+        <button 
+          @click="showDeleteConfirm = false" 
+          class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+        >
+          Cancel
+        </button>
+        <button 
+          @click="confirmDelete()" 
+          class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </DialogInfo>
 </template>
 
 <script setup>
@@ -48,6 +74,8 @@ import { defineProps, ref, defineEmits } from "vue";
 import Cookies from 'universal-cookie';
 import axios from "axios"; 
 import DialogBrand from '@/components/Other/DialogBrand.vue';
+import DialogInfo from '@/components/DialogInfo.vue';
+import { toast } from "vue3-toastify";
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const token = new Cookies().get("auth_token");
@@ -61,6 +89,8 @@ const props = defineProps({
 
 // Replace modal with dialog
 const showEditDialog = ref(false);
+const showDeleteConfirm = ref(false);
+const brandIdToDelete = ref(null);
 
 const openEditDialog = () => {
   showEditDialog.value = true;
@@ -71,19 +101,23 @@ const handleUpdateSuccess = () => {
   emit('refresh');
 };
 
-async function DeleteBrand(id) {
-  if (confirm("Are you sure you want to delete this brand?")) {
-    try {
-      const response = await axios.delete(`${apiUrl}/brand/${id}`,{
-        headers: {
-                  Authorization: `Bearer ${token}`,
-              }
-      });
-      console.log(response.data);
-      emit('refresh');
-    } catch (error) {
-      console.error("Error deleting brand:", error);
-    }
+const confirmDeleteBrand = (id) => {
+  brandIdToDelete.value = id;
+  showDeleteConfirm.value = true;
+};
+
+async function confirmDelete() {
+  try {
+    await axios.delete(`${apiUrl}/brand/${brandIdToDelete.value}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    });
+    emit('refresh');
+    toast.success("Brand deleted successfully!");
+    showDeleteConfirm.value = false;
+  } catch (error) {
+    console.error("Error deleting brand:", error);
   }
 }
 </script>
