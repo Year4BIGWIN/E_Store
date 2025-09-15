@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+Allow: /products
+Allow: /productdetail/
+Allow: /about
+
+# Disallow admin and private areas
+Disallow: /dashboard
+Disallow: /product
+Disallow: /user
+Disallow: /order
+Disallow: /other
+Disallow: /login
+Disallow: /signup
+Disallow: /cart
+Disallow: /profile
+Disallow: /forgot-password
+Disallow: /reset-password
+
+# Allow search engines to crawl images
+Allow: /src/assets/
+
+# Sitemap location
+Sitemap: https://smartgear.sunneng.site/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1

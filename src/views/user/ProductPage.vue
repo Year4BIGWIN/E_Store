@@ -148,12 +148,18 @@ import SmallProductCard from "@/components/SmallProductCard.vue";
 import Pagination from "@/components/Pagination.vue";
 import Loader from "@/components/Loader.vue";
 import { useRoute } from "vue-router";
+import { useSEO } from "@/composable/useSEO";
+import { useStructuredData } from "@/composable/useStructuredData";
 
 const route = useRoute();
 const productStore = useProductStore();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const brands = ref([]);
 const products = computed(() => productStore.products);
+
+// SEO composables
+const { setSEO } = useSEO();
+const { generateWebsiteSchema, generateBreadcrumbSchema, injectStructuredData } = useStructuredData();
 
 // Loading and error states
 const brandsLoading = ref(false);
@@ -511,6 +517,26 @@ const handleBrandSelect = async (event) => {
 };
 
 onMounted(async () => {
+  // Set up SEO for products page
+  setSEO({
+    title: 'All Products - SmartGear Electronics Store',
+    description: 'Browse our complete collection of electronics, smartphones, tablets, headphones, and tech accessories. Find the perfect gadget at SmartGear with competitive prices.',
+    keywords: 'all electronics, product catalog, smartphones, tablets, headphones, tech accessories, gadgets, electronics store',
+    url: 'https://smartgear.sunneng.site/products'
+  });
+
+  // Generate website schema
+  const websiteSchema = generateWebsiteSchema();
+  injectStructuredData(websiteSchema, 'website-schema');
+
+  // Generate breadcrumb schema
+  const breadcrumbs = [
+    { name: 'Home', url: 'https://smartgear.sunneng.site/' },
+    { name: 'Products', url: 'https://smartgear.sunneng.site/products' }
+  ];
+  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs);
+  injectStructuredData(breadcrumbSchema, 'products-breadcrumb-schema');
+
   fetchBrands();
   
   // Check if we have a category query parameter
@@ -530,6 +556,22 @@ onMounted(async () => {
       // Set the selected product type and filter products
       selectedProductType.value = productType;
       await filterByProductType(productType, 0);
+      
+      // Update SEO for specific category
+      const categoryNames = {
+        'phone': 'Mobile Phones',
+        'watch': 'Smart Watches',
+        'tablet': 'Tablets',
+        'accessory': 'Accessories'
+      };
+      
+      const categoryName = categoryNames[productType] || productType;        setSEO({
+          title: `${categoryName} - SmartGear Electronics Store`,
+          description: `Shop premium ${categoryName.toLowerCase()} at SmartGear. Find the best deals on top brands with fast shipping and excellent customer service.`,
+          keywords: `${categoryName.toLowerCase()}, electronics, ${productType}, buy online, smartgear`,
+          url: `https://smartgear.sunneng.site/products?category=${categoryParam}`
+        });
+      
     } else {
       // If no mapping found, fetch all products
       await productStore.fetchProduct(currentPage.value - 1, itemsPerPage.value);

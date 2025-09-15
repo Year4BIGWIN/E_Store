@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 import Cookies from "universal-cookie";
@@ -12,16 +12,22 @@ import ProductSpecifications from "@/components/ProductDetail/ProductSpecificati
 import ReviewSection from "@/components/ProductDetail/ReviewSection.vue";
 import Loader from "@/components/Loader.vue";
 import { toast } from "vue3-toastify";
+import { useSEO } from "@/composable/useSEO";
+import { useStructuredData } from "@/composable/useStructuredData";
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const route = useRoute();
-const router = useRouter(); // Add this line
+const router = useRouter();
 const product = ref({});
 const error = ref(null);
 const isLoading = ref(true);
-const isBuyingNow = ref(false); // Added loading state for buy now
+const isBuyingNow = ref(false);
 const quantity = ref(1);
 const cartStore = useCartStore();
+
+// SEO composables
+const { setProductSEO } = useSEO();
+const { generateProductSchema, generateBreadcrumbSchema, injectStructuredData } = useStructuredData();
 
 // Reference to the checkout component
 const checkoutRef = ref(null);
@@ -49,6 +55,49 @@ const fetchProduct = async (id) => {
     } else {
       // Set default empty array if no images
       product.value.data.imageUrls = [];
+    }
+
+    // Update SEO for product page
+    if (product.value.data) {
+      const productData = product.value.data;
+      
+      // Set product SEO
+      setProductSEO({
+        id: productData.id,
+        name: productData.name,
+        description: productData.description || `Buy ${productData.name} at SmartGear. Premium quality electronics with fast shipping.`,
+        brand: productData.brand,
+        category: productData.category,
+        image: productData.imageUrls?.[0] || productData.image_url
+      });
+
+      // Generate and inject product structured data
+      const productSchema = generateProductSchema({
+        id: productData.id,
+        name: productData.name,
+        description: productData.description,
+        brand: productData.brand,
+        category: productData.category,
+        price: productData.price,
+        image: productData.imageUrls?.[0] || productData.image_url,
+        images: productData.imageUrls || [productData.image_url],
+        sku: productData.sku || productData.id,
+        inStock: productData.quantity > 0,
+        rating: productData.rating,
+        reviewCount: productData.reviewCount || 0
+      });
+      
+      injectStructuredData(productSchema, 'product-schema');
+
+      // Generate breadcrumb structured data
+      const breadcrumbs = [
+        { name: 'Home', url: 'https://smartgear.sunneng.site/' },
+        { name: 'Products', url: 'https://smartgear.sunneng.site/products' },
+        { name: productData.name, url: `https://smartgear.sunneng.site/productdetail/${productData.id}` }
+      ];
+      
+      const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs);
+      injectStructuredData(breadcrumbSchema, 'breadcrumb-schema');
     }
 
     console.log("Product data:", product.value);
