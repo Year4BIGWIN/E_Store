@@ -53,7 +53,7 @@
     <!-- Google Sign-In -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <div id="g_id_onload"
-     data-client_id="177686204494-gdgeuv84pnroqj0jp5033nrr635lqrsn.apps.googleusercontent.com"
+     data-client_id="587812288832-cnbej5acl6c88obck9eu802gnj0mg5ha.apps.googleusercontent.com"
      data-callback="handleCredentialResponse">
     </div>
     
@@ -110,10 +110,41 @@
       src="https://widget.cloudinary.com/v2.0/global/all.js"
       type="text/javascript"
     ></script>
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWK8qgfIS9THiw6mIVcu6f99wSwmkA16U&libraries=places"
-      async
-      defer
-    ></script>
+    
+    <!-- Google Maps API Direct Loading -->
+    <script>
+      // Global callback for Google Maps
+      window.initGoogleMaps = function() {
+        console.log('Google Maps API loaded successfully');
+        window.googleMapsReady = true;
+        
+        // Dispatch custom event
+        window.dispatchEvent(new CustomEvent('googleMapsReady', {
+          detail: { loaded: true }
+        }));
+      };
+      
+      // Load Google Maps API directly with environment-based key selection
+      (function() {
+        // Check if we're on localhost for development
+        var isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        // Use appropriate API key (you may want to replace this with your actual dev key)
+        var apiKey = 'AIzaSyCATDVzAMH_NEAIteGj5LPW2e9pDCAtgYo';
+        
+        console.log('Loading Google Maps for ' + (isLocalhost ? 'development' : 'production') + ' environment');
+        
+        var script = document.createElement('script');
+        script.src = 'https://maps.googleapis.com/maps/api/js?key=' + apiKey + '&libraries=places&callback=initGoogleMaps';
+        script.async = true;
+        script.defer = true;
+        script.onerror = function() {
+          console.error('Failed to load Google Maps API - Check API key restrictions');
+          console.error('Current domain: ' + window.location.hostname);
+          console.error('Make sure ' + window.location.origin + ' is added to your Google Cloud Console API key restrictions');
+        };
+        document.head.appendChild(script);
+      })();
+    </script>
   </body>
 </html>

@@ -172,8 +172,33 @@ let marker
 const showLocationPicker = () => {
   isLocationPickerVisible.value = true
   isMapLoading.value = true
-  // Initialize map after component is visible to ensure proper rendering
-  setTimeout(initializeMap, 100)
+  
+  // Check if Google Maps is ready
+  const checkGoogleMaps = () => {
+    if (window.google && window.google.maps) {
+      setTimeout(initializeMap, 100)
+    } else {
+      console.log('Waiting for Google Maps to load...')
+      // Listen for the Google Maps ready event
+      const handleGoogleMapsReady = () => {
+        setTimeout(initializeMap, 100)
+        window.removeEventListener('googleMapsReady', handleGoogleMapsReady)
+      }
+      
+      window.addEventListener('googleMapsReady', handleGoogleMapsReady)
+      
+      // Fallback timeout
+      setTimeout(() => {
+        if (!window.google || !window.google.maps) {
+          window.removeEventListener('googleMapsReady', handleGoogleMapsReady)
+          toast.error('Failed to load Google Maps. Please refresh the page.')
+          isMapLoading.value = false
+        }
+      }, 10000)
+    }
+  }
+  
+  checkGoogleMaps()
 }
 
 const hideLocationPicker = () => {
@@ -246,9 +271,22 @@ const confirmLocation = async () => {
 }
 
 const initializeMap = () => {
-  if (!mapContainer.value) return
+  if (!mapContainer.value) {
+    console.error('Map container not found')
+    isMapLoading.value = false
+    return
+  }
   
-  // Initialize map
+  // Check if Google Maps API is ready
+  if (!window.google || !window.google.maps) {
+    console.warn('Google Maps API is not ready yet')
+    isMapLoading.value = false
+    toast.error('Google Maps is not loaded. Please refresh the page.')
+    return
+  }
+  
+  try {
+    // Initialize map
   map = new window.google.maps.Map(mapContainer.value, {
     center: { lat: 11.5564, lng: 104.9282 }, // Phnom Penh
     zoom: 13,
@@ -339,6 +377,12 @@ const initializeMap = () => {
         console.log('Error getting current position')
       }
     )
+  }
+  
+  } catch (error) {
+    console.error('Error initializing Google Maps:', error)
+    toast.error('Failed to initialize map. Please try again.')
+    isMapLoading.value = false
   }
 }
 

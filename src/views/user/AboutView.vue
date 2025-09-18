@@ -1,5 +1,8 @@
 <template>
   <div>
+    <!-- Google Maps Debugger (temporary for testing) -->
+    <GoogleMapsDebugger />
+    
     <!-- Button to show location picker -->
     <button 
       v-if="!isLocationPickerVisible" 
@@ -60,6 +63,7 @@
 import { ref, onMounted, computed } from 'vue'
 import Cookies from 'universal-cookie';
 import { useAuthStore } from '@/store/authStore'
+import GoogleMapsDebugger from '@/components/GoogleMapsDebugger.vue'
 
 const authStore = useAuthStore()
 const cookies = new Cookies();
