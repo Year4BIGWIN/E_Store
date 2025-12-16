@@ -27,7 +27,11 @@ const cartStore = useCartStore();
 
 // SEO composables
 const { setProductSEO } = useSEO();
-const { generateProductSchema, generateBreadcrumbSchema, injectStructuredData } = useStructuredData();
+const {
+  generateProductSchema,
+  generateBreadcrumbSchema,
+  injectStructuredData,
+} = useStructuredData();
 
 // Reference to the checkout component
 const checkoutRef = ref(null);
@@ -60,15 +64,17 @@ const fetchProduct = async (id) => {
     // Update SEO for product page
     if (product.value.data) {
       const productData = product.value.data;
-      
+
       // Set product SEO
       setProductSEO({
         id: productData.id,
         name: productData.name,
-        description: productData.description || `Buy ${productData.name} at SmartGear. Premium quality electronics with fast shipping.`,
+        description:
+          productData.description ||
+          `Buy ${productData.name} at SmartGear. Premium quality electronics with fast shipping.`,
         brand: productData.brand,
         category: productData.category,
-        image: productData.imageUrls?.[0] || productData.image_url
+        image: productData.imageUrls?.[0] || productData.image_url,
       });
 
       // Generate and inject product structured data
@@ -84,20 +90,23 @@ const fetchProduct = async (id) => {
         sku: productData.sku || productData.id,
         inStock: productData.quantity > 0,
         rating: productData.rating,
-        reviewCount: productData.reviewCount || 0
+        reviewCount: productData.reviewCount || 0,
       });
-      
-      injectStructuredData(productSchema, 'product-schema');
+
+      injectStructuredData(productSchema, "product-schema");
 
       // Generate breadcrumb structured data
       const breadcrumbs = [
-        { name: 'Home', url: 'https://smartgear.sunneng.site/' },
-        { name: 'Products', url: 'https://smartgear.sunneng.site/products' },
-        { name: productData.name, url: `https://smartgear.sunneng.site/productdetail/${productData.id}` }
+        { name: "Home", url: "https://smartgear.sunneng.site/" },
+        { name: "Products", url: "https://smartgear.sunneng.site/products" },
+        {
+          name: productData.name,
+          url: `https://smartgear.sunneng.site/productdetail/${productData.id}`,
+        },
       ];
-      
+
       const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs);
-      injectStructuredData(breadcrumbSchema, 'breadcrumb-schema');
+      injectStructuredData(breadcrumbSchema, "breadcrumb-schema");
     }
 
     console.log("Product data:", product.value);
@@ -116,9 +125,9 @@ const addToCart = async (phoneId, quantity) => {
 
     // Check if user is authenticated
     if (!token) {
-      router.push({ 
-        name: "login", 
-        query: { redirect: route.fullPath } 
+      router.push({
+        name: "login",
+        query: { redirect: route.fullPath },
       });
       return;
     }
@@ -136,9 +145,7 @@ const addToCart = async (phoneId, quantity) => {
 
     // Fetch updated cart after adding an item
     await cartStore.fetchCart();
-    toast.success(
-      `Item has been added to your cart!`
-    );
+    toast.success(`Item has been added to your cart!`);
   } catch (error) {
     console.error("Error adding to cart:", error);
     alert("An error occurred while adding the item. Please try again.");
@@ -154,9 +161,9 @@ const buyNow = async (phoneId, quantity = 1) => {
     const token = cookies.get("auth_token");
 
     if (!token) {
-      router.push({ 
-        name: "login", 
-        query: { redirect: route.fullPath } 
+      router.push({
+        name: "login",
+        query: { redirect: route.fullPath },
       });
       return;
     }
@@ -233,12 +240,12 @@ onMounted(() => {
             &#x2022;
             <span class="hover:text-blue-500">Product</span>
           </router-link>
-          <router-link to="/categories">
-            &#x2022;
-            <span class="hover:text-blue-500">
+          <span>
+            &amp;#x2022;
+            <span class="text-gray-600">
               {{ product.data.productType.name }}
             </span>
-          </router-link>
+          </span>
         </div>
       </div>
 
@@ -328,7 +335,9 @@ onMounted(() => {
             <div
               class="text-xs md:text-sm text-gray-500 w-full md:w-auto mt-1 md:mt-0"
             >
-              <span v-if="product.data.stock > 10">{{ product.data.stock }} In Stock</span>
+              <span v-if="product.data.stock > 10"
+                >{{ product.data.stock }} In Stock</span
+              >
               <span v-else-if="product.data.stock > 0" class="text-orange-500"
                 >Only {{ product.data.stock }} left</span
               >

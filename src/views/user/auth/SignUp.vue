@@ -16,7 +16,7 @@
           <div class="w-full mb-4 md:mb-0">
             <label
               for="first-name"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              class="block mb-2 text-sm font-medium text-gray-900"
               >First Name</label
             >
             <input
@@ -31,7 +31,7 @@
           <div class="w-full">
             <label
               for="last-name"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              class="block mb-2 text-sm font-medium text-gray-900"
               >Last Name</label
             >
             <input
@@ -48,7 +48,7 @@
         <div class="mb-5">
           <label
             for="email"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            class="block mb-2 text-sm font-medium text-gray-900"
             >Email</label
           >
           <input
@@ -61,45 +61,63 @@
           />
         </div>
 
-        <div class="mb-5">
+        <div class="relative mb-5">
           <label
             for="password"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            class="block mb-2 text-sm font-medium text-gray-900"
             >Password</label
           >
           <input
             :type="showPassword ? 'text' : 'password'"
             id="password"
             v-model="password"
+            placeholder="***********"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             required
           />
+          <button
+            type="button"
+            class="absolute top-10 right-3 flex items-center text-gray-500"
+            @click="togglePassword"
+          >
+            <i
+              :class="
+                showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'
+              "
+            ></i>
+          </button>
         </div>
 
-        <div class="mb-5">
+        <div class="relative mb-5">
           <label
             for="confirm-password"
-            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            class="block mb-2 text-sm font-medium text-gray-900"
             >Confirm Password</label
           >
           <input
-            :type="showPassword ? 'text' : 'password'"
+            :type="showConfirmPassword ? 'text' : 'password'"
             v-model="confirmPassword"
             id="confirm-password"
             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             required
+            placeholder="***********"
           />
-          <div v-if="passwordError" class="mt-1 text-red-500 text-sm">{{ passwordError }}</div>
-        </div>
-
-        <div class="mb-4 flex items-center">
-          <input 
-            id="show-password" 
-            type="checkbox" 
-            v-model="showPassword" 
-            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+          <button
+            type="button"
+            class="absolute top-10 right-3 flex items-center text-gray-500"
+            @click="toggleConfirmPassword"
           >
-          <label for="show-password" class="ms-2 text-sm font-medium text-gray-900">Show password</label>
+            <i
+              :class="
+                showConfirmPassword
+                  ? 'fa-solid fa-eye-slash'
+                  : 'fa-solid fa-eye'
+              "
+            ></i>
+          </button>
+          <div v-if="passwordError" class="mt-1 text-red-500 text-sm">
+            {{ passwordError }}
+          </div>
         </div>
 
         <button
@@ -110,11 +128,16 @@
         </button>
       </form>
       <div class="mt-5 text-center">
-        Already have an account? <router-link class="text-blue-700 hover:text-blue-500" to="/login">Login</router-link>
+        Already have an account?
+        <router-link class="text-blue-700 hover:text-blue-500" to="/login"
+          >Login</router-link
+        >
       </div>
-      <div class="w-full max-w-sm mb-5 flex justify-center items-center px-4 md:px-0">
+      <div
+        class="w-full max-w-sm mb-5 flex justify-center items-center px-4 md:px-0"
+      >
         <hr class="w-full md:w-[125px] border-gray-300" />
-        <span class="mx-2 whitespace-nowrap">Or Sign Up with</span>
+        <span class="mx-2 mt-2 whitespace-nowrap">Or Sign Up with</span>
         <hr class="w-full md:w-[125px] border-gray-300" />
       </div>
 
@@ -123,7 +146,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup>
 import { onMounted, ref } from "vue";
@@ -142,6 +164,15 @@ const firstName = ref("");
 const lastName = ref("");
 const passwordError = ref("");
 const showPassword = ref(false);
+const showConfirmPassword = ref(false);
+
+const togglePassword = () => {
+  showPassword.value = !showPassword.value;
+};
+
+const toggleConfirmPassword = () => {
+  showConfirmPassword.value = !showConfirmPassword.value;
+};
 
 // Sign-Up form submit
 const signup = async () => {
@@ -163,7 +194,10 @@ const signup = async () => {
     authStore.setAuthData(token, role);
     router.push("/");
   } catch (error) {
-    console.error("Sign-Up failed:", error.response?.data?.message || error.message);
+    console.error(
+      "Sign-Up failed:",
+      error.response?.data?.message || error.message
+    );
     alert("Sign-Up failed. Please try again.");
   }
 };
@@ -189,7 +223,10 @@ const handleGoogleCredentialResponse = async (response) => {
       console.error("Error details:", data);
     }
   } catch (error) {
-    console.error("Error during Google Sign-Up:", error.response?.data || error.message);
+    console.error(
+      "Error during Google Sign-Up:",
+      error.response?.data || error.message
+    );
     alert("An error occurred during Google Sign-Up. Please try again.");
   }
 };

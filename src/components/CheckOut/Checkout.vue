@@ -9,25 +9,30 @@ import router from "@/router";
 import { toast } from "vue3-toastify";
 import { useCartStore } from "@/store/cartStore";
 
-
 const cartStore = useCartStore();
 
 const props = defineProps({
   cartItems: {
     type: Array,
-    required: true
+    required: true,
   },
   totalPrice: {
     type: Number,
-    required: true
+    required: true,
   },
   showButton: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 });
 
-const emit = defineEmits(['payment-successful', 'update-cart', 'update-quantity', 'remove-item', 'after-payment-close']);
+const emit = defineEmits([
+  "payment-successful",
+  "update-cart",
+  "update-quantity",
+  "remove-item",
+  "after-payment-close",
+]);
 
 const showCheckoutDialog = ref(false);
 const showPaymentDialog = ref(false);
@@ -65,7 +70,7 @@ const proceedToPayment = async () => {
   const success = await checkout();
   // Only show payment dialog if checkout was successful
   if (success) {
-  showPaymentDialog.value = true;
+    showPaymentDialog.value = true;
   }
 };
 
@@ -91,7 +96,7 @@ const checkout = async () => {
       startCountdownTimer(); // Start the countdown
       return true;
     } else {
-      toast.error("Checkout failed: " + ("don't have location"));
+      toast.error("Checkout failed: " + "don't have location");
       return false;
     }
   } catch (err) {
@@ -102,19 +107,19 @@ const checkout = async () => {
 
 // Handle cart item quantity updates
 const handleUpdateQuantity = (id, qty) => {
-  emit('update-quantity', id, qty);
+  emit("update-quantity", id, qty);
 };
 
 const navigateToProfile = async () => {
   showPaymentSuccessDialog.value = false;
-  
+
   try {
     // Wait for the navigation to complete
-    await router.push('/profile');
+    await router.push("/profile");
     // Only fetch cart after navigation is successful
     cartStore.fetchCart();
   } catch (error) {
-    console.error('Navigation error:', error);
+    console.error("Navigation error:", error);
     // Still try to fetch cart even if navigation fails
     cartStore.fetchCart();
   }
@@ -122,18 +127,23 @@ const navigateToProfile = async () => {
 
 // Handle cart item removal
 const handleRemoveItem = (id) => {
-  emit('remove-item', id);
+  emit("remove-item", id);
 };
 
 const checkTransactionStatus = async () => {
   try {
-    const res = await fetch(`${apiUrl}/order/confirm-payment?md5=${md5Hash.value}`, {
-      method: "GET",
-      headers: getAuthHeaders(),
-    });
+    const res = await fetch(
+      `${apiUrl}/order/confirm-payment?md5=${md5Hash.value}`,
+      {
+        method: "GET",
+        headers: getAuthHeaders(),
+      }
+    );
 
     if (!res.ok) {
-      console.error(`Error: Received status ${res.status} from /confirm-payment`);
+      console.error(
+        `Error: Received status ${res.status} from /confirm-payment`
+      );
       transactionStatus.value = "Error checking transaction status";
       return;
     }
@@ -157,18 +167,21 @@ const checkTransactionStatus = async () => {
         clearInterval(intervalId);
         clearTimeout(timeoutId);
         clearInterval(countdownIntervalId);
-        
+
         // First hide payment dialog
         showPaymentDialog.value = false;
-        
+
         // Small delay to ensure UI updates properly
         setTimeout(() => {
           showPaymentSuccessDialog.value = true;
-          console.log("Success dialog visibility set to:", showPaymentSuccessDialog.value);
-          
+          console.log(
+            "Success dialog visibility set to:",
+            showPaymentSuccessDialog.value
+          );
+
           // Only emit payment-successful, not update-cart
           setTimeout(() => {
-            emit('payment-successful');
+            emit("payment-successful");
           }, 100);
         }, 300);
       } else if (data.toLowerCase() === "pending") {
@@ -184,16 +197,19 @@ const checkTransactionStatus = async () => {
         clearInterval(intervalId);
         clearTimeout(timeoutId);
         clearInterval(countdownIntervalId);
-        
+
         showPaymentDialog.value = false;
-        
+
         setTimeout(() => {
           showPaymentSuccessDialog.value = true;
-          console.log("Success dialog visibility set to:", showPaymentSuccessDialog.value);
-          
+          console.log(
+            "Success dialog visibility set to:",
+            showPaymentSuccessDialog.value
+          );
+
           // Only emit payment-successful, not update-cart
           setTimeout(() => {
-            emit('payment-successful');
+            emit("payment-successful");
           }, 100);
         }, 300);
       } else if (data.responseMessage.toLowerCase() === "pending") {
@@ -218,7 +234,7 @@ const startTransactionPolling = () => {
 const startCountdownTimer = () => {
   clearInterval(countdownIntervalId);
   remainingSeconds.value = qrCodeExpirySeconds.value;
-  
+
   countdownIntervalId = setInterval(() => {
     if (remainingSeconds.value > 0) {
       remainingSeconds.value--;
@@ -231,25 +247,25 @@ const startCountdownTimer = () => {
 // Format countdown time (MM:SS)
 const formattedCountdown = computed(() => {
   const minutes = Math.floor(remainingSeconds.value / 60);
-  const seconds = (remainingSeconds.value % 60).toString().padStart(2, '0');
+  const seconds = (remainingSeconds.value % 60).toString().padStart(2, "0");
   return `${minutes}:${seconds}`;
 });
 
 // Countdown color based on remaining time
 const countdownColorClass = computed(() => {
-  if (remainingSeconds.value < 10) return 'text-red-600';
-  if (remainingSeconds.value < 30) return 'text-orange-500';
-  return 'text-blue-600';
+  if (remainingSeconds.value < 10) return "text-red-600";
+  if (remainingSeconds.value < 30) return "text-orange-500";
+  return "text-blue-600";
 });
 
 // QR code expired state
-const isQrExpired = computed(() => 
-  remainingSeconds.value <= 0 && transactionStatus.value !== 'Success'
+const isQrExpired = computed(
+  () => remainingSeconds.value <= 0 && transactionStatus.value !== "Success"
 );
 
 // Transaction success state
-const isTransactionSuccess = computed(() => 
-  transactionStatus.value === 'Success'
+const isTransactionSuccess = computed(
+  () => transactionStatus.value === "Success"
 );
 
 const restartPaymentProcess = async () => {
@@ -258,7 +274,7 @@ const restartPaymentProcess = async () => {
   paymentInfo.value = null;
   md5Hash.value = null;
   transactionStatus.value = null;
-  
+
   // Generate new payment QR
   await checkout();
 };
@@ -281,8 +297,8 @@ const closeSuccessDialog = () => {
 
 const handleAfterModalClose = () => {
   console.log("Success modal closed, updating cart");
-  emit('after-payment-close');
-  emit('update-cart');
+  emit("after-payment-close");
+  emit("update-cart");
 };
 
 // Add this line to expose the method to parent components
@@ -298,13 +314,14 @@ onUnmounted(() => {
 <template>
   <div>
     <!-- Checkout button (optional, controlled by prop) -->
-    <button 
+    <button
       v-if="showButton"
-      @click="openCheckout" 
-      class="hover:brightness-90 text-white bg-black py-1 px-3 border-2 rounded-xl">
+      @click="openCheckout"
+      class="hover:brightness-90 text-white bg-black py-1 px-3 border-2 rounded-xl"
+    >
       Checkout
     </button>
-    
+
     <!-- Use CheckoutDialog component for checkout information -->
     <CheckoutDialog
       :show="showCheckoutDialog"
@@ -325,41 +342,51 @@ onUnmounted(() => {
     >
       <div class="p-4 flex flex-col items-center">
         <h2 class="text-xl font-bold mb-4">Scan QR Code to Complete Payment</h2>
-        
+
         <div v-if="qrCode" class="flex flex-col items-center">
           <img :src="qrCode" alt="Payment QR Code" class="w-64 h-64 mb-4" />
-          
+
           <!-- Countdown Timer -->
           <div class="mb-4 text-center">
             <p class="text-sm mb-1">QR Code expires in:</p>
-            <span class="text-xl font-mono font-bold" :class="countdownColorClass">
+            <span
+              class="text-xl font-mono font-bold"
+              :class="countdownColorClass"
+            >
               {{ formattedCountdown }}
             </span>
           </div>
-          
+
           <!-- Expiry Message -->
-          <div v-if="isQrExpired" class="mt-2 p-2 bg-red-100 text-red-700 rounded-md">
+          <div
+            v-if="isQrExpired"
+            class="mt-2 p-2 bg-red-100 text-red-700 rounded-md"
+          >
             <p class="font-medium">QR Code has expired</p>
             <p class="text-sm">Please generate a new code to continue</p>
           </div>
-          
+
           <!-- Status Message -->
-          <p class="mt-4 text-lg font-medium" :class="{'text-green-600': isTransactionSuccess}">
-            Status: {{ transactionStatus || 'Awaiting payment' }}
+          <p
+            class="mt-4 text-lg font-medium"
+            :class="{ 'text-green-600': isTransactionSuccess }"
+          >
+            Status: {{ transactionStatus || "Awaiting payment" }}
           </p>
         </div>
-        
+
         <div class="mt-6 flex justify-end w-full">
-          <button 
-            v-if="isQrExpired && !isTransactionSuccess" 
-            @click="restartPaymentProcess" 
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button
+            v-if="isQrExpired && !isTransactionSuccess"
+            @click="restartPaymentProcess"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
             Generate New Code
           </button>
         </div>
       </div>
     </DialogInfo>
-    
+
     <!-- New Payment Success Dialog -->
     <teleport to="body">
       <PaymentSuccessDialog
@@ -372,5 +399,4 @@ onUnmounted(() => {
   </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

@@ -73,7 +73,7 @@
 
       <div class="my-5 text-center">
         Don't have an account?
-        <router-link class="hover:text-blue-500" to="/signup"
+        <router-link class="hover:text-blue-500 text-blue-600" to="/signup"
           >SignUp</router-link
         >
       </div>

@@ -3,7 +3,7 @@ import Buttom from "@/components/Buttom.vue";
 </script>
 
 <template>
-  <div class="max-w-6xl w-full flex flex-col gap-10 items-center">
+  <div class="max-w-6xl w-full flex flex-col gap-10 items-center px-4 lg:px-0">
     <div class="hidden md:block w-full bg-black text-white p-5 rounded-3xl">
       <div class="flex flex-col gap-2">
         <div class="flex flex-col text-5xl font-medium gap-3">
@@ -51,7 +51,7 @@ import Buttom from "@/components/Buttom.vue";
         </div>
       </div>
       <div class="flex flex-col mt-20">
-        <h1>SocialMedia</h1>
+        <h1 class="text-center py-2">SocialMedia</h1>
         <div class="flex gap-2">
           <router-link to="/about">
             <i class="fa-brands fa-facebook fa-2x"></i>

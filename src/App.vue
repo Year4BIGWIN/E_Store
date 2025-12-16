@@ -8,11 +8,18 @@ import AdminSideBar from "./layout/AdminSideBar.vue";
 
 const route = useRoute();
 const isAdminRoute = computed(() => {
-  return ['/dashboard', '/product', '/user', '/order', '/other', '/Other'].includes(route.path);
+  return [
+    "/dashboard",
+    "/product",
+    "/user",
+    "/order",
+    "/other",
+    "/Other",
+  ].includes(route.path);
 });
 
 // Transition control
-const transitionName = ref('fade-slide');
+const transitionName = ref("fade-slide");
 </script>
 
 <template>
@@ -25,7 +32,9 @@ const transitionName = ref('fade-slide');
       <!-- Main Content Area -->
       <div class="w-full flex flex-col items-center pl-2">
         <transition name="fade-slide" mode="out-in">
-          <RouterView :key="route.path" />
+          <RouterView v-slot="{ Component }">
+            <component :is="Component" :key="route.path" />
+          </RouterView>
         </transition>
       </div>
     </div>
@@ -38,7 +47,9 @@ const transitionName = ref('fade-slide');
       <!-- Main Content -->
       <div>
         <transition name="fade-slide" mode="out-in">
-          <RouterView :key="route.path" />
+          <RouterView v-slot="{ Component }">
+            <component :is="Component" :key="route.path" />
+          </RouterView>
         </transition>
       </div>
 
