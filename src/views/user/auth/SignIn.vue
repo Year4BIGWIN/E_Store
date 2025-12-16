@@ -95,6 +95,8 @@ import { onMounted, ref } from "vue";
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import router from "@/router";
+import { toast } from "vue3-toastify";
+
 
 
 const authStore = useAuthStore();
@@ -124,6 +126,7 @@ const login = async () => {
     router.push("/");
   } catch (error) {
     console.error("Login failed:", error.response ? error.response.data : error);
+    toast.error(error.response.data.message);
   }
 };
 
@@ -154,7 +157,7 @@ const handleGoogleCredentialResponse = async (response) => {
     }
   } catch (error) {
     console.error("Error during Google Sign-Up:", error.response?.data || error.message);
-    alert("An error occurred during Google Sign-Up. Please try again.");
+    toast.error(error.response.data.message);
   }
 };
 

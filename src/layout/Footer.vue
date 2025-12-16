@@ -4,7 +4,7 @@ import Buttom from "@/components/Buttom.vue";
 
 <template>
   <div class="max-w-6xl w-full flex flex-col gap-10 items-center px-4 lg:px-0">
-    <div class="hidden md:block w-full bg-black text-white p-5 rounded-3xl">
+    <!-- <div class="hidden md:block w-full bg-black text-white p-5 rounded-3xl">
       <div class="flex flex-col gap-2">
         <div class="flex flex-col text-5xl font-medium gap-3">
           <h1>Ready To Get</h1>
@@ -30,7 +30,7 @@ import Buttom from "@/components/Buttom.vue";
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
     <div class="w-full bg-gray-100 rounded-xl md:bg-white flex justify-between p-5">
       <div class="flex gap-10">
         <div>

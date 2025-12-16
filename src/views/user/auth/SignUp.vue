@@ -152,6 +152,7 @@ import { onMounted, ref } from "vue";
 import axios from "axios";
 import router from "@/router";
 import { useAuthStore } from "@/store/authStore";
+import { toast } from "vue3-toastify";
 
 const authStore = useAuthStore();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
@@ -196,9 +197,10 @@ const signup = async () => {
   } catch (error) {
     console.error(
       "Sign-Up failed:",
-      error.response?.data?.message || error.message
+      error.response.data.data.error
+      
     );
-    alert("Sign-Up failed. Please try again.");
+    toast.error(error.response.data.data.error);
   }
 };
 
