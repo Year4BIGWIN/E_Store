@@ -167,6 +167,26 @@
               Edit
             </button>
             <button
+              @click="resetPassword(user)"
+              class="bg-yellow-50 hover:bg-yellow-100 text-yellow-700 px-4 py-2 rounded-lg transition flex items-center gap-2 text-sm font-medium shadow-sm"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                />
+              </svg>
+              Reset Password
+            </button>
+            <button
               @click="confirmDelete(user)"
               class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg transition flex items-center gap-2 text-sm font-medium shadow-sm"
               :disabled="isDeleting === user.id"
@@ -395,6 +415,113 @@
         </div>
       </div>
     </div>
+
+    <!-- Reset Password Modal -->
+    <div
+      v-if="resetPasswordModal"
+      class="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50 p-4"
+    >
+      <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold text-gray-800">Reset Password</h2>
+          <button
+            @click="resetPasswordModal = false"
+            class="text-gray-500 hover:text-gray-700 rounded-full p-1 hover:bg-gray-100 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mb-6">
+          <div class="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+            <img
+              :src="
+                selectedUser?.image_url ||
+                generateDefaultAvatar(selectedUser?.name)
+              "
+              @error="onImageError($event)"
+              :alt="selectedUser?.name || 'User'"
+              class="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
+            />
+            <div>
+              <p class="font-semibold text-gray-800">
+                {{ selectedUser?.name }}
+              </p>
+              <p class="text-sm text-gray-500">{{ selectedUser?.email }}</p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-gray-700 mb-2 font-medium"
+              >New Password</label
+            >
+            <input
+              v-model="newPassword"
+              type="password"
+              name="new-password"
+              autocomplete="new-password"
+              placeholder="Enter new password"
+              class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-300 focus:border-yellow-500 outline-none transition"
+            />
+            <p class="text-xs text-gray-500 mt-2">
+              Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character
+            </p>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-4">
+          <button
+            @click="resetPasswordModal = false"
+            class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2 rounded-lg transition font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            @click="submitPasswordReset"
+            :disabled="
+              isResettingPassword || !newPassword || newPassword.length < 6
+            "
+            class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg transition shadow-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            <svg
+              v-if="isResettingPassword"
+              class="animate-spin h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            {{ isResettingPassword ? "Resetting..." : "Reset Password" }}
+          </button>
+        </div>
+      </div>
+    </div>
   </main>
 </template>
 
@@ -412,6 +539,9 @@ const showDeleteConfirm = ref(false);
 const userToDelete = ref(null);
 const isDeleting = ref(null);
 const searchQuery = ref("");
+const resetPasswordModal = ref(false);
+const newPassword = ref("");
+const isResettingPassword = ref(false);
 
 // Filtered users based on search query
 const filteredUsers = computed(() => {
@@ -427,10 +557,15 @@ const filteredUsers = computed(() => {
 
 const generateDefaultAvatar = (name) => {
   const displayName = name || "User";
-  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+  // Generate consistent color based on name hash
+  let hash = 0;
+  for (let i = 0; i < displayName.length; i++) {
+    hash = displayName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const color = Math.abs(hash).toString(16).substring(0, 6).padEnd(6, "0");
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(
     displayName
-  )}&background=${randomColor}&color=fff&size=128&bold=true`;
+  )}&background=${color}&color=fff&size=128&bold=true`;
 };
 
 const fetchUsers = async () => {
@@ -467,6 +602,64 @@ const editUser = (user) => {
     role: user.role || "USER",
   };
   editMode.value = true;
+};
+
+const resetPassword = (user) => {
+  selectedUser.value = user;
+  newPassword.value = "";
+  resetPasswordModal.value = true;
+};
+
+const submitPasswordReset = async () => {
+  if (!newPassword.value || newPassword.value.length < 8) {
+    toast.error("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character", {
+      autoClose: 3000,
+    });
+    return;
+  }
+
+  isResettingPassword.value = true;
+
+  try {
+    const cookies = new Cookies();
+    const token = cookies.get("auth_token");
+    const userId = selectedUser.value.id;
+
+    const response = await fetch(
+      `${apiUrl}/admin/reset-user-password?id=${userId}&newPassword=${encodeURIComponent(
+        newPassword.value
+      )}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to reset password");
+    }
+
+    const data = await response.json();
+    toast.success(
+      `Password reset successfully for ${selectedUser.value.name}`,
+      {
+        autoClose: 3000,
+      }
+    );
+
+    resetPasswordModal.value = false;
+    newPassword.value = "";
+  } catch (err) {
+    toast.error(`Failed to reset password: ${err.message}`, {
+      autoClose: 5000,
+    });
+  } finally {
+    isResettingPassword.value = false;
+  }
 };
 
 const confirmDelete = (user) => {
@@ -569,10 +762,15 @@ const updateUser = async () => {
 
 const onImageError = (event) => {
   const name = event.target.alt || "User";
-  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+  // Generate consistent color based on name hash
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const color = Math.abs(hash).toString(16).substring(0, 6).padEnd(6, "0");
   event.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
     name
-  )}&background=${randomColor}&color=fff&size=128&bold=true`;
+  )}&background=${color}&color=fff&size=128&bold=true`;
   event.target.onerror = null;
 };
 
