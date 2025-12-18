@@ -1,6 +1,6 @@
 /**
  * Optimize Cloudinary image URLs for better performance
- * Adds WebP format, quality optimization, and responsive sizing
+ * Adds automatic format selection (WebP/AVIF), quality optimization, and responsive sizing
  * 
  * @param {string} url - Original Cloudinary image URL
  * @param {object} options - Optimization options
@@ -13,19 +13,21 @@ export function optimizeCloudinaryImage(url, options = {}) {
 
   const {
     width = 'auto',
+    height = null,
     quality = 'auto:good',
-    format = 'webp',
-    fetchFormat = 'auto'
+    crop = 'limit'  // Prevent upscaling beyond original dimensions
   } = options;
 
   // Cloudinary transformation parameters
   const transformations = [
     `w_${width}`,           // Responsive width
+    height ? `h_${height}` : null,  // Optional height
+    `c_${crop}`,            // Crop mode (limit prevents upscaling)
     `q_${quality}`,         // Quality optimization
-    `f_${format}`,          // WebP format
+    `f_auto`,               // Automatic format (WebP/AVIF based on browser support)
     `fl_progressive`,       // Progressive loading
-    `dpr_auto`,            // Auto device pixel ratio
-  ].join(',');
+    `dpr_auto`,             // Auto device pixel ratio
+  ].filter(Boolean).join(',');
 
   // Insert transformations into Cloudinary URL
   // Format: https://res.cloudinary.com/{cloud}/image/upload/{transformations}/{path}
@@ -45,8 +47,7 @@ export function optimizeCloudinaryImage(url, options = {}) {
 export function getProductCardImage(url) {
   return optimizeCloudinaryImage(url, {
     width: 400,
-    quality: 'auto:good',
-    format: 'webp'
+    quality: 'auto:good'
   });
 }
 
@@ -58,7 +59,24 @@ export function getProductCardImage(url) {
 export function getProductDetailImage(url) {
   return optimizeCloudinaryImage(url, {
     width: 800,
-    quality: 'auto:best',
-    format: 'webp'
+    quality: 'auto:best'
+  });
+}
+
+/**
+ * Get optimized image URL for carousel/banner images
+ * @param {string} url - Original image URL
+ * @param {string} size - 'mobile' or 'desktop'
+ * @returns {string} - Optimized URL
+ */
+export function getCarouselImage(url, size = 'desktop') {
+  const dimensions = size === 'mobile' 
+    ? { width: 375, height: 250 }
+    : { width: 1920, height: 450 };
+  
+  return optimizeCloudinaryImage(url, {
+    ...dimensions,
+    quality: 'auto:good',
+    crop: 'fill'  // Fill the dimensions while maintaining aspect ratio
   });
 }

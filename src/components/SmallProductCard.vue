@@ -5,7 +5,7 @@
   >
     <div class="relative aspect-square overflow-hidden">
       <img
-        :src="product.firstImageUrl || defaultImage"
+        :src="optimizedImageUrl"
         alt="Product image"
         class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         :fetchpriority="fetchpriority"
@@ -85,11 +85,12 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from "vue";
+import { defineProps, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "vue3-toastify";
 import useAuth from "@/composable/useAuth";
+import { getProductCardImage } from "@/utils/imageOptimizer";
 
 const user = useAuth();
 const cartStore = useCartStore();
@@ -114,6 +115,11 @@ const props = defineProps({
     default: "lazy",
   },
 });
+
+// Optimize product image URL
+const optimizedImageUrl = computed(
+  () => getProductCardImage(props.product.firstImageUrl) || defaultImage
+);
 
 const goToProductDetail = () => {
   router.push({

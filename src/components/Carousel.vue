@@ -50,12 +50,12 @@
       }"
     >
       <div
-        v-for="(slide, index) in slides"
+        v-for="(slide, index) in optimizedSlides"
         :key="index"
         class="min-w-full h-full"
       >
         <img
-          :src="slide.imageUrl"
+          :src="slide.mobileImageUrl"
           :alt="slide.title || 'carousel image'"
           class="w-full h-[250px] object-cover"
           width="375"
@@ -72,12 +72,12 @@
     <!-- Mobile Navigation Dots -->
     <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
       <button
-        v-for="(_, index) in slides"
+        v-for="(_, index) in optimizedSlides"
         :key="index"
         @click="currentIndex = index"
         class="w-2 h-2 rounded-full transition-all"
         :class="currentIndex === index ? 'bg-white scale-125' : 'bg-white/50'"
-        aria-label="Go to slide"
+        :aria-label="`Go to slide ${index + 1}`"
       ></button>
     </div>
   </div>
@@ -108,12 +108,12 @@
     >
       <!-- Slides -->
       <div
-        v-for="(slide, index) in slides"
+        v-for="(slide, index) in optimizedSlides"
         :key="index"
         class="min-w-full h-full"
       >
         <img
-          :src="slide.imageUrl"
+          :src="slide.desktopImageUrl"
           :alt="slide.title || 'carousel image'"
           class="w-full h-[450px] object-cover"
           width="1920"
@@ -127,12 +127,12 @@
     <!-- Desktop Navigation Dots -->
     <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
       <button
-        v-for="(_, index) in slides"
+        v-for="(_, index) in optimizedSlides"
         :key="index"
         @click="currentIndex = index"
         class="w-3 h-3 rounded-full transition-all"
         :class="currentIndex === index ? 'bg-white scale-125' : 'bg-white/50'"
-        aria-label="Go to slide"
+        :aria-label="`Go to slide ${index + 1}`"
       ></button>
     </div>
   </div>
@@ -145,8 +145,9 @@ import Slide1 from "@/assets/image/image-mobile.webp";
 import Wala from "@/assets/image/image copy-mobile.webp";
 import Slide2 from "@/assets/image/image copy 2-mobile.webp";
 
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import Loader from "@/components/Loader.vue";
+import { getCarouselImage } from "@/utils/imageOptimizer";
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
@@ -165,6 +166,15 @@ const fallbackImages = [
   { imageUrl: Wala, title: "Wala" },
   { imageUrl: Slide2, title: "Slide 2" },
 ];
+
+// Optimize carousel images
+const optimizedSlides = computed(() => {
+  return slides.value.map((slide) => ({
+    ...slide,
+    mobileImageUrl: getCarouselImage(slide.imageUrl, "mobile"),
+    desktopImageUrl: getCarouselImage(slide.imageUrl, "desktop"),
+  }));
+});
 
 // Auto slide function
 let interval = null;

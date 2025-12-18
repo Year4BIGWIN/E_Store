@@ -86,7 +86,7 @@ onMounted(() => {
       class="flex w-full items-center justify-between px-6 py-3 bg-white shadow-md rounded-b-xl"
     >
       <!-- Logo -->
-      <router-link to="/">
+      <router-link to="/" aria-label="SmartGear Home">
         <div class="flex items-center space-x-2">
           <img :src="img" alt="Logo" class="h-6 w-6" width="24" height="24" />
           <span class="text-lg font-bold text-gray-800">SmartGear</span>
@@ -95,14 +95,19 @@ onMounted(() => {
 
       <!-- Icons -->
       <div class="flex items-center space-x-4">
-        <router-link to="/dashboard" v-if="authStore.role === 'ADMIN'">
-          <button class="flex items-center">
+        <router-link
+          to="/dashboard"
+          v-if="authStore.role === 'ADMIN'"
+          aria-label="Admin Dashboard"
+        >
+          <button class="flex items-center" aria-label="Go to Admin Dashboard">
             <svg
               height="24"
               width="24"
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
               class="hover:fill-blue-500 transition duration-200 ease-in-out transform hover:scale-110"
+              aria-hidden="true"
             >
               <path
                 d="M4 13h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1zm-1 7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v4zm10 0a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v7zm1-10h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1z"
@@ -111,15 +116,19 @@ onMounted(() => {
           </button>
         </router-link>
 
-        <router-link to="/Cart">
+        <router-link
+          to="/Cart"
+          :aria-label="`Shopping cart with ${cartItemCount} items`"
+        >
           <button
             class="relative text-gray-500 hover:text-black"
             :aria-label="`Shopping cart with ${cartItemCount} items`"
           >
-            <i class="fa-solid fa-cart-shopping fa-lg"></i>
+            <i class="fa-solid fa-cart-shopping fa-lg" aria-hidden="true"></i>
             <span
               v-if="cartItemCount > 0"
               class="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold rounded-full px-1 transition-transform duration-300 ease-in-out"
+              aria-label="Cart item count"
             >
               {{ cartItemCount }}
             </span>
@@ -127,18 +136,22 @@ onMounted(() => {
         </router-link>
 
         <!-- Profile or Sign In -->
-        <router-link to="/profile" v-if="authStore.token">
+        <router-link
+          to="/profile"
+          v-if="authStore.token"
+          aria-label="Go to Profile"
+        >
           <img
             :src="profileImage"
             :key="profileImageKey"
-            alt="Profile"
+            alt="User profile picture"
             class="h-8 w-8 rounded-full object-cover border border-gray-300"
           />
         </router-link>
-        <router-link to="/login" v-else>
+        <router-link to="/login" v-else aria-label="Sign in to your account">
           <img
             :src="avatar"
-            alt="Profile"
+            alt="Default profile avatar - click to sign in"
             class="h-8 w-8 rounded-full object-cover border border-gray-300"
           />
         </router-link>

@@ -319,6 +319,7 @@ onMounted(() => {
               <button
                 class="px-2 md:px-3 py-1 md:py-2 hover:bg-gray-100 transition-colors"
                 @click="updateQuantity('decrement')"
+                aria-label="Decrease quantity"
               >
                 <i class="fa-solid fa-minus"></i>
               </button>
@@ -328,6 +329,7 @@ onMounted(() => {
               <button
                 class="px-2 md:px-3 py-1 md:py-2 hover:bg-gray-100 transition-colors"
                 @click="updateQuantity('increment')"
+                aria-label="Increase quantity"
               >
                 <i class="fa-solid fa-plus"></i>
               </button>
