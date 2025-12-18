@@ -11,12 +11,30 @@ export const useCartStore = defineStore("cart", {
   }),
   actions: {
     async fetchCart() {
+      // Check if user is authenticated before fetching cart
+      const token = cookies.get("auth_token");
+      if (!token) {
+        console.log("User not authenticated, skipping cart fetch");
+        this.cartItems = [];
+        this.totalPrice = 0;
+        return;
+      }
+
       try {
         const response = await fetch(`${apiUrl}/cart`, {
           headers: {
-            Authorization: `Bearer ${cookies.get("auth_token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
+
+        // Check if response is ok before parsing
+        if (!response.ok) {
+          console.error("Failed to fetch cart:", response.status);
+          this.cartItems = [];
+          this.totalPrice = 0;
+          return;
+        }
+
         const data = await response.json();
 
         // Assign the entire array for reactivity
@@ -24,6 +42,8 @@ export const useCartStore = defineStore("cart", {
         this.totalPrice = data.data.totalPrice;
       } catch (error) {
         console.error("Error fetching cart:", error);
+        this.cartItems = [];
+        this.totalPrice = 0;
       }
     },
 

@@ -8,6 +8,7 @@ import Checkout from "@/components/CheckOut/Checkout.vue";
 import Rating from "./Rating.vue";
 import useAuth from "@/composable/useAuth";
 import { toast } from "vue3-toastify";
+import { getProductCardImage } from "@/utils/imageOptimizer";
 
 const router = useRouter();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
@@ -19,36 +20,38 @@ const checkoutRef = ref(null);
 const isAddingToCart = ref(false);
 const isBuyingNow = ref(false);
 const showAddedToast = ref(false);
-const defaultImage = new URL('/src/assets/image/Logo.png', import.meta.url).href;
+const defaultImage = new URL(
+  "/src/assets/image/Logo-small.webp",
+  import.meta.url
+).href;
 
 const handleImageError = (e) => {
   e.target.src = defaultImage;
 };
 
 const addItemToCart = async (phoneId, quantity = 1) => {
-
   // Check if user is logged in
   if (user.getToken() === null) {
-    router.push({ name: 'login' });
-      return;
-    }
+    router.push({ name: "login" });
+    return;
+  }
 
   if (isAddingToCart.value) return;
-  
+
   isAddingToCart.value = true;
-  
+
   try {
     const result = await cartStore.addToCart(phoneId, quantity);
-    
+
     if (result.success) {
       // Show success toast
-      toast.success('Item added to cart successfully!');
-      } else {
+      toast.success("Item added to cart successfully!");
+    } else {
       // Show out of stock toast
-      toast.error('Item is out of stock!');
+      toast.error("Item is out of stock!");
     }
   } catch (error) {
-    toast.error('Failed to add item to cart.');
+    toast.error("Failed to add item to cart.");
   } finally {
     isAddingToCart.value = false;
   }
@@ -57,20 +60,20 @@ const addItemToCart = async (phoneId, quantity = 1) => {
 const buyNow = async (phoneId, quantity = 1) => {
   try {
     isBuyingNow.value = true;
-    
+
     // Check if user is authenticated
     const cookies = new Cookies();
     const token = cookies.get("auth_token");
-    
+
     if (!token) {
       // Redirect to login page with return URL
-      router.push({ 
-        name: "login", 
-        query: { redirect: router.currentRoute.value.fullPath } 
+      router.push({
+        name: "login",
+        query: { redirect: router.currentRoute.value.fullPath },
       });
       return;
     }
-    
+
     // First add the item to cart
     await addItemToCart(phoneId, quantity);
 
@@ -103,6 +106,14 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  fetchpriority: {
+    type: String,
+    default: "auto",
+  },
+  loading: {
+    type: String,
+    default: "lazy",
+  },
 });
 
 const goToProductDetail = () => {
@@ -111,40 +122,56 @@ const goToProductDetail = () => {
     params: { id: props.product.id },
   });
 };
+
+// Optimize product image URL
+const optimizedImageUrl = ref(
+  getProductCardImage(props.product.firstImageUrl) || defaultImage
+);
 </script>
 
 <template>
   <div
     class="cursor-pointer w-[265px] border rounded-lg hover:shadow-lg transition-all duration-300 flex flex-col justify-start gap-2 overflow-hidden"
   >
-  <div
-  @click="goToProductDetail"
-  class="aspect-square w-full overflow-hidden bg-[#f5f5f5] relative group"
->
-  <img
-    :src="product.firstImageUrl || defaultImage"
-    alt="Product image"
-    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-    @error="handleImageError"
-  />
-  <h2
-    class="absolute top-2 right-2 text-[12px] bg-white/90 rounded-full px-3 py-1 text-black shadow-sm"
-  >
-    {{ product.productType.name }}
-  </h2>
-</div>
+    <div
+      @click="goToProductDetail"
+      class="aspect-square w-full overflow-hidden bg-[#f5f5f5] relative group"
+    >
+      <img
+        :src="optimizedImageUrl"
+        alt="Product image"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        :fetchpriority="fetchpriority"
+        :loading="loading"
+        @error="handleImageError"
+      />
+      <h2
+        class="absolute top-2 right-2 text-[12px] bg-white/90 rounded-full px-3 py-1 text-black shadow-sm"
+      >
+        {{ product.productType.name }}
+      </h2>
+    </div>
     <div class="flex flex-col p-3 gap-3">
       <div class="flex flex-col">
-        <h1 class="text-lg font-semibold line-clamp-1 hover:line-clamp-none transition-all">{{ product.model }}</h1>
+        <h1
+          class="text-lg font-semibold line-clamp-1 hover:line-clamp-none transition-all"
+        >
+          {{ product.model }}
+        </h1>
         <div class="flex items-center justify-between mt-1">
           <div class="flex items-center gap-1">
             <div class="flex items-center gap-2">
-              <Rating :initialRating="product.averageRating || 0" :readonly="true" />
+              <Rating
+                :initialRating="product.averageRating || 0"
+                :readonly="true"
+              />
             </div>
           </div>
           <div class="flex items-center">
             <span class="font-medium text-gray-500 text-sm mr-1">$</span>
-            <h1 class="font-bold text-lg">{{ product.price.toLocaleString() }}</h1>
+            <h1 class="font-bold text-lg">
+              {{ product.price.toLocaleString() }}
+            </h1>
           </div>
         </div>
       </div>
@@ -178,10 +205,12 @@ const goToProductDetail = () => {
 </template>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s, transform 0.3s;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
 }

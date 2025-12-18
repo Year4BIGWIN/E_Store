@@ -195,11 +195,7 @@ const signup = async () => {
     authStore.setAuthData(token, role);
     router.push("/");
   } catch (error) {
-    console.error(
-      "Sign-Up failed:",
-      error.response.data.data.error
-      
-    );
+    console.error("Sign-Up failed:", error.response.data.data.error);
     toast.error(error.response.data.data.error);
   }
 };
@@ -234,20 +230,33 @@ const handleGoogleCredentialResponse = async (response) => {
 };
 
 // Google Sign-In initialization
-const initGoogleSignIn = () => {
-  if (window.google && window.google.accounts) {
-    window.google.accounts.id.initialize({
-      client_id: googleClientId,
-      callback: handleGoogleCredentialResponse,
-      cancel_on_tap_outside: true,
-    });
+const initGoogleSignIn = async () => {
+  try {
+    // Lazy load Google Sign-In script
+    await window.loadGoogleSignIn();
 
-    window.google.accounts.id.renderButton(
-      document.getElementById("googleSignInButton"),
-      { theme: "outline", size: "large" }
-    );
-  } else {
-    console.error("Google Identity script not loaded.");
+    if (window.google && window.google.accounts) {
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleCredentialResponse,
+        cancel_on_tap_outside: true,
+      });
+
+      window.google.accounts.id.renderButton(
+        document.getElementById("googleSignInButton"),
+        { theme: "outline", size: "large" }
+      );
+    } else {
+      console.warn("Google Identity script not loaded.");
+    }
+  } catch (error) {
+    // Silently handle Google Sign-In errors (e.g., origin not authorized)
+    console.warn("Google Sign-In initialization failed:", error.message);
+    // Hide the Google Sign-In button container if initialization fails
+    const googleButton = document.getElementById("googleSignInButton");
+    if (googleButton) {
+      googleButton.style.display = "none";
+    }
   }
 };
 

@@ -2,9 +2,97 @@
   <div
     class="w-full rounded-xl flex flex-col gap-6 mt-10 items-center justify-center px-4"
   >
-    <!-- Show Loader while products are loading -->
-    <Loader v-if="isLoading" class="py-12" />
-    
+    <!-- Skeleton Loader - Reserves exact space to prevent CLS -->
+    <div v-if="isLoading" class="w-full max-w-6xl">
+      <!-- Category filters skeleton -->
+      <div class="flex flex-wrap gap-1 overflow-x-auto pb-2 mb-5">
+        <div
+          v-for="i in 6"
+          :key="i"
+          class="h-10 w-24 bg-gray-200 rounded-full animate-pulse"
+        ></div>
+      </div>
+
+      <!-- Top product grid skeleton (8 cards) -->
+      <div class="mt-5 mb-8">
+        <div
+          class="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+        >
+          <div
+            v-for="i in 8"
+            :key="i"
+            class="bg-gray-200 rounded-xl h-80 animate-pulse"
+          ></div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 sm:hidden">
+          <div
+            v-for="i in 8"
+            :key="i"
+            class="bg-gray-200 rounded-xl h-64 animate-pulse"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Phones section skeleton -->
+      <div class="bg-white shadow-sm rounded-xl sm:p-6 mb-8">
+        <div class="h-8 w-32 bg-gray-200 rounded mb-4 animate-pulse"></div>
+        <div
+          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+        >
+          <div
+            v-for="i in 6"
+            :key="i"
+            class="bg-gray-200 rounded-xl h-48 animate-pulse"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Watches + Accessories row skeleton -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Watches skeleton -->
+        <div class="bg-white shadow-sm rounded-xl sm:p-6">
+          <div class="h-8 w-32 bg-gray-200 rounded mb-4 animate-pulse"></div>
+          <div
+            class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            <div
+              v-for="i in 3"
+              :key="i"
+              class="bg-gray-200 rounded-xl h-48 animate-pulse"
+            ></div>
+          </div>
+        </div>
+        <!-- Accessories skeleton -->
+        <div class="bg-white shadow-sm rounded-xl sm:p-6">
+          <div class="h-8 w-32 bg-gray-200 rounded mb-4 animate-pulse"></div>
+          <div
+            class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-3 gap-4"
+          >
+            <div
+              v-for="i in 3"
+              :key="i"
+              class="bg-gray-200 rounded-xl h-48 animate-pulse"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tablets section skeleton -->
+      <div class="bg-white shadow-sm rounded-xl sm:p-6 mb-8">
+        <div class="h-8 w-32 bg-gray-200 rounded mb-4 animate-pulse"></div>
+        <div
+          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+        >
+          <div
+            v-for="i in 6"
+            :key="i"
+            class="bg-gray-200 rounded-xl h-48 animate-pulse"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actual Content -->
     <template v-else>
       <div class="w-full max-w-6xl flex flex-wrap justify-between">
         <div class="flex flex-wrap gap-1 overflow-x-auto pb-2 scrollbar-hide">
@@ -125,23 +213,27 @@
           </button>
         </div>
       </div>
-    
+
       <div class="w-full max-w-6xl mt-5">
         <div
           class="w-full hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
         >
           <ProductCard
-            v-for="product in sortedProducts"
+            v-for="(product, index) in sortedProducts"
             :key="product.id"
             :product="product"
+            :fetchpriority="index === 0 ? 'high' : 'auto'"
+            :loading="index < 4 ? 'eager' : 'lazy'"
           />
         </div>
 
         <div class="grid grid-cols-2 gap-3 sm:hidden">
           <SmallProductCard
-            v-for="product in sortedProducts"
+            v-for="(product, index) in sortedProducts"
             :key="product.id"
             :product="product"
+            :fetchpriority="index === 0 ? 'high' : 'auto'"
+            :loading="index < 2 ? 'eager' : 'lazy'"
           />
         </div>
       </div>
@@ -233,11 +325,13 @@
           >
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-xl sm:text-2xl font-bold text-gray-800">
-                <span class="border-b-2 border-green-500 pb-1">Accessories</span>
+                <span class="border-b-2 border-green-500 pb-1"
+                  >Accessories</span
+                >
               </h2>
               <button
                 @click="navigateTo('/products', { category: 'accessories' })"
-                class="flex items-center text-green-600 hover:text-green-700 font-medium transition-colors"
+                class="flex items-center text-green-700 hover:text-green-800 font-medium transition-colors"
               >
                 See all
                 <svg
@@ -276,7 +370,7 @@
             </h2>
             <button
               @click="navigateTo('/products', { category: 'tablet' })"
-              class="flex items-center text-amber-600 hover:text-amber-700 font-medium transition-colors"
+              class="flex items-center text-amber-700 hover:text-amber-800 font-medium transition-colors"
             >
               See all
               <svg
@@ -314,12 +408,11 @@ import { useRouter } from "vue-router";
 import ProductCard from "@/components/ProductCard.vue";
 import SmallProductCard from "./SmallProductCard.vue";
 import { useProductStore } from "@/store/productStore";
-import Loader from "@/components/Loader.vue";
 
 const productStore = useProductStore();
 const router = useRouter();
 const isLoading = ref(true);
-const selectedCategory = ref('all'); // Local state for selected category
+const selectedCategory = ref("all"); // Local state for selected category
 
 // Map category slugs to category names
 const categoryMap = {

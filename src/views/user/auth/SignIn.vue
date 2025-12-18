@@ -33,7 +33,7 @@
         <div class="relative mb-5">
           <label
             for="password"
-            class="block mb-2 text-sm font-medium text-gray-900 "
+            class="block mb-2 text-sm font-medium text-gray-900"
           >
             Password
           </label>
@@ -59,7 +59,10 @@
         </div>
 
         <div class="flex justify-end mb-5">
-          <router-link class="hover:text-blue-500" to="/forgot-password">
+          <router-link
+            class="hover:text-blue-500 text-sm text-gray-500"
+            to="/forgot-password"
+          >
             Forget Password?
           </router-link>
         </div>
@@ -79,13 +82,15 @@
       </div>
 
       <!-- Divider -->
-      <div class="w-full max-w-sm mb-5 flex justify-center items-center px-4 md:px-0">
+      <div
+        class="w-full max-w-sm mb-5 flex justify-center items-center px-4 md:px-0"
+      >
         <hr class="w-full md:w-[125px] border-gray-300" />
         <span class="mx-2 whitespace-nowrap">Or Sign in with</span>
         <hr class="w-full md:w-[125px] border-gray-300" />
       </div>
 
-        <div id="googleSignInButton"></div>
+      <div id="googleSignInButton"></div>
     </div>
   </div>
 </template>
@@ -96,8 +101,6 @@ import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 import router from "@/router";
 import { toast } from "vue3-toastify";
-
-
 
 const authStore = useAuthStore();
 const apiUrl = import.meta.env.VITE_APP_API_URL;
@@ -119,13 +122,16 @@ const login = async () => {
     // Update Pinia store
     authStore.setAuthData(token, role);
     console.log("Token and role updated in store");
-    
+
     // Fetch profile after successful login
     await authStore.fetchProfile();
-    
+
     router.push("/");
   } catch (error) {
-    console.error("Login failed:", error.response ? error.response.data : error);
+    console.error(
+      "Login failed:",
+      error.response ? error.response.data : error
+    );
     toast.error(error.response.data.message);
   }
 };
@@ -156,26 +162,42 @@ const handleGoogleCredentialResponse = async (response) => {
       console.error("Error details:", data);
     }
   } catch (error) {
-    console.error("Error during Google Sign-Up:", error.response?.data || error.message);
+    console.error(
+      "Error during Google Sign-Up:",
+      error.response?.data || error.message
+    );
     toast.error(error.response.data.message);
   }
 };
 
 // Google Sign-In initialization
-const initGoogleSignIn = () => {
-  if (window.google && window.google.accounts) {
-    window.google.accounts.id.initialize({
-      client_id: googleClientId,
-      callback: handleGoogleCredentialResponse,
-      cancel_on_tap_outside: true,
-    });
+const initGoogleSignIn = async () => {
+  try {
+    // Lazy load Google Sign-In script
+    await window.loadGoogleSignIn();
 
-    window.google.accounts.id.renderButton(
-      document.getElementById("googleSignInButton"),
-      { theme: "outline", size: "large" }
-    );
-  } else {
-    console.error("Google Identity script not loaded.");
+    if (window.google && window.google.accounts) {
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleCredentialResponse,
+        cancel_on_tap_outside: true,
+      });
+
+      window.google.accounts.id.renderButton(
+        document.getElementById("googleSignInButton"),
+        { theme: "outline", size: "large" }
+      );
+    } else {
+      console.warn("Google Identity script not loaded.");
+    }
+  } catch (error) {
+    // Silently handle Google Sign-In errors (e.g., origin not authorized)
+    console.warn("Google Sign-In initialization failed:", error.message);
+    // Hide the Google Sign-In button container if initialization fails
+    const googleButton = document.getElementById("googleSignInButton");
+    if (googleButton) {
+      googleButton.style.display = "none";
+    }
   }
 };
 

@@ -31,7 +31,9 @@ import Buttom from "@/components/Buttom.vue";
         </div>
       </div>
     </div> -->
-    <div class="w-full bg-gray-100 rounded-xl md:bg-white flex justify-between p-5">
+    <div
+      class="w-full bg-gray-100 rounded-xl md:bg-white flex justify-between p-5"
+    >
       <div class="flex gap-10">
         <div>
           <h1 class="font-bold text-xl">About Us</h1>
@@ -53,16 +55,16 @@ import Buttom from "@/components/Buttom.vue";
       <div class="flex flex-col mt-20">
         <h1 class="text-center py-2">SocialMedia</h1>
         <div class="flex gap-2">
-          <router-link to="/about">
+          <router-link to="/about" aria-label="Visit our Facebook page">
             <i class="fa-brands fa-facebook fa-2x"></i>
           </router-link>
-          <router-link to="/about">
+          <router-link to="/about" aria-label="Visit our Twitter page">
             <i class="fa-brands fa-x-twitter fa-2x"></i>
           </router-link>
-          <router-link to="/about">
+          <router-link to="/about" aria-label="Visit our LinkedIn page">
             <i class="fa-brands fa-linkedin fa-2x"></i>
           </router-link>
-          <router-link to="/about">
+          <router-link to="/about" aria-label="Visit our Instagram page">
             <i class="fa-brands fa-square-instagram fa-2x"></i>
           </router-link>
         </div>
@@ -70,9 +72,11 @@ import Buttom from "@/components/Buttom.vue";
     </div>
     <hr class="w-screen border-gray-300" />
     <div class="w-full flex items-center justify-between gap-2 pb-7">
-      <h1 class="text-gray-400">Copyright © 2023 HomeTech.All Rights Reserved</h1>
+      <h1 class="text-gray-600">
+        Copyright © 2023 HomeTech.All Rights Reserved
+      </h1>
       <div class="flex gap-4">
-        <router-link to="/about"> Terms of Service  </router-link>
+        <router-link to="/about"> Terms of Service </router-link>
         <router-link to="/about"> Privacy Policy </router-link>
       </div>
     </div>

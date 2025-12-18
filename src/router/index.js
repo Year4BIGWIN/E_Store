@@ -1,21 +1,24 @@
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "../views/user/HomeView.vue";
-import SignIn from "../views/user/auth/SignIn.vue";
-import SignUp from "../views/user/auth/SignUp.vue";
-import Cart from "../views/user/MyCart.vue";
-import Profile from "../views/user/Profile.vue";
-import DashBoard from "@/views/admin/DashBoard.vue";
-import AboutView from "@/views/user/AboutView.vue";
-import Product from "@/views/admin/Product.vue";
-import User from "@/views/admin/User.vue";
-import Order from "@/views/admin/Order.vue";
 import Cookies from "universal-cookie";
-import ProductPage from "@/views/user/ProductPage.vue";
-import ProductDetail from "@/views/user/ProductDetail.vue";
-import Other from "@/views/admin/Other.vue";
-import ForgotPassword from "@/views/user/auth/ForgotPassword.vue";
-import ResetPassword from "@/views/user/auth/ResetPassword.vue";
-import SearchProduct from "@/components/SearchProduct.vue";
+
+// Lazy load all route components for better code splitting
+const HomeView = () => import("../views/user/HomeView.vue");
+const SignIn = () => import("../views/user/auth/SignIn.vue");
+const SignUp = () => import("../views/user/auth/SignUp.vue");
+const Cart = () => import("../views/user/MyCart.vue");
+const Profile = () => import("../views/user/Profile.vue");
+const DashBoard = () => import("@/views/admin/DashBoard.vue");
+const AboutView = () => import("@/views/user/AboutView.vue");
+const Product = () => import("@/views/admin/Product.vue");
+const User = () => import("@/views/admin/User.vue");
+const Order = () => import("@/views/admin/Order.vue");
+const ProductPage = () => import("@/views/user/ProductPage.vue");
+const ProductDetail = () => import("@/views/user/ProductDetail.vue");
+const Other = () => import("@/views/admin/Other.vue");
+const ForgotPassword = () => import("@/views/user/auth/ForgotPassword.vue");
+const ResetPassword = () => import("@/views/user/auth/ResetPassword.vue");
+const SearchProduct = () => import("@/components/SearchProduct.vue");
+
 
 // Create an instance of Cookies
 const cookies = new Cookies();

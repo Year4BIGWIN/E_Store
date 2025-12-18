@@ -3,7 +3,7 @@ import { ref, computed, onUnmounted } from "vue";
 import DialogInfo from "@/components/DialogInfo.vue";
 import CheckoutDialog from "./CheckoutDialog.vue";
 import PaymentSuccessDialog from "./PaymentSuccess.vue"; // Import the new component
-import QRCode from "qrcode";
+// QRCode library lazy loaded when needed
 import Cookies from "universal-cookie";
 import router from "@/router";
 import { toast } from "vue3-toastify";
