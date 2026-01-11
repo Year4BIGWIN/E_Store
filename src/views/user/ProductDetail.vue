@@ -252,7 +252,10 @@ onMounted(() => {
       <!-- Product layout - stack on mobile, side by side on desktop -->
       <div class="w-full flex flex-col md:flex-row gap-6 md:gap-4">
         <!-- Product Images - Now using the ProductGallery component -->
-        <ProductGallery :images="product.data.imageUrls" />
+        <ProductGallery
+          :images="product.data.imageUrls"
+          :model3dUrl="product.data.model3dUrl"
+        />
 
         <!-- Product Info -->
         <div class="w-full md:w-full flex flex-col gap-4 md:gap-6 md:pl-6 pl-0">
